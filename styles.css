@@ -276,4 +276,23 @@ footer p {
   .brand {
     font-size: clamp(3.2rem, 15vw, 5rem);
   }
-}
+
+  .download-link {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 12px 18px;
+    border: 1px solid rgba(0, 255, 200, 0.25);
+    color: #00ffd0;
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    background: rgba(255,255,255,0.02);
+    transition: all 0.2s ease;
+  }
+
+  .download-link:hover {
+    border-color: rgba(0,255,200,0.55);
+    background: rgba(0,255,200,0.08);
+    transform: translateY(-1px);
+  }
+
