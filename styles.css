@@ -296,3 +296,25 @@ footer p {
     transform: translateY(-1px);
   }
 
+  .dataset-hero {
+      display: block;
+      margin: 36px 0 52px;
+      max-width: 720px;
+      border: 1px solid rgba(180, 255, 0, 0.18);
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      transition: 0.25s ease;
+  }
+
+  .dataset-hero:hover {
+      transform: translateY(-3px);
+      border-color: rgba(180,255,0,0.45);
+      box-shadow:
+          0 0 30px rgba(120,255,0,0.08),
+          0 0 60px rgba(180,0,255,0.06);
+  }
+
+  .dataset-hero img {
+      width: 100%;
+      display: block;
+  }
