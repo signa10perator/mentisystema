@@ -297,13 +297,13 @@ footer p {
   }
 
   .dataset-hero {
-      display: block;
-      margin: 36px 0 52px;
-      max-width: 720px;
-      border: 1px solid rgba(180, 255, 0, 0.18);
-      background: rgba(255,255,255,0.02);
-      overflow: hidden;
-      transition: 0.25s ease;
+    display: block;
+    margin: 28px 0 44px;
+    max-width: 420px;
+    border: 1px solid rgba(180, 255, 0, 0.18);
+    background: rgba(255,255,255,0.02);
+    overflow: hidden;
+    transition: 0.25s ease;
   }
 
   .dataset-hero:hover {
@@ -315,6 +315,6 @@ footer p {
   }
 
   .dataset-hero img {
-      width: 100%;
-      display: block;
+    width: 100%;
+    display: block;
   }
