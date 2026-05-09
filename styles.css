@@ -319,3 +319,17 @@ footer p {
     width: 100%;
     display: block;
   }
+
+  main.site-shell a.dataset-hero {
+    display: block !important;
+    width: 420px !important;
+    max-width: 420px !important;
+    margin: 28px 0 44px 0 !important;
+  }
+
+  main.site-shell a.dataset-hero img {
+    display: block !important;
+    width: 420px !important;
+    max-width: 420px !important;
+    height: auto !important;
+  }
