@@ -24,73 +24,113 @@
       Controlled disruption. Observable structure.
     </p>
 
+    <!-- Dataset 001 Hero / PDF Link -->
     <a href="../assets/friction-bloom/dataset-001-report.pdf"
-        class="dataset-hero"
-        target="_blank">
+       class="dataset-hero"
+       target="_blank"
+       style="display:block; width:420px; max-width:100%; margin:28px auto 44px;">
 
-    <img
-        src="../assets/friction-bloom/dataset-001-cover.png"
-        alt="Friction Bloom Dataset 001 Cover" />
+      <img src="../assets/friction-bloom/dataset-001-cover.png"
+           alt="Friction Bloom Dataset 001 Cover"
+           style="display:block; width:100%; height:auto;" />
 
     </a>
 
     <section class="panel">
       <h2>Overview</h2>
       <p>
-        Friction Bloom is an experimental algorithm for observing how systems respond
-        when controlled disruption is introduced. It compares baseline behavior against
-        altered behavior under constraint, then classifies the result as Bloom, Stable,
-        Noise, or Collapse.
+        Friction Bloom is an experimental algorithm for observing how systems
+        respond when controlled disruption is introduced. It compares baseline
+        behavior against altered behavior under constraint, then classifies the
+        result as Bloom, Stable, Noise, or Collapse.
       </p>
     </section>
 
-    <section class="grid">
-      <div class="card">
+    <section class="state-grid">
+      <div class="state-card bloom">
         <h3>Bloom</h3>
         <p>Meaningful adaptation through a novel viable path.</p>
+        <span class="tooltip">
+          High novelty with maintained coherence. The system adapts without collapse.
+        </span>
       </div>
 
-      <div class="card">
+      <div class="state-card stable">
         <h3>Stable</h3>
         <p>Behavior remains mostly unchanged under constraint.</p>
+        <span class="tooltip">
+          Low novelty. Friction did not meaningfully alter the baseline path.
+        </span>
       </div>
 
-      <div class="card">
+      <div class="state-card noise">
         <h3>Noise</h3>
         <p>Behavior changes, but adaptation is weak or inefficient.</p>
+        <span class="tooltip">
+          The agent reacts, but the altered route lacks strong adaptive value.
+        </span>
       </div>
 
-      <div class="card">
+      <div class="state-card collapse">
         <h3>Collapse</h3>
         <p>The system fails to recover under pressure.</p>
+        <span class="tooltip">
+          Utility recovery fails. Constraint exceeds adaptive capacity.
+        </span>
       </div>
     </section>
 
     <section class="panel">
       <h2>Dataset 001</h2>
+
       <p>
         The first 40-run map tested a Greedy Agent across scaled grid sizes
         with multiple friction types. Early findings showed that structural
         bottlenecks created stronger adaptation than scattered obstacles.
       </p>
 
-      <a href="../assets/friction-bloom/dataset-001-report.pdf"
-              class="dataset-hero"
-              target="_blank"
-              style="display:block; width:420px; max-width:100%; margin:28px auto 44px;">
+      <p>
+        Replayability is the foundation for future observatory timelines,
+        embeddings, semantic search, LLM training, behavioral clustering,
+        and multi-agent analysis.
+      </p>
 
-          <img src="../assets/friction-bloom/dataset-001-cover.png"
-              alt="Friction Bloom Dataset 001 Cover"
-              style="display:block; width:100%; height:auto;" />
+      <p>
+        Without replay and state logging, the system only retains conclusions.
+        With replay, it retains process.
+      </p>
 
+      <p>
+        <a href="../assets/friction-bloom/dataset-001-report.pdf"
+           class="download-link"
+           target="_blank">
+          View Dataset 001 — Technical Evaluation (PDF)
+        </a>
+      </p>
+    </section>
+
+    <section class="panel observatory-access">
+      <h2>Observatory Access</h2>
+
+      <p>
+        Live experiment runner coming soon. Access will require a passphrase.
+      </p>
+
+      <a href="#"
+         class="launch-observatory disabled"
+         aria-disabled="true">
+        Launch Observatory
       </a>
-
     </section>
 
     <section class="panel">
       <h2>Current Status</h2>
+
       <p>
-        Prototype complete. Dataset 001 complete. Observatory interface in active development.
+        Prototype complete. Dataset 001 complete. Observatory interface in
+        active development. The next structured run set will expand from 40
+        to 400 trials using JSON replay logging with separate run metadata
+        and replay frames.
       </p>
     </section>
 
