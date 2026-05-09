@@ -333,3 +333,111 @@ footer p {
     max-width: 420px !important;
     height: auto !important;
   }
+
+  /* Friction Bloom Observatory States */
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin: 28px 0 44px;
+  }
+
+  .state-card {
+    position: relative;
+    min-height: 170px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.025);
+    transition: 0.2s ease;
+    cursor: default;
+  }
+
+  .state-card h3 {
+    margin: 0 0 18px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .state-card p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .state-card.bloom:hover {
+    border-color: rgba(120,255,80,0.7);
+    box-shadow: 0 0 28px rgba(120,255,80,0.12);
+  }
+
+  .state-card.stable:hover {
+    border-color: rgba(0,224,255,0.7);
+    box-shadow: 0 0 28px rgba(0,224,255,0.12);
+  }
+
+  .state-card.noise:hover {
+    border-color: rgba(255,190,40,0.7);
+    box-shadow: 0 0 28px rgba(255,190,40,0.12);
+  }
+
+  .state-card.collapse:hover {
+    border-color: rgba(255,70,70,0.75);
+    box-shadow: 0 0 28px rgba(255,70,70,0.14);
+  }
+
+  .tooltip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -86px;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(5,8,12,0.95);
+    color: var(--text);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    transform: translateY(-6px);
+    transition: 0.2s ease;
+  }
+
+  .state-card:hover .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Observatory Launcher */
+  .launch-observatory {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 14px 20px;
+    border: 1px solid rgba(120,255,80,0.45);
+    color: #9cff6a;
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    background: rgba(120,255,80,0.04);
+  }
+
+  .launch-observatory:hover {
+    box-shadow: 0 0 24px rgba(120,255,80,0.12);
+  }
+
+  .launch-observatory.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    .state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tooltip {
+    position: static;
+    opacity: 1;
+    margin-top: 16px;
+    transform: none;
+  }
+}
