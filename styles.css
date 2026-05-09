@@ -298,8 +298,9 @@ footer p {
 
   .dataset-hero {
     display: block;
-    margin: 28px 0 44px;
-    max-width: 420px;
+    width: 420px;
+    max-width: 100%;
+    margin: 28px auto 44px;
     border: 1px solid rgba(180, 255, 0, 0.18);
     background: rgba(255,255,255,0.02);
     overflow: hidden;
