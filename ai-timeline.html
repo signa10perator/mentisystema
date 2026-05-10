@@ -12,7 +12,7 @@
 
 <link rel="icon" href="/assets/logo.png" />
 
-<!-- Fonts -->
+<! Fonts >
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 
@@ -24,7 +24,7 @@ family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700
 
 0&display=swap" rel="stylesheet" />
 
-<!-- React + Babel via CDN -->
+<! React + Babel via CDN >
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 
@@ -36,29 +36,29 @@ crossorigin></script>
 
 <style>
 
-/* ── Site tokens (matches styles.css)
+/*  Site tokens (matches styles.css)
 
-───────────────────────── */
+ */
 
 :root {
 
---bg: #070b0f;
+bg: #070b0f;
 
---panel: rgba(255,255,255,0.035);
+panel: rgba(255,255,255,0.035);
 
---panel-strong: rgba(255,255,255,0.055);
+panel-strong: rgba(255,255,255,0.055);
 
---text: #e5e7eb;
+text: #e5e7eb;
 
---muted: #a8b3c2;
+muted: #a8b3c2;
 
---teal: #00e0b8;
+teal: #00e0b8;
 
---purple: #9b5cﬀ;
+purple: #9b5cﬀ;
 
---line: rgba(255,255,255,0.11);
+line: rgba(255,255,255,0.11);
 
---line-teal: rgba(0,224,184,0.22);
+line-teal: rgba(0,224,184,0.22);
 
 }
 
@@ -68,9 +68,9 @@ html { scroll-behavior: smooth; }
 
 body {
 
-color: var(--text);
+color: var(text);
 
-font-family: Arial, Helvetica, sans-serif;background-color: var(--bg);
+font-family: Arial, Helvetica, sans-serif;background-color: var(bg);
 
 background-image:
 
@@ -94,9 +94,9 @@ background-attachment: fixed;
 
 ::-webkit-scrollbar-thumb { background: rgba(0,224,184,0.25); }
 
-/* ── Nav (matches site)
+/*  Nav (matches site)
 
-─────────────────────────────────────── */
+ */
 
 .top-nav {
 
@@ -108,35 +108,35 @@ z-index: 2000; display: flex; gap: 32px; align-items: center;
 
 .top-nav a {
 
-color: var(--text); text-decoration: none;
+color: var(text); text-decoration: none;
 
 font-size: 0.95rem; font-weight: 500; opacity: 0.9;
 
 }
 
-.top-nav a:hover { color: var(--teal); }
+.top-nav a:hover { color: var(teal); }
 
-.top-nav a.active { color: var(--teal); }
+.top-nav a.active { color: var(teal); }
 
-/* ── Shell
+/*  Shell
 
-──────────────────────────────────────────
 
-────────── */
+
+ */
 
 .site-shell { width: min(1120px, 90%); margin: 0 auto; }
 
-/* ── Page header
+/*  Page header
 
-──────────────────────────────────────────
 
-──── */
+
+ */
 
 .page-header {
 
 padding: 120px 0 48px;
 
-border-bottom: 1px solid var(--line);
+border-bottom: 1px solid var(line);
 
 margin-bottom: 0;
 
@@ -156,7 +156,7 @@ font-family: 'Space Mono', monospace;
 
 font-size: 10px; letter-spacing: 0.25em;
 
-color: var(--teal); text-transform: uppercase; margin-bottom: 10px;
+color: var(teal); text-transform: uppercase; margin-bottom: 10px;
 
 }
 
@@ -168,13 +168,13 @@ font-size: clamp(2rem, 5vw, 3.2rem);
 
 font-weight: 700; letter-spacing: 0.1em;
 
-color: var(--text); line-height: 1;}
+color: var(text); line-height: 1;}
 
-.page-title span { color: var(--teal); }
+.page-title span { color: var(teal); }
 
 .page-desc {
 
-max-width: 540px; color: var(--muted);
+max-width: 540px; color: var(muted);
 
 font-size: 0.92rem; line-height: 1.7; margin-top: 14px;
 
@@ -194,21 +194,21 @@ text-transform: uppercase; text-align: right;
 
 display: block; font-size: 1.8rem;
 
-color: var(--teal); font-family: 'Rajdhani', sans-serif;
+color: var(teal); font-family: 'Rajdhani', sans-serif;
 
 font-weight: 700; letter-spacing: 0.05em; line-height: 1;
 
 }
 
-/* ── Footer
+/*  Footer
 
-──────────────────────────────────────────
 
-───────── */
+
+ */
 
 footer {
 
-border-top: 1px solid var(--line);
+border-top: 1px solid var(line);
 
 margin-top: 80px; padding: 28px 0 40px; text-align: center;
 
@@ -216,25 +216,25 @@ margin-top: 80px; padding: 28px 0 40px; text-align: center;
 
 footer p {
 
-margin: 0; color: var(--muted); letter-spacing: 0.18em;
+margin: 0; color: var(muted); letter-spacing: 0.18em;
 
 text-transform: uppercase; font-size: 0.78rem;
 
 }
 
-/* ── Timeline root
+/*  Timeline root
 
-──────────────────────────────────────────
 
-─── */
+
+ */
 
 #timeline-root { padding-bottom: 40px; }
 
-/* ── Responsive nav
+/*  Responsive nav
 
-──────────────────────────────────────────
 
-── */
+
+ */
 
 @media (max-width: 900px) {
 
@@ -256,7 +256,7 @@ padding: 24px 0 0; gap: 18px; flex-wrap: wrap;
 
 <body>
 
-<!-- Nav -->
+<! Nav >
 
 <nav class="top-nav">
 
@@ -274,7 +274,7 @@ padding: 24px 0 0; gap: 18px; flex-wrap: wrap;
 
 ```
 
-<!-- Page header -->
+<! Page header >
 
 <header class="page-header">
 
@@ -306,7 +306,7 @@ ENTRIES<strong>—</strong>
 
 </header>
 
-<!-- React mounts here -->
+<! React mounts here >
 
 <div id="timeline-root"></div>
 
@@ -326,9 +326,9 @@ const { useState, useEﬀect, useRef } = React;
 
 // CSS injected into head
 
-──────────────────────────────────────────
 
-────────
+
+
 
 const STYLES = `
 
@@ -736,9 +736,9 @@ document.head.appendChild(styleEl);
 
 // Data
 
-──────────────────────────────────────────
 
-───────────────────────────
+
+
 
 const SUMMARIES = {
 
@@ -1266,9 +1266,9 @@ const hasSummary = e => !!SUMMARIES[summaryKey(e)];
 
 // HUD Panel
 
-──────────────────────────────────────────
 
-───────────────────────
+
+
 
 function HUDPanel({ entry, onClose }) {
 
@@ -1420,9 +1420,9 @@ style={{ position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",wi
 
 // Main App
 
-──────────────────────────────────────────
 
-────────────────────────
+
+
 
 function Timeline() {
 
