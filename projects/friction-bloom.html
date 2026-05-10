@@ -1,140 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Friction Bloom | MentiSystema</title>
-  <link rel="stylesheet" href="../styles.css" />
-</head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Friction Bloom - MentiSystema</title>
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #070b0f;
+  --text: #e5e7eb;
+  --muted: #a8b3c2;
+  --dim: #4a5568;
+  --teal: #00e0b8;
+  --teal-dim: rgba(0,224,184,0.15);
+  --purple: #9b5cff;
+  --green: #78ff50;
+  --line: rgba(255,255,255,0.08);
+  --line-t: rgba(0,224,184,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #050810; }
+::-webkit-scrollbar-thumb { background: rgba(0,224,184,0.3); }
 
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.bg-glow {
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 500px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,224,184,0.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7,11,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,224,184,0.35)); }
+.nav-logo-text { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.2em; color: var(--text); text-transform: uppercase; }
+.nav-logo-text span { color: var(--teal); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--teal); }
+
+.shell { width: min(1120px, 90%); margin: 0 auto; position: relative; z-index: 1; }
+
+.page-header {
+  padding: 100px 0 60px;
+  border-bottom: 1px solid var(--line);
+}
+.page-eyebrow { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--teal); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+.page-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--teal); }
+.page-title { font-family: 'Rajdhani', sans-serif; font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 700; letter-spacing: 0.08em; color: var(--text); line-height: 1; margin-bottom: 8px; }
+.page-title span { color: var(--teal); }
+.page-subtitle { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin-bottom: 24px; }
+.page-desc { max-width: 640px; color: var(--muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 32px; }
+
+.status-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border: 1px solid; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; }
+.badge-active { border-color: rgba(0,224,184,0.4); color: var(--teal); }
+.badge-dataset { border-color: rgba(155,92,255,0.4); color: var(--purple); }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+section { padding: 80px 0; border-bottom: 1px solid var(--line); }
+section:last-child { border-bottom: none; }
+
+.section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 48px; }
+.section-num { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--teal); }
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.section-line { flex: 1; height: 1px; background: linear-gradient(to right, var(--line-t), transparent); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.prose p { color: var(--muted); font-size: 0.92rem; line-height: 1.85; margin-bottom: 18px; }
+.prose p:last-child { margin-bottom: 0; }
+
+.highlight { color: var(--teal); font-weight: 500; }
+
+.outcome-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); margin-top: 0; }
+.outcome-card { background: var(--bg); padding: 28px; position: relative; overflow: hidden; }
+.outcome-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+.outcome-bloom::before { background: var(--teal); }
+.outcome-stable::before { background: #60a5fa; }
+.outcome-noise::before { background: #fbbf24; }
+.outcome-collapse::before { background: #f87171; }
+.outcome-label { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 8px; }
+.outcome-bloom .outcome-label { color: var(--teal); }
+.outcome-stable .outcome-label { color: #60a5fa; }
+.outcome-noise .outcome-label { color: #fbbf24; }
+.outcome-collapse .outcome-label { color: #f87171; }
+.outcome-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
+.outcome-sub { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--dim); letter-spacing: 0.08em; }
+
+.metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+.metric-item { background: var(--bg); padding: 24px; }
+.metric-value { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700; color: var(--teal); letter-spacing: 0.05em; line-height: 1; margin-bottom: 6px; }
+.metric-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+.metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+.friction-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); }
+.friction-card { background: var(--bg); padding: 0; overflow: hidden; }
+.friction-img { width: 100%; display: block; background: #0a1520; }
+.friction-info { padding: 20px 24px; border-top: 1px solid var(--line); }
+.friction-name { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; color: var(--text); margin-bottom: 4px; }
+.friction-score { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; }
+.friction-desc { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+.dataset-block { border: 1px solid var(--line); padding: 40px; background: rgba(0,224,184,0.02); position: relative; overflow: hidden; }
+.dataset-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--teal), transparent); }
+.dataset-title { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text); margin-bottom: 8px; }
+.dataset-title span { color: var(--teal); }
+.dataset-meta { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; margin-bottom: 20px; }
+.dataset-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.8; margin-bottom: 28px; max-width: 600px; }
+.dataset-findings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+.finding { padding: 16px; border: 1px solid var(--line); }
+.finding-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.15em; color: var(--teal); text-transform: uppercase; margin-bottom: 6px; }
+.finding-text { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.pdf-link { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; border: 1px solid rgba(0,224,184,0.35); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--teal); text-decoration: none; text-transform: uppercase; transition: all 0.2s; background: rgba(0,224,184,0.04); }
+.pdf-link:hover { background: rgba(0,224,184,0.1); border-color: var(--teal); }
+
+.observatory-section { padding: 80px 0; }
+
+.passphrase-gate { border: 1px solid var(--line); padding: 64px 48px; text-align: center; position: relative; overflow: hidden; background: rgba(255,255,255,0.01); }
+.passphrase-gate::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,224,184,0.4), transparent); }
+.gate-icon { font-size: 32px; margin-bottom: 20px; opacity: 0.4; }
+.gate-title { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text); margin-bottom: 8px; }
+.gate-title span { color: var(--teal); }
+.gate-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin-bottom: 32px; }
+.gate-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.7; max-width: 480px; margin: 0 auto 36px; }
+
+.gate-form { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 440px; margin: 0 auto; }
+.gate-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px; padding: 14px 20px; outline: none; transition: border-color 0.15s; letter-spacing: 0.08em; text-align: center; }
+.gate-input:focus { border-color: rgba(0,224,184,0.4); }
+.gate-input::placeholder { color: #334155; }
+.gate-btn { width: 100%; padding: 14px 28px; border: 1px solid rgba(0,224,184,0.4); background: rgba(0,224,184,0.06); color: var(--teal); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.gate-btn:hover { background: rgba(0,224,184,0.12); border-color: var(--teal); }
+.gate-error { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: #f87171; text-transform: uppercase; opacity: 0; transition: opacity 0.2s; }
+.gate-error.visible { opacity: 1; }
+
+.observatory-frame { display: none; flex-direction: column; gap: 0; border: 1px solid rgba(0,224,184,0.25); overflow: hidden; }
+.observatory-frame.visible { display: flex; }
+.obs-header { padding: 16px 24px; background: rgba(0,224,184,0.05); border-bottom: 1px solid rgba(0,224,184,0.15); display: flex; align-items: center; justify-content: space-between; }
+.obs-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: var(--teal); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.obs-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: blink 2s ease-in-out infinite; }
+.obs-meta { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: var(--dim); }
+.obs-iframe { width: 100%; height: 700px; border: none; background: #0a0f14; }
+.obs-footer { padding: 10px 24px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(0,224,184,0.1); display: flex; justify-content: space-between; align-items: center; }
+.obs-footer-text { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: var(--dim); }
+.obs-lock-btn { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: #f87171; background: none; border: 1px solid rgba(248,113,113,0.2); padding: 4px 10px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.obs-lock-btn:hover { border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.05); }
+
+.corner-tl { position: absolute; top: 0; left: 0; width: 20px; height: 20px; border-top: 1px solid var(--teal); border-left: 1px solid var(--teal); opacity: 0.5; }
+.corner-tr { position: absolute; top: 0; right: 0; width: 20px; height: 20px; border-top: 1px solid var(--teal); border-right: 1px solid var(--teal); opacity: 0.5; }
+.corner-bl { position: absolute; bottom: 0; left: 0; width: 20px; height: 20px; border-bottom: 1px solid var(--teal); border-left: 1px solid var(--teal); opacity: 0.5; }
+.corner-br { position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; border-bottom: 1px solid var(--teal); border-right: 1px solid var(--teal); opacity: 0.5; }
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 48px; display: flex; align-items: center; justify-content: space-between; }
+.footer-left { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
+.footer-right { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--dim); }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .page-header { padding: 80px 0 40px; }
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+  .three-col { grid-template-columns: 1fr; }
+  .outcome-grid { grid-template-columns: 1fr; }
+  .metric-strip { grid-template-columns: repeat(2, 1fr); }
+  .friction-grid { grid-template-columns: 1fr; }
+  .dataset-findings { grid-template-columns: 1fr; }
+  .passphrase-gate { padding: 40px 24px; }
+  .obs-iframe { height: 500px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
 <body>
 
-  <header class="top-nav">
-    <a href="../index.html">Home</a>
-    <a href="../index.html#projects">Projects</a>
-    <a href="../index.html#about">About</a>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/assets/logo/logo.png" alt="MentiSystema" />
+    <span class="nav-logo-text">Menti<span>S</span>ystema</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/#projects">Projects</a></li>
+    <li><a href="/#about">About Me</a></li>
+    <li><a href="/ai-timeline.html">AI Timeline</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main class="shell">
+
+  <header class="page-header">
+    <div class="page-eyebrow">MentiSystema Research</div>
+    <h1 class="page-title">Friction <span>Bloom</span></h1>
+    <p class="page-subtitle">Behavioral Algorithm — Pathfinding Research — Agent Adaptability</p>
+    <p class="page-desc">An experimental algorithm for studying how controlled spatial disruptions force autonomous agents into emergent adaptive behavior. Tracks Bloom Score, Novelty, Coherence, and Chaos across grid-scaled simulation environments.</p>
+    <div class="status-row">
+      <span class="status-badge badge-active"><span class="badge-dot"></span>Active Research</span>
+      <span class="status-badge badge-dataset">Dataset 001 Published</span>
+    </div>
   </header>
 
-  <main class="site-shell">
-    <p><a href="../index.html">← Back</a></p>
-
-    <h1>Friction Bloom</h1>
-
-    <p>
-      Controlled disruption. Observable structure.
-    </p>
-
-    <!-- Dataset 001 Hero / PDF Link -->
-    <a href="../assets/friction-bloom/dataset-001-report.pdf"
-       class="dataset-hero"
-       target="_blank"
-       style="display:block; width:420px; max-width:100%; margin:28px auto 44px;">
-
-      <img src="../assets/friction-bloom/dataset-001-cover.png"
-           alt="Friction Bloom Dataset 001 Cover"
-           style="display:block; width:100%; height:auto;" />
-
-    </a>
-
-    <section class="panel">
-      <h2>Overview</h2>
-      <p>
-        Friction Bloom is an experimental algorithm for observing how systems
-        respond when controlled disruption is introduced. It compares baseline
-        behavior against altered behavior under constraint, then classifies the
-        result as Bloom, Stable, Noise, or Collapse.
-      </p>
-    </section>
-
-    <section class="state-grid">
-      <div class="state-card bloom">
-        <h3>Bloom</h3>
-        <p>Meaningful adaptation through a novel viable path.</p>
-        <span class="tooltip">
-          High novelty with maintained coherence. The system adapts without collapse.
-        </span>
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Core Philosophy</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div class="prose reveal">
+        <p>Friction Bloom is built on a single premise: <span class="highlight">controlled disruption produces emergent structure</span>. Most algorithms optimize for speed, efficiency, and convergence. Friction Bloom does the opposite — it introduces deliberate obstacles and measures what happens when an agent can no longer take the easy path.</p>
+        <p>The name comes from the outcome state it seeks to induce. A Bloom occurs when an agent, forced off its baseline route by friction, discovers a novel viable path it would never have found without the disruption. The disruption is not a failure condition. It is the experimental variable.</p>
+        <p>This framework draws directly from cognitive science and experimental psychology — stimulus, perturbation, adaptation, outcome. The same behavioral architecture that governs human response to constraint governs autonomous agent pathfinding. Friction Bloom makes that connection explicit and measurable.</p>
       </div>
-
-      <div class="state-card stable">
-        <h3>Stable</h3>
-        <p>Behavior remains mostly unchanged under constraint.</p>
-        <span class="tooltip">
-          Low novelty. Friction did not meaningfully alter the baseline path.
-        </span>
+      <div class="reveal">
+        <div class="outcome-grid">
+          <div class="outcome-card outcome-bloom">
+            <div class="outcome-label">Bloom</div>
+            <div class="outcome-desc">Agent recovered through a novel viable route. High novelty with maintained coherence.</div>
+            <div class="outcome-sub">Novelty greater than 0.35 — Chaos at 0.0</div>
+          </div>
+          <div class="outcome-card outcome-stable">
+            <div class="outcome-label">Stable</div>
+            <div class="outcome-desc">Behavior remains mostly unchanged under constraint. Friction did not meaningfully alter the baseline path.</div>
+            <div class="outcome-sub">Novelty less than 0.10</div>
+          </div>
+          <div class="outcome-card outcome-noise">
+            <div class="outcome-label">Noise</div>
+            <div class="outcome-desc">Behavior changed but adaptation was weak or inefficient. The agent reacts but the altered route lacks adaptive value.</div>
+            <div class="outcome-sub">Novelty between 0.10 and 0.33</div>
+          </div>
+          <div class="outcome-card outcome-collapse">
+            <div class="outcome-label">Collapse</div>
+            <div class="outcome-desc">The system fails to recover under pressure. Utility recovery fails — constraint exceeds adaptive capacity.</div>
+            <div class="outcome-sub">Utility recovery failure</div>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <div class="state-card noise">
-        <h3>Noise</h3>
-        <p>Behavior changes, but adaptation is weak or inefficient.</p>
-        <span class="tooltip">
-          The agent reacts, but the altered route lacks strong adaptive value.
-        </span>
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Metric Framework</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="metric-strip reveal">
+      <div class="metric-item">
+        <div class="metric-value">4.0</div>
+        <div class="metric-label">Bloom Score</div>
+        <div class="metric-sub">Composite index of emergent path quality. Floor of 2.0 for all Stable outcomes. Scales toward 4.0 in high-performance adaptations.</div>
       </div>
-
-      <div class="state-card collapse">
-        <h3>Collapse</h3>
-        <p>The system fails to recover under pressure.</p>
-        <span class="tooltip">
-          Utility recovery fails. Constraint exceeds adaptive capacity.
-        </span>
+      <div class="metric-item">
+        <div class="metric-value">0.65</div>
+        <div class="metric-label">Max Novelty</div>
+        <div class="metric-sub">Spatial divergence between baseline and perturbed path. Scores above 0.35 signal global route reconfiguration.</div>
       </div>
-    </section>
+      <div class="metric-item">
+        <div class="metric-value">2.0</div>
+        <div class="metric-label">Coherence</div>
+        <div class="metric-sub">Algorithmic consistency. A standard value of 2.0 indicates logically grounded movement even under high friction.</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-value">0.0</div>
+        <div class="metric-label">Chaos (Bloom)</div>
+        <div class="metric-sub">Non-functional or erratic behavior. In successful Bloom states, Chaos is maintained at 0.0 — purposeful adaptation, never stochastic.</div>
+      </div>
+    </div>
+  </section>
 
-    <section class="panel">
-      <h2>Dataset 001</h2>
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Friction Modalities</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="reveal" style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:32px;max-width:680px;">Four friction types tested across grid sizes from 5x5 to 15x15. Dashed blue shows the baseline L-shaped path. Solid gold shows the emergent adapted route. Bloom score shown in each title.</p>
+    <div class="friction-grid reveal">
+      <div class="friction-card">
+        <img src="/assets/friction-bloom/add_wall_gap_constraint.svg" alt="Wall Gap Constraint" class="friction-img" />
+        <div class="friction-info">
+          <div class="friction-name">add_wall_gap_constraint</div>
+          <div class="friction-score" style="color:var(--teal)">Peak Bloom Score: 3.94 — Scale Invariant</div>
+          <div class="friction-desc">Topological bottleneck forcing macro-level route deviation. The agent must abandon its horizontal traverse early to intercept specific coordinates. Most effective friction across all grid sizes — consistently produces Novelty scores above 0.6.</div>
+        </div>
+      </div>
+      <div class="friction-card">
+        <img src="/assets/friction-bloom/block_first_third.svg" alt="Block First Third" class="friction-img" />
+        <div class="friction-info">
+          <div class="friction-name">block_first_third</div>
+          <div class="friction-score" style="color:#fbbf24">Avg Bloom Score: 3.06 — Bloom / Noise</div>
+          <div class="friction-desc">Blockage in the first third of the traversal. Generates moderate adaptability but frequently results in Noise outcomes. Blockage versus gap efficiency — the agent can sometimes route around without global reconfiguration.</div>
+        </div>
+      </div>
+      <div class="friction-card">
+        <img src="/assets/friction-bloom/add_scattered_obstacles.svg" alt="Scattered Obstacles" class="friction-img" />
+        <div class="friction-info">
+          <div class="friction-name">add_scattered_obstacles</div>
+          <div class="friction-score" style="color:#60a5fa">Avg Bloom Score: 2.54 — Scale Dependent</div>
+          <div class="friction-desc">High novelty (0.50) at 5x5 scale but degrades to Stable with 0.0 Novelty at 10x10 and above. Obstacle density decreases relative to grid area — at larger scales the agent bypasses without adapting.</div>
+        </div>
+      </div>
+      <div class="friction-card">
+        <img src="/assets/friction-bloom/block_baseline_midpoint.svg" alt="Baseline Midpoint" class="friction-img" />
+        <div class="friction-info">
+          <div class="friction-name">block_baseline_midpoint</div>
+          <div class="friction-score" style="color:var(--muted)">Avg Bloom Score: 2.24 — Stable</div>
+          <div class="friction-desc">Consistently fails to provoke high-value adaptation. Disruption is localized at the midpoint of a long traverse — the agent performs a minor local optimization rather than a global route reconfiguration.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <p>
-        The first 40-run map tested a Greedy Agent across scaled grid sizes
-        with multiple friction types. Early findings showed that structural
-        bottlenecks created stronger adaptation than scattered obstacles.
-      </p>
-
-      <p>
-        Replayability is the foundation for future observatory timelines,
-        embeddings, semantic search, LLM training, behavioral clustering,
-        and multi-agent analysis.
-      </p>
-
-      <p>
-        Without replay and state logging, the system only retains conclusions.
-        With replay, it retains process.
-      </p>
-
-      <p>
-        <a href="../assets/friction-bloom/dataset-001-report.pdf"
-           class="download-link"
-           target="_blank">
-          View Dataset 001 — Technical Evaluation (PDF)
-        </a>
-      </p>
-    </section>
-
-    <section class="panel observatory-access">
-      <h2>Observatory Access</h2>
-
-      <p>
-        Live experiment runner coming soon. Access will require a passphrase.
-      </p>
-
-      <a href="#"
-         class="launch-observatory disabled"
-         aria-disabled="true">
-        Launch Observatory
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Dataset 001</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="dataset-block reveal">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="dataset-title">Technical Evaluation — <span>Dataset 001</span></div>
+      <div class="dataset-meta">40 Experiment Runs — Grid Sizes 5x5 to 15x15 — Four Friction Modalities</div>
+      <p class="dataset-desc">The first structured run set evaluated a Greedy Agent across scaled grid environments under four friction types. Key finding: structural bottlenecks (wall gaps) created stronger and more scale-invariant adaptation than stochastic perturbations (scattered obstacles). The dataset establishes baseline behavioral thresholds for all future Friction Bloom research.</p>
+      <div class="dataset-findings">
+        <div class="finding">
+          <div class="finding-label">Scale Invariance</div>
+          <div class="finding-text">add_wall_gap_constraint maintains consistent Novelty scores above 0.6 across all tested grid dimensions. Effective stressor regardless of search space size.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Scale Dependence</div>
+          <div class="finding-text">add_scattered_obstacles loses all utility in environments larger than 10x10 due to geometric sparsity. Obstacle density decreases relative to the square of grid dimension.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Kinematic Finding</div>
+          <div class="finding-text">Structural bottlenecks force global route reconfiguration. Stochastic perturbations produce local optimization. For maximum adaptability testing, use wall gaps over scattered obstacles.</div>
+        </div>
+      </div>
+      <a href="/assets/friction-bloom/dataset-001-report.pdf" target="_blank" class="pdf-link">
+        View Technical Evaluation (PDF) →
       </a>
-    </section>
+    </div>
+  </section>
 
-    <section class="panel">
-      <h2>Current Status</h2>
+  <section class="observatory-section">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Dendra: Observatory</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="reveal" style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:40px;max-width:600px;">Live experiment runner. Configure grid size and friction types, run experiments, observe outcomes in real time. Access requires a passphrase.</p>
 
-      <p>
-        Prototype complete. Dataset 001 complete. Observatory interface in
-        active development. The next structured run set will expand from 40
-        to 400 trials using JSON replay logging with separate run metadata
-        and replay frames.
-      </p>
-    </section>
+    <div id="gate-container" class="passphrase-gate reveal">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="gate-icon">◉</div>
+      <h3 class="gate-title">Observatory <span>Access</span></h3>
+      <p class="gate-sub">Restricted — Passphrase Required</p>
+      <p class="gate-desc">The Friction Bloom Observatory is a live experiment platform. Enter the passphrase to access the experiment runner, real-time results, and the memory layer.</p>
+      <div class="gate-form">
+        <input type="password" id="passphrase-input" class="gate-input" placeholder="Enter passphrase..." autocomplete="off" />
+        <button class="gate-btn" onclick="checkPassphrase()">Authenticate →</button>
+        <span class="gate-error" id="gate-error">Access denied. Invalid passphrase.</span>
+      </div>
+    </div>
 
-  </main>
+    <div id="observatory-frame" class="observatory-frame">
+      <div class="obs-header">
+        <div class="obs-title">
+          <span class="obs-dot"></span>
+          Dendra: Friction Bloom Observatory
+        </div>
+        <div class="obs-meta">Live — Session Active</div>
+      </div>
+      <iframe
+        id="obs-iframe"
+        class="obs-iframe"
+        src=""
+        title="Friction Bloom Observatory"
+        allow="clipboard-write">
+      </iframe>
+      <div class="obs-footer">
+        <span class="obs-footer-text">frictionbloom.streamlit.app — Authenticated Session</span>
+        <button class="obs-lock-btn" onclick="lockObservatory()">Lock Session</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="shell" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;width:100%;">
+    <div class="footer-left">MentiSystema — Friction Bloom Research</div>
+    <div class="footer-right">mentisystema.org</div>
+  </div>
+</footer>
+
+<script>
+  const PASSPHRASE = "the archive breathes in the dust";
+  const OBS_URL = "https://frictionbloom-kalx9j86df5pyvbugbd9mw.streamlit.app/?embedded=true";
+
+  function checkPassphrase() {
+    const input = document.getElementById("passphrase-input").value.trim().toLowerCase();
+    const error = document.getElementById("gate-error");
+    if (input === PASSPHRASE) {
+      document.getElementById("gate-container").style.display = "none";
+      const frame = document.getElementById("observatory-frame");
+      frame.classList.add("visible");
+      document.getElementById("obs-iframe").src = OBS_URL;
+      error.classList.remove("visible");
+    } else {
+      error.classList.add("visible");
+      document.getElementById("passphrase-input").value = "";
+      setTimeout(() => error.classList.remove("visible"), 3000);
+    }
+  }
+
+  function lockObservatory() {
+    document.getElementById("observatory-frame").classList.remove("visible");
+    document.getElementById("obs-iframe").src = "";
+    document.getElementById("gate-container").style.display = "block";
+    document.getElementById("passphrase-input").value = "";
+  }
+
+  document.getElementById("passphrase-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") checkPassphrase();
+  });
+
+  const reveals = document.querySelectorAll(".reveal");
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add("visible"), i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+</script>
 
 </body>
 </html>
