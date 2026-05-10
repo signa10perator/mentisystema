@@ -1,91 +1,974 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <link rel="icon" href="assets/favicon.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentiSystema</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Where controlled disruption becomes emergent structure. Systems lab for behavioral AI, signal intelligence, and adversarial research." />
+  <link rel="icon" href="/assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ─────────────────────────────────────────────────── */
+    :root {
+      --bg: #070b0f;
+      --surface: rgba(255,255,255,0.03);
+      --surface2: rgba(255,255,255,0.055);
+      --text: #e5e7eb;
+      --muted: #a8b3c2;
+      --dim: #4a5568;
+      --teal: #00e0b8;
+      --teal-dim: rgba(0,224,184,0.18);
+      --purple: #9b5cff;
+      --line: rgba(255,255,255,0.08);
+      --line-t: rgba(0,224,184,0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #050810; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,224,184,0.3); }
+
+    /* ── Background ─────────────────────────────────────────────── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+      linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+    .bg-glow-1 {
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(0,224,184,0.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .bg-glow-2 {
+      position: fixed; bottom: -10%; right: -10%;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(155,92,255,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Nav ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 0 48px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(7,11,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none;
+    }
+    .nav-logo img {
+      width: 32px; height: 32px; object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(0,224,184,0.35));
+    }
+    .nav-logo-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px; font-weight: 700;
+      letter-spacing: 0.2em; color: var(--text);
+      text-transform: uppercase;
+    }
+    .nav-logo-text span { color: var(--teal); }
+
+    .nav-links {
+      display: flex; gap: 36px; align-items: center; list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      transition: color 0.15s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--teal);
+      transform: scaleX(0); transition: transform 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links a.active { color: var(--teal); }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    /* ── Shell ──────────────────────────────────────────────────── */
+    .shell { width: min(1160px, 90%); margin: 0 auto; position: relative; z-index: 1; }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding-top: 64px;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.3em;
+      color: var(--teal); text-transform: uppercase;
+      margin-bottom: 28px;
+      display: flex; align-items: center; gap: 14px;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block; width: 32px; height: 1px;
+      background: var(--teal);
+    }
+
+    .hero-logo {
+      width: 120px; height: 120px; object-fit: contain;
+      margin-bottom: 32px;
+      filter: drop-shadow(0 0 24px rgba(0,224,184,0.25));
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      color: var(--text);
+      text-transform: uppercase;
+      animation: fadeUp 0.8s 0.2s ease both;
+      margin-bottom: 8px;
+    }
+    .hero-title .accent { color: var(--teal); }
+
+    .hero-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 40px;
+      animation: fadeUp 0.8s 0.3s ease both;
+      max-width: 640px;
+      line-height: 1.5;
+    }
+
+    .hero-tagline {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em;
+      color: rgba(0,224,184,0.6);
+      text-transform: uppercase;
+      animation: fadeUp 0.8s 0.4s ease both;
+      margin-bottom: 52px;
+      border-left: 2px solid rgba(0,224,184,0.3);
+      padding-left: 16px;
+    }
+
+    .hero-chips {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.5s ease both;
+    }
+    .chip {
+      padding: 5px 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.14em;
+      color: var(--dim); text-transform: uppercase;
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      animation: fadeUp 1s 1s ease both;
+    }
+    .hero-scroll span {
+      font-family: 'Space Mono', monospace; font-size: 8px;
+      letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, rgba(0,224,184,0.5), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+    /* ── Section base ───────────────────────────────────────────── */
+      section { padding: 100px 0; }
+
+    .section-header {
+      display: flex; align-items: baseline; gap: 20px;
+      margin-bottom: 52px;
+    }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.25em;
+      color: var(--teal); text-transform: uppercase;
+    }
+    .section-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.6rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .section-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--line-t), transparent);
+    }
+
+    /* ── Projects ───────────────────────────────────────────────── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .project-card {
+      background: var(--bg);
+      padding: 36px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: var(--teal);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .project-card:hover { background: var(--surface2); }
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .project-card.featured {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .project-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.2em;
+      color: var(--dim); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .project-number::after {
+      content: ''; display: inline-block;
+      width: 20px; height: 1px; background: var(--dim);
+    }
+
+    .project-status {
+      display: inline-block;
+      padding: 2px 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid;
+      margin-bottom: 16px;
+    }
+    .status-active { border-color: rgba(0,224,184,0.4); color: var(--teal); }
+    .status-build { border-color: rgba(155,92,255,0.4); color: var(--purple); }
+    .status-research { border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+
+    .project-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.8rem; font-weight: 700;
+      letter-spacing: 0.06em; line-height: 1;
+      margin-bottom: 6px; color: var(--text);
+    }
+    .project-name span { color: var(--teal); }
+
+    .project-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.15em;
+      color: var(--dim); text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .project-desc {
+      color: var(--muted); font-size: 0.88rem;
+      line-height: 1.75; max-width: 400px;
+    }
+
+    .project-tags {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px;
+    }
+    .project-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px; letter-spacing: 0.1em;
+      color: var(--dim); text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .project-arrow {
+      position: absolute; bottom: 28px; right: 28px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.15em;
+      color: var(--dim); text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+      transition: color 0.2s, gap 0.2s;
+    }
+    .project-card:hover .project-arrow { color: var(--teal); gap: 12px; }
+
+    /* Featured card metrics */
+    .project-metrics {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .metric {
+      padding: 20px;
+      border: 1px solid var(--line);
+      background: rgba(0,224,184,0.03);
+    }
+    .metric-value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2rem; font-weight: 700;
+      color: var(--teal); letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .metric-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px; letter-spacing: 0.15em;
+      color: var(--dim); text-transform: uppercase;
+      margin-top: 6px;
+    }
+    .metric-sub {
+      font-size: 11px; color: var(--muted);
+      margin-top: 4px; line-height: 1.4;
+    }
+
+    /* ── Research strip ─────────────────────────────────────────── */
+    .research-strip {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 40px 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .research-item {
+      padding: 0 32px;
+      border-right: 1px solid var(--line);
+    }
+    .research-item:first-child { padding-left: 0; }
+    .research-item:last-child { border-right: none; }
+
+    .research-num {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.4rem; font-weight: 700;
+      color: var(--teal); letter-spacing: 0.05em; line-height: 1;
+      margin-bottom: 6px;
+    }
+    .research-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.16em;
+      color: var(--dim); text-transform: uppercase;
+    }
+    .research-desc {
+      font-size: 11px; color: var(--muted);
+      margin-top: 8px; line-height: 1.5;
+    }
+
+    /* ── About ──────────────────────────────────────────────────── */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 64px;
+      align-items: start;
+    }
+    .about-left { position: sticky; top: 100px; }
+    .about-profile {
+      width: 100px; height: 100px;
+      border-radius: 50%; object-fit: cover;
+      border: 1px solid rgba(0,224,184,0.35);
+      box-shadow: 0 0 24px rgba(0,224,184,0.12);
+      margin-bottom: 20px;
+      display: block;
+    }
+    .about-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem; font-weight: 700;
+      letter-spacing: 0.08em; margin-bottom: 4px;
+    }
+    .about-role {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.15em;
+      color: var(--teal); text-transform: uppercase;
+    }
+
+    .about-body p {
+      color: var(--muted); font-size: 0.92rem;
+      line-height: 1.85; margin-bottom: 20px;
+    }
+    .about-body p:last-child { margin-bottom: 0; }
+
+    .about-disciplines {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px;
+    }
+    .discipline {
+      padding: 6px 14px;
+      border: 1px solid var(--line);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.12em;
+      color: var(--muted); text-transform: uppercase;
+      transition: all 0.15s;
+    }
+    .discipline:hover { border-color: rgba(0,224,184,0.3); color: var(--teal); }
+
+    /* ── Timeline promo ─────────────────────────────────────────── */
+    .timeline-promo {
+      border: 1px solid var(--line);
+      padding: 48px;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 48px; align-items: center;
+      position: relative; overflow: hidden;
+      background: var(--surface);
+      text-decoration: none; color: inherit;
+      display: block;
+      transition: border-color 0.2s;
+    }
+    .timeline-promo:hover { border-color: rgba(0,224,184,0.3); }
+    .timeline-promo-inner { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
+
+    .timeline-eras {
+      display: flex; gap: 0; margin-top: 28px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .era-block {
+      flex: 1; padding: 12px 10px;
+      border-right: 1px solid var(--line);
+      text-align: center;
+    }
+    .era-block:last-child { border-right: none; }
+    .era-year {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+    }
+    .era-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px; letter-spacing: 0.15em;
+      text-transform: uppercase; margin-top: 3px; opacity: 0.5;
+    }
+
+    .timeline-cta {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 14px 28px;
+      border: 1px solid rgba(0,224,184,0.35);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.15em;
+      color: var(--teal); text-transform: uppercase;
+      text-decoration: none; transition: all 0.2s;
+      white-space: nowrap;
+      background: rgba(0,224,184,0.04);
+    }
+    .timeline-cta:hover { background: rgba(0,224,184,0.1); border-color: var(--teal); }
+
+    /* ── Contact ────────────────────────────────────────────────── */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: var(--line);
+    }
+    .contact-panel {
+      background: var(--bg); padding: 48px;
+    }
+    .contact-panel h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .contact-panel p {
+      color: var(--muted); font-size: 0.88rem; line-height: 1.75;
+    }
+    .contact-email {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 24px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: var(--teal); text-decoration: none;
+      border-bottom: 1px solid rgba(0,224,184,0.3);
+      padding-bottom: 2px;
+      transition: border-color 0.15s;
+    }
+    .contact-email:hover { border-color: var(--teal); }
+
+    .contact-status {
+      background: var(--bg); padding: 48px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .status-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: 'Space Mono', monospace; font-size: 10px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .status-row:last-child { border-bottom: none; }
+    .status-key { color: var(--dim); }
+    .status-val { color: var(--text); }
+    .status-val.live { color: var(--teal); }
+    .status-val.wip { color: #fbbf24; }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+      footer {
+      border-top: 1px solid var(--line);
+      padding: 32px 0 48px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.2em;
+      color: var(--dim); text-transform: uppercase;
+    }
+    .footer-right {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px; letter-spacing: 0.1em;
+      color: var(--dim);
+    }
+
+    /* ── Animations ─────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+
+      .nav-links { display: none; }
+
+      .mobile-nav {
+        display: flex; gap: 20px; flex-wrap: wrap;
+        padding: 16px 0; justify-content: center;
+        border-bottom: 1px solid var(--line);
+        position: relative; z-index: 1;
+      }
+      .mobile-nav a {
+        color: var(--muted); text-decoration: none;
+        font-family: 'Space Mono', monospace;
+        font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+      }
+
+      .shell { width: 92%; }
+
+      .hero { padding-top: 80px; min-height: 90vh; }
+      .hero-logo { width: 80px; height: 80px; }
+
+      .projects-grid { grid-template-columns: 1fr; }
+      .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+
+      .research-strip { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .research-item { border-right: none; padding: 0; }
+
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-left { position: static; }
+
+      .timeline-promo-inner { grid-template-columns: 1fr; }
+      .timeline-eras { display: none; }
+
+      .contact-grid { grid-template-columns: 1fr; }
+
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+
 </head>
-
 <body>
-  <header class="top-nav">
-    <a href="#home">Home</a>
-    <a href="#projects">Projects</a>
-    <a href="#about">About Me</a>
-    <a href="#contact">Contact</a>
-  </header>
 
-  <main class="site-shell" id="home">
+<div class="bg-layer"></div>
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
 
-    <section class="hero">
-      <img src="assets/logo.png" alt="MentiSystema logo" class="logo" />
+<!-- Nav -->
 
-      <h1 class="brand">
-        <span class="brand-light">Menti</span><span class="brand-accent">Systema</span>
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/assets/logo.png" alt="MentiSystema" />
+    <span class="nav-logo-text">Menti<span>S</span>ystema</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="/ai-timeline.html">AI Timeline</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="shell">
+
+```
+    <!-- Mobile nav -->
+    <div class="mobile-nav">
+      <a href="#projects">Projects</a>
+      <a href="#research">Research</a>
+      <a href="#about">About</a>
+      <a href="/ai-timeline.html">AI Timeline</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <!-- ── Hero ── -->
+    <section class="hero" style="position:relative;">
+      <div class="hero-eyebrow">MentiSystema Systems Lab</div>
+      <img src="/assets/logo.png" alt="MentiSystema" class="hero-logo" />
+      <h1 class="hero-title">
+        Menti<span class="accent">S</span>ystema
       </h1>
-
-      <p class="description">
-        MentiSystema is a systems lab for experiments in AI, OSINT,
-        behavioral analysis, and adversarial thinking.
+      <p class="hero-sub">
+        Behavioral AI · Signal Intelligence · Adversarial Research
       </p>
-    </section>
+      <p class="hero-tagline">
+        Where controlled disruption becomes emergent structure.
+      </p>
+      <div class="hero-chips">
+        <span class="chip">AI Research</span>
+        <span class="chip">OSINT</span>
+        <span class="chip">Neuroscience</span>
+        <span class="chip">Pathfinding Systems</span>
+        <span class="chip">Hardware</span>
+        <span class="chip">Signal Intelligence</span>
+      </div>
 
-    <section id="projects" class="projects-section">
-      <h2>Projects</h2>
-
-      <div class="grid">
-        <a href="projects/vector-llm.html" class="card">
-            <h3>Vector LLM</h3>
-            <p>Context-aware retrieval and semantic mapping systems.</p>
-        </a>
-
-        <a href="projects/friction-bloom.html" class="card">
-            <h3>Friction: Bloom</h3>
-            <p>Analyzing system adaptation through controlled disruption.</p>
-        </a>
-
-        <a href="projects/dendra-a-eye.html" class="card">
-            <h3>Dendra: A-Eye</h3>
-            <p>Signal-driven observatory for emergent behavioral patterns.</p>
-        </a>
-
-        <a href="projects/phreaker-box.html" class="card">
-            <h3>Phreaker Box</h3>
-            <p>Adversarial exploration of communication systems and signals.</p>
-        </a>
+      <div class="hero-scroll">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
       </div>
     </section>
 
-    <section id="about" class="about-section">
-      <h2>About Me</h2>
+    <!-- ── Research Numbers ── -->
+    <div class="research-strip reveal" id="research">
+      <div class="research-item">
+        <div class="research-num">001</div>
+        <div class="research-label">Datasets Published</div>
+        <div class="research-desc">Friction Bloom Dataset 001 — agent adaptability under controlled spatial perturbations.</div>
+      </div>
+      <div class="research-item">
+        <div class="research-num">48</div>
+        <div class="research-label">Experiment Entries</div>
+        <div class="research-desc">Grid scaling from 5×5 to 15×15 across four friction modalities.</div>
+      </div>
+      <div class="research-item">
+        <div class="research-num">4</div>
+        <div class="research-label">Active Projects</div>
+        <div class="research-desc">Friction Bloom, Dendra A-Eye, VectorLLM, Phreaker Box.</div>
+      </div>
+      <div class="research-item">
+        <div class="research-num">3.94</div>
+        <div class="research-label">Peak Bloom Score</div>
+        <div class="research-desc">Maximum agent adaptability recorded under wall-gap constraint friction.</div>
+      </div>
+    </div>
 
-      <div class="about-container">
-        <img src="assets/me.png" class="profile">
+    <!-- ── Projects ── -->
+    <section id="projects">
+      <div class="section-header reveal">
+        <span class="section-label">01</span>
+        <h2 class="section-title">Projects</h2>
+        <div class="section-line"></div>
+      </div>
 
-        <div class="about-copy">
-          <p>
-            Building MentiSystema — a home for experimental systems, applied research,
-            and technical exploration.
-          </p>
+      <div class="projects-grid">
 
-          <p>
-            Studying OSINT, AI, psychology, neuroscience, and behavioral systems.
-            Always learning. Always testing. Always iterating.
-          </p>
+        <!-- Friction Bloom — featured -->
+        <a href="/projects/friction-bloom.html" class="project-card featured reveal">
+          <div>
+            <div class="project-number">01</div>
+            <span class="project-status status-active">Active Research</span>
+            <h3 class="project-name">Friction<span> Bloom</span></h3>
+            <p class="project-type">Behavioral Algorithm · Pathfinding Research</p>
+            <p class="project-desc">
+              An algorithm studying how controlled spatial disruptions force autonomous agents into emergent adaptive behavior. Tracks Bloom Score, Novelty, Coherence, and Chaos across grid-scaled simulation environments.
+            </p>
+            <p class="project-desc" style="margin-top:14px;">
+              Dataset 001 published. Working experiment platform. VectorLLM training pipeline in development.
+            </p>
+            <div class="project-tags">
+              <span class="project-tag">Pathfinding</span>
+              <span class="project-tag">Behavioral AI</span>
+              <span class="project-tag">Dataset</span>
+              <span class="project-tag">Python</span>
+              <span class="project-tag">Cognitive Systems</span>
+            </div>
+      </div>
+      <div class="project-metrics">
+        <div class="metric">
+          <div class="metric-value">3.94</div>
+          <div class="metric-label">Peak Bloom Score</div>
+          <div class="metric-sub">Wall-gap constraint, size 12 grid</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">0.65</div>
+          <div class="metric-label">Max Novelty</div>
+          <div class="metric-sub">Global route reconfiguration threshold</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">0.0</div>
+          <div class="metric-label">Chaos (Bloom)</div>
+          <div class="metric-sub">Purposeful adaptation, never stochastic</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">2.0</div>
+          <div class="metric-label">Coherence Floor</div>
+          <div class="metric-sub">Stable logical grounding under all conditions</div>
         </div>
       </div>
-    </section>
+      <div class="project-arrow">View Project →</div>
+    </a>
 
-    <section id="contact" class="contact-section">
-      <h2>Contact</h2>
-      <p>More contact options coming soon.</p>
-    </section>
+    <!-- Dendra A-Eye -->
+    <a href="/projects/dendra-a-eye.html" class="project-card reveal">
+      <div class="project-number">02</div>
+      <span class="project-status status-build">In Build</span>
+      <h3 class="project-name">Dendra<span>: A-Eye</span></h3>
+      <p class="project-type">AI Camera · OSINT Field Kit</p>
+      <p class="project-desc">
+        Custom-built field intelligence unit. Raspberry Pi 5 (8GB), IMX500 AI Camera, RTL-SDR V4 receiver, NVMe SSD, CNC-machined aluminum enclosure. Three inputs, one truth.
+      </p>
+      <div class="project-tags">
+        <span class="project-tag">Hardware</span>
+        <span class="project-tag">OSINT</span>
+        <span class="project-tag">Raspberry Pi</span>
+        <span class="project-tag">SDR</span>
+        <span class="project-tag">Computer Vision</span>
+      </div>
+      <div class="project-arrow">View Project →</div>
+    </a>
 
-    <footer>
-      <p>MentiSystema</p>
-    </footer>
+    <!-- VectorLLM -->
+    <a href="/projects/vector-llm.html" class="project-card reveal">
+      <div class="project-number">03</div>
+      <span class="project-status status-research">In Development</span>
+      <h3 class="project-name">Vector<span>LLM</span></h3>
+      <p class="project-type">Language Model · Training Pipeline</p>
+      <p class="project-desc">
+        Context-aware retrieval and semantic mapping system. Downstream training target for Friction Bloom datasets — closing the loop between behavioral simulation and language model adaptation.
+      </p>
+      <div class="project-tags">
+        <span class="project-tag">LLM</span>
+        <span class="project-tag">RAG</span>
+        <span class="project-tag">Semantic Mapping</span>
+        <span class="project-tag">Training</span>
+      </div>
+      <div class="project-arrow">View Project →</div>
+    </a>
 
-  </main>
+    <!-- Phreaker 2600 -->
+    <a href="/projects/phreaker-box.html" class="project-card reveal">
+      <div class="project-number">04</div>
+      <span class="project-status status-build">Showcase</span>
+      <h3 class="project-name">Phreaker<span> 2600</span></h3>
+      <p class="project-type">Signals · Adversarial Research</p>
+      <p class="project-desc">
+        Modern exploration of communication systems and signal infrastructure. Adversarial analysis of legacy and contemporary signaling protocols. A tribute to the original phreakers.
+      </p>
+      <div class="project-tags">
+        <span class="project-tag">Signals</span>
+        <span class="project-tag">Adversarial</span>
+        <span class="project-tag">SDR</span>
+        <span class="project-tag">Communications</span>
+      </div>
+      <div class="project-arrow">View Project →</div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ── AI Timeline Promo ── -->
+<section style="padding-top:0;">
+  <a href="/ai-timeline.html" class="timeline-promo reveal">
+    <div class="timeline-promo-inner">
+      <div>
+        <div class="project-number" style="margin-bottom:14px;">Featured</div>
+        <h3 class="project-name" style="margin-bottom:8px;">AI <span style="color:var(--teal)">Timeline</span></h3>
+        <p class="project-type" style="margin-bottom:16px;">Historical Reference · Primary Sources · 1956 — 2026</p>
+        <p class="project-desc">
+          A reconstruction of artificial intelligence through its defining systems. Built from primary papers. 48 entries across six eras — from the Dartmouth Workshop to Project Glasswing. With full written summaries for key entries.
+        </p>
+        <div class="timeline-eras" style="margin-top:28px;">
+          <div class="era-block">
+            <div class="era-year" style="color:#60a5fa">1956</div>
+            <div class="era-name">Origin</div>
+          </div>
+          <div class="era-block">
+            <div class="era-year" style="color:#f87171">1973</div>
+            <div class="era-name">Collapse</div>
+          </div>
+          <div class="era-block">
+            <div class="era-year" style="color:#34d399">1986</div>
+            <div class="era-name">Learning</div>
+          </div>
+          <div class="era-block">
+            <div class="era-year" style="color:#a78bfa">2012</div>
+            <div class="era-name">Breakthrough</div>
+          </div>
+          <div class="era-block">
+            <div class="era-year" style="color:#00e0b8">2017</div>
+            <div class="era-name">Scale</div>
+          </div>
+          <div class="era-block">
+            <div class="era-year" style="color:#00f5d4">2026</div>
+            <div class="era-name">Future</div>
+          </div>
+        </div>
+      </div>
+      <div style="flex-shrink:0;">
+        <span class="timeline-cta">Enter Timeline →</span>
+      </div>
+    </div>
+  </a>
+</section>
+
+<!-- ── About ── -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-label">02</span>
+    <h2 class="section-title">About</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-grid">
+    <div class="about-left reveal">
+      <img src="/assets/me.png" alt="Anthony Fornof" class="about-profile" />
+      <div class="about-name">Anthony Fornof</div>
+      <div class="about-role" style="margin-bottom:16px;">Founder · MentiSystema</div>
+      <div class="about-role" style="color:var(--dim);margin-bottom:24px;">Experimental Psychology · Cognitive Neuroscience</div>
+      <a href="mailto:signa10perator@mentisystema.org" class="contact-email" style="margin-top:0;font-size:10px;">
+        signa10perator@mentisystema.org
+      </a>
+    </div>
+    <div class="about-body reveal">
+      <p>
+        MentiSystema is a personal systems lab — built at the intersection of cognitive science, artificial intelligence, and adversarial thinking. The work here is independent research driven by curiosity, not curriculum.
+      </p>
+      <p>
+        Currently studying Experimental Psychology and Cognitive Neuroscience. The behavioral frameworks that underpin Friction Bloom — stimulus, perturbation, adaptation, outcome — come directly from that academic foundation applied to autonomous systems.
+      </p>
+      <p>
+        Certified in AI engineering, Python, and web development. Every project here — from the CNC-machined field kit to the pathfinding algorithm to the AI Timeline manual — is built from scratch and documented as it grows.
+      </p>
+      <p>
+        The rabbit hole started with an AI and Python course. It led to OSINT, the pentester community, hardware builds, and a body of research that didn't fit neatly into any existing category. MentiSystema is where it lives.
+      </p>
+      <div class="about-disciplines">
+        <span class="discipline">Experimental Psychology</span>
+        <span class="discipline">Cognitive Neuroscience</span>
+        <span class="discipline">Behavioral AI</span>
+        <span class="discipline">OSINT</span>
+        <span class="discipline">Signal Intelligence</span>
+        <span class="discipline">Adversarial Research</span>
+        <span class="discipline">Hardware</span>
+        <span class="discipline">Python</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ── -->
+<section id="contact">
+  <div class="section-header reveal">
+    <span class="section-label">03</span>
+    <h2 class="section-title">Contact</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="contact-grid reveal">
+    <div class="contact-panel">
+    <h3>Get in Touch</h3>
+    <p>
+      Research inquiries, collaboration proposals, or just want to talk about behavioral AI, OSINT, or signals — reach out directly.
+    </p>
+      <a href="mailto:signa10perator@mentisystema.org" class="contact-email">
+        signa10perator@mentisystema.org
+      </a>
+    </div>
+    <div class="contact-status">
+      <div class="status-row">
+        <span class="status-key">Friction Bloom</span>
+        <span class="status-val live">● Active</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">Dendra A-Eye</span>
+        <span class="status-val wip">● In Build</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">VectorLLM</span>
+        <span class="status-val wip">● In Development</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">AI Timeline</span>
+        <span class="status-val live">● Live</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">Dataset 001</span>
+        <span class="status-val live">● Published</span>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+  </div><!-- /shell -->
+</main>
+
+<footer>
+  <div class="shell" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div class="footer-left">© 2026 MentiSystema · All Rights Reserved</div>
+    <div class="footer-right">mentisystema.org</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
+    });
+  });
+</script>
+
 </body>
 </html>
