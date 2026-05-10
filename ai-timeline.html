@@ -54,7 +54,7 @@ muted: #a8b3c2;
 
 teal: #00e0b8;
 
-purple: #9b5cﬀ;
+purple: #9b5cff;
 
 line: rgba(255,255,255,0.11);
 
@@ -322,7 +322,7 @@ ENTRIES<strong>—</strong>
 
 <script type="text/babel">
 
-const { useState, useEﬀect, useRef } = React;
+const { useState, useEffect, useRef } = React;
 
 // CSS injected into head
 
@@ -760,11 +760,11 @@ operational: a unified procedure for machine-based deduction. His work became on
 
 foundational pillars of automated theorem proving and symbolic AI.",
 
-"At its core, the Resolution Principle addressed a diﬃcult problem: how can a machine
+"At its core, the Resolution Principle addressed a difficult problem: how can a machine
 
 systematically determine whether a logical statement is true? Prior approaches often relied on
 
-large collections of handcrafted inference rules, which quickly became ineﬃcient as problems
+large collections of handcrafted inference rules, which quickly became inefficient as problems
 
 grew more complex. Robinson's insight was that logical reasoning could be reduced to a
 
@@ -786,7 +786,7 @@ closingParagraphs: [
 
 unification. Robinson demonstrated that a single inference rule could replace many fragmented
 
-logical procedures. This dramatically improved the eﬃciency and scalability of automated
+logical procedures. This dramatically improved the efficiency and scalability of automated
 
 reasoning systems.",
 
@@ -876,7 +876,7 @@ label: "The proposal outlined ambitions that still define AI today:",
 
 items: ["Language Understanding", "Abstraction Formation", "Self-Improvement",
 
-"Reasoning", "Creativity", "Neural Networks", "Eﬃcient Computation"],
+"Reasoning", "Creativity", "Neural Networks", "Efficient Computation"],
 
 },
 
@@ -924,7 +924,7 @@ eventually feeding the AI Winter.",
 
 viewed cognition itself. Intelligence was re-framed as something potentially mechanizable, not
 
-divine, not uniquely biological, but procedural. This was an extraordinary cultural transition. Theworkshop eﬀectively transformed thought into something researchers believed could be
+divine, not uniquely biological, but procedural. This was an extraordinary cultural transition. Theworkshop effectively transformed thought into something researchers believed could be
 
 encoded, modeled, and eventually replicated.",
 
@@ -1052,7 +1052,7 @@ promises. Triggered funding cuts across Europe.",tags:
 
 ["policy","critique"],milestone:true,milestoneLabel:"START OF FIRST AI WINTER"},
 
-{year:1975,era:"collapse",label:"Anthony Sunguroﬀ — Concept
+{year:1975,era:"collapse",label:"Anthony Sunguroff — Concept
 
 Formation",type:"Paper",description:"Computational approaches to learning concepts from
 
@@ -1132,7 +1132,7 @@ of the architectures that would revolutionize vision.",tags:["neural","vision"]}
 
 market autonomous robot. Brought embodied AI into homes.",tags:["robotics","applied"]},
 
-{year:2006,era:"learning",label:"Geoﬀrey Hinton et al. — Deep Belief
+{year:2006,era:"learning",label:"Geoffrey Hinton et al. — Deep Belief
 
 Networks",type:"Paper",description:"Showed deep networks could be pre-trained layer by
 
@@ -1212,9 +1212,9 @@ vision and language through contrastive learning on 400M image-text pairs.",tags
 
 generation using a transformer on image tokens.",tags:["generative","vision"]},
 
-{year:2022,era:"scale",label:"Stable Diﬀusion",type:"System",description:"Open-source latent
+{year:2022,era:"scale",label:"Stable Diffusion",type:"System",description:"Open-source latent
 
-diﬀusion model. Democratized generative AI.",tags:["generative","open source"]},
+diffusion model. Democratized generative AI.",tags:["generative","open source"]},
 
 {year:2022,era:"scale",label:"ChatGPT — OpenAI",type:"System",description:"RLHF-trained
 
@@ -1282,7 +1282,7 @@ const summary = SUMMARIES[key];
 
 const [page, setPage] = useState(0);
 
-useEﬀect(() => setPage(0), [key]);
+useEffect(() => setPage(0), [key]);
 
 if (!summary) return null;
 
@@ -1478,7 +1478,7 @@ return true;
 
 // Update count in static HTML
 
-useEﬀect(() => {
+useEffect(() => {
 
 const el = document.getElementById('entry-count-display');
 
