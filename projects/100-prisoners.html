@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>100 Prisoners — MentiSystema</title>
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --bg: #070b0f;
+  --text: #e5e7eb;
+  --muted: #a8b3c2;
+  --dim: #4a5568;
+  --teal: #00e0b8;
+  --amber: #f0a832;
+  --line: rgba(255,255,255,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #050810; }
+::-webkit-scrollbar-thumb { background: rgba(240,168,50,0.3); }
+
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.bg-glow {
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 500px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(240,168,50,0.05) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7,11,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,224,184,0.35)); }
+.nav-logo-text { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.2em; color: var(--text); text-transform: uppercase; }
+.nav-logo-text span { color: var(--teal); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--amber); }
+
+.shell { width: min(1120px, 90%); margin: 0 auto; position: relative; z-index: 1; }
+
+.page-header { padding: 100px 0 60px; border-bottom: 1px solid var(--line); }
+.page-eyebrow { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--amber); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+.page-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--amber); }
+.page-title { font-family: 'Rajdhani', sans-serif; font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 700; letter-spacing: 0.06em; color: var(--text); line-height: 1; margin-bottom: 8px; }
+.page-title span { color: var(--amber); }
+.page-subtitle { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin-bottom: 24px; }
+.page-desc { max-width: 680px; color: var(--muted); font-size: 0.95rem; line-height: 1.85; margin-bottom: 32px; }
+
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border: 1px solid; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; }
+.badge-amber { border-color: rgba(240,168,50,0.4); color: var(--amber); }
+.badge-teal  { border-color: rgba(0,224,184,0.4); color: var(--teal); }
+
+section { padding: 80px 0; border-bottom: 1px solid var(--line); }
+section:last-child { border-bottom: none; }
+
+.section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 48px; }
+.section-num { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--amber); }
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.section-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(240,168,50,0.2), transparent); }
+
+.prose p { color: var(--muted); font-size: 0.92rem; line-height: 1.85; margin-bottom: 18px; }
+.prose p:last-child { margin-bottom: 0; }
+.highlight { color: var(--amber); font-weight: 500; }
+.highlight-teal { color: var(--teal); font-weight: 500; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+.stat-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); margin-bottom: 0; }
+.stat-item { background: var(--bg); padding: 28px; }
+.stat-value { font-family: 'Rajdhani', sans-serif; font-size: 2.8rem; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; line-height: 1; margin-bottom: 6px; }
+.stat-label { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+.strategy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); }
+.strategy-card { background: var(--bg); padding: 28px; position: relative; overflow: hidden; }
+.strategy-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+.strategy-smart::before  { background: var(--teal); }
+.strategy-random::before { background: #f87171; }
+.strategy-manual::before { background: var(--amber); }
+.strategy-label { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 6px; }
+.strategy-smart .strategy-label  { color: var(--teal); }
+.strategy-random .strategy-label { color: #f87171; }
+.strategy-manual .strategy-label { color: var(--amber); }
+.strategy-rate { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--dim); margin-bottom: 10px; }
+.strategy-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+.connection-block { border: 1px solid rgba(0,224,184,0.2); padding: 40px; background: rgba(0,224,184,0.02); position: relative; overflow: hidden; }
+.connection-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--teal), transparent); }
+.connection-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text); margin-bottom: 16px; }
+.connection-title span { color: var(--teal); }
+
+.writing-placeholder { border: 1px dashed rgba(255,255,255,0.1); padding: 48px; text-align: center; background: rgba(255,255,255,0.01); }
+.placeholder-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin-bottom: 12px; }
+.placeholder-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.2); }
+
+.sim-wrapper { border: 1px solid rgba(240,168,50,0.2); overflow: hidden; position: relative; }
+.sim-header { padding: 14px 24px; background: rgba(240,168,50,0.05); border-bottom: 1px solid rgba(240,168,50,0.12); display: flex; align-items: center; justify-content: space-between; }
+.sim-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: var(--amber); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.sim-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); animation: blink 2s ease-in-out infinite; }
+.sim-meta { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: var(--dim); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+#sim-root { background: #070b12; min-height: 600px; }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 48px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-left { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
+.footer-right { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--dim); }
+
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .page-header { padding: 80px 0 40px; }
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+  .stat-strip { grid-template-columns: 1fr; }
+  .strategy-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/assets/logo/logo.png" alt="MentiSystema" />
+    <span class="nav-logo-text">Menti<span>S</span>ystema</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/#projects">Projects</a></li>
+    <li><a href="/#about">About Me</a></li>
+    <li><a href="/ai-timeline.html">AI Timeline</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main class="shell">
+
+  <header class="page-header">
+    <div class="page-eyebrow">MentiSystema — Probability Simulation</div>
+    <h1 class="page-title">100 <span>Prisoners</span></h1>
+    <p class="page-subtitle">Probability Theory — Collective Cognition — Emergent Strategy</p>
+    <p class="page-desc">Based on the 2003 puzzle by Gal and Miltersen. One hundred prisoners. One hundred boxes. Each prisoner may open fifty. All must find their own number — or everyone dies. A random strategy gives near-zero odds. One counterintuitive strategy wins roughly 31% of the time. The math is proven. The reason it works is more interesting than the proof.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <span class="status-badge badge-amber">Interactive Simulation</span>
+      <span class="status-badge badge-teal">Writing In Progress</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">The Numbers</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="stat-strip reveal">
+      <div class="stat-item">
+        <div class="stat-value">~31%</div>
+        <div class="stat-label">Smart Strategy Win Rate</div>
+        <div class="stat-sub">Precisely 1 - ln(2) = 0.3069. The cycle-following strategy achieves this across all runs.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">~0%</div>
+        <div class="stat-label">Random Strategy Win Rate</div>
+        <div class="stat-sub">At 100 prisoners, random box selection gives approximately (1/2)^100 probability of success. Effectively zero.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">2003</div>
+        <div class="stat-label">Year of Publication</div>
+        <div class="stat-sub">Introduced by Anna Gal and Peter Bro Miltersen. One of the most counterintuitive results in combinatorial probability.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">The Problem</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div class="prose reveal">
+        <p>One hundred prisoners are each assigned a unique number from 1 to 100. In a room, 100 boxes are arranged — each containing a random slip with one of those numbers. The prisoners must enter the room one at a time, open up to 50 boxes, and find the slip bearing their own number.</p>
+        <p>They cannot communicate once the trials begin. They cannot leave marks. Each prisoner enters, opens boxes, and leaves — with no way to signal what they found.</p>
+        <p>If <span class="highlight">every single prisoner</span> finds their number, they all go free. If even one fails, everyone is executed.</p>
+        <p>A random strategy — each prisoner opens 50 boxes at random — gives each individual a 50% chance. But the probability that all 100 succeed independently is (1/2)^100. This is not a rounding error. It is effectively zero.</p>
+        <p>The cycle-following strategy changes the collective probability to approximately 31%. This should not be possible. No communication occurs. Each prisoner acts alone. Yet the strategy coordinates them through the structure of the room itself.</p>
+      </div>
+      <div class="prose reveal">
+        <p>The strategy: each prisoner starts at the box numbered with their own prisoner number. They open it, read the slip inside, and open the box with that number next. They follow this chain — each slip pointing to the next box — until they either find their own number or exhaust their 50 opens.</p>
+        <p>This works because the 100 slips form a mathematical structure called a <span class="highlight">permutation</span>. Any permutation can be decomposed into cycles — closed loops where following the chain always returns to the starting point.</p>
+        <p>If every cycle in the permutation has length 50 or less, every prisoner following the strategy will find their number within their allowed opens. The question becomes: what is the probability that a random permutation of 100 elements contains no cycle longer than 50?</p>
+        <p>The answer is approximately <span class="highlight">31%</span>. Not because of any trick. Because of the mathematical structure of permutations — a structure the prisoners exploit without ever discussing it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">The Strategies</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="strategy-grid reveal">
+      <div class="strategy-card strategy-smart">
+        <div class="strategy-label">Smart Strategy</div>
+        <div class="strategy-rate">Win Rate: ~31% — Cycle Following</div>
+        <div class="strategy-desc">Start at your own box number. Follow the slip to the next box. Repeat. This traces the permutation cycle containing your number. If no cycle exceeds N/2 in length, every prisoner succeeds. The room's structure does the coordination.</div>
+      </div>
+      <div class="strategy-card strategy-random">
+        <div class="strategy-label">Random Strategy</div>
+        <div class="strategy-rate">Win Rate: ~0% — Independent Selection</div>
+        <div class="strategy-desc">Open 50 boxes at random. Each prisoner has 50% individual odds but each trial is independent. The probability all 100 succeed simultaneously is (1/2)^100. No mathematical structure is exploited. No implicit coordination occurs.</div>
+      </div>
+      <div class="strategy-card strategy-manual">
+        <div class="strategy-label">Manual Play</div>
+        <div class="strategy-rate">Win Rate: Depends on you</div>
+        <div class="strategy-desc">Play as each prisoner yourself. Open boxes one at a time. Discover the cycle structure firsthand. The end screen reveals the full permutation — every cycle, its length, whether it was lethal. The math becomes visible after the fact.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Simulation</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="reveal" style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:32px;max-width:640px;">Three difficulty modes. Play manually as each prisoner, watch the smart cycle strategy execute, or watch random selection fail. The end screen reveals the full permutation cycle structure — which cycles were safe, which were lethal, and why.</p>
+    <div class="sim-wrapper reveal">
+      <div class="sim-header">
+        <div class="sim-title">
+          <span class="sim-dot"></span>
+          100 Prisoners — Probability Simulation
+        </div>
+        <div class="sim-meta">Based on Gal and Miltersen, 2003</div>
+      </div>
+      <div id="sim-root"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Connection to Friction Bloom</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="connection-block reveal">
+      <div class="connection-title">Constrained Systems — <span>Emergent Structure</span></div>
+      <div class="prose">
+        <p>The 100 Prisoners Problem and Friction Bloom study the same phenomenon from opposite directions. Friction Bloom introduces disruption to a navigating agent and measures whether it finds a novel path — a Bloom. The prisoners face a fixed constraint and must discover whether the room's hidden structure allows escape.</p>
+        <p>In both cases, <span class="highlight-teal">the system finds a solution that was never designed for it</span>. The cycle-following strategy was not written into the room. It emerges from the mathematical structure of permutations. The Bloom path was not designed into the grid. It emerges when the agent is forced off its baseline route by friction.</p>
+        <p>The deeper connection is cognitive. The prisoners cannot communicate, yet the smart strategy coordinates them — through the structure of the environment rather than through direct exchange. This is the same principle that governs emergent behavior in multi-agent systems, distributed cognition, and the MentiSystema Mesh. Structure, not signal, does the work.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Research Notes</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="writing-placeholder reveal">
+      <div class="placeholder-label">Writing In Progress</div>
+      <div class="placeholder-title">Extended analysis coming — the psychology of collective cognition under constraint, why the cycle strategy feels like it should not work, and what this tells us about emergent coordination in systems that cannot communicate.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="shell footer-inner">
+    <div class="footer-left">MentiSystema — 100 Prisoners Simulation</div>
+    <div class="footer-right">mentisystema.org</div>
+  </div>
+</footer>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const CONFIGS = {
+  20:  { N: 20,  HALF: 10, COLS: 5,  BOXH: 58, MAXW: 420, AUTO: 400, DOT: 11, GAP: 5,  label: "TRAINING BLOCK",  sub: "Learn the ropes"      },
+  50:  { N: 50,  HALF: 25, COLS: 10, BOXH: 50, MAXW: 620, AUTO: 260, DOT: 8,  GAP: 3,  label: "DEATH ROW",       sub: "Stakes are real"      },
+  100: { N: 100, HALF: 50, COLS: 10, BOXH: 44, MAXW: 620, AUTO: 160, DOT: 6,  GAP: 3,  label: "THE FULL YARD",   sub: "The original problem" },
+};
+
+const C = {
+  bg: '#070b12', surface: '#0e1420', surfaceHi: '#141c2e',
+  border: '#1c2640', borderBright: '#2d3f6b',
+  amber: '#f0a832', green: '#22c55e', greenDk: '#14532d',
+  red: '#f43f5e', redDk: '#4c0519', chain: '#818cf8',
+  text: '#e2e8f0', dim: '#8892a4', muted: '#2d3f6b',
+};
+const M = { fontFamily: '"Courier New", Courier, monospace' };
+const CYCLE_CLRS = ['#818cf8','#34d399','#fb923c','#f472b6','#38bdf8','#fbbf24','#4ade80','#e879f9','#67e8f9','#a3e635'];
+const FLASH_MS = 680;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getCycles(room, N) {
+  const visited = new Array(N).fill(false), cycles = [];
+  for (let s = 0; s < N; s++) {
+    if (!visited[s]) {
+      const cyc = []; let c = s;
+      while (!visited[c]) { visited[c] = true; cyc.push(c); c = room[c] - 1; }
+      cycles.push(cyc);
+    }
+  }
+  return cycles;
+}
+
+function Box({ num, slip, isOpen, flashType, isTarget, canClick, onClick, boxH }) {
+  const [hov, setHov] = useState(false);
+  let bg = C.surface, bdr = C.border, slipColor = C.text;
+  if (!isOpen && hov && canClick) bdr = C.amber + "88";
+  if (isOpen) { bg = C.surfaceHi; bdr = C.borderBright; }
+  if (isOpen && isTarget) slipColor = C.amber;
+  if (flashType === 'win')  { bg = C.greenDk; bdr = C.green;  slipColor = C.green; }
+  if (flashType === 'lose') { bg = C.redDk;   bdr = C.red;    slipColor = C.red; }
+  const small = boxH < 50;
+
+  return (
+    <div onClick={canClick && !isOpen ? onClick : undefined}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        height: boxH, borderRadius: 6, border: "2px solid " + bdr, background: bg,
+        transition: 'all 0.18s', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        cursor: canClick && !isOpen ? 'pointer' : 'default', userSelect: 'none',
+        transform: hov && canClick && !isOpen ? 'scale(1.07)' : 'scale(1)',
+      }}>
+      {isOpen ? (
+        <>
+          {!small && <span style={{ ...M, fontSize: 7, color: C.dim, letterSpacing: '0.1em' }}>#{num}</span>}
+          <span style={{ ...M, fontSize: small ? 13 : 18, fontWeight: 700, color: slipColor, lineHeight: 1.1 }}>{slip}</span>
+        </>
+      ) : (
+        <>
+          {!small && <span style={{ fontSize: 6, color: C.muted, letterSpacing: '0.08em' }}>BOX</span>}
+          <span style={{ ...M, fontSize: small ? 11 : 14, color: C.dim }}>{num}</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function DiffTab({ d, active, onClick }) {
+  const cfg = CONFIGS[d];
+  return (
+    <button onClick={onClick} style={{
+      flex: 1, background: active ? C.amber + "18" : C.surface,
+      border: "2px solid " + (active ? C.amber : C.border),
+      borderRadius: 10, padding: '10px 8px', cursor: 'pointer', transition: 'all 0.2s',
+    }}>
+      <div style={{ ...M, fontSize: 20, fontWeight: 900, color: active ? C.amber : C.dim, lineHeight: 1 }}>{d}</div>
+      <div style={{ ...M, fontSize: 8, color: active ? C.amber : C.muted, letterSpacing: '0.1em', marginTop: 3 }}>{cfg.label}</div>
+    </button>
+  );
+}
+
+function ModeBtn({ label, sub, color, onClick }) {
+  const [h, setH] = useState(false);
+  return (
+    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{
+        background: h ? color + "18" : C.surface, border: "2px solid " + (h ? color : C.border),
+        borderRadius: 10, padding: '13px 16px', cursor: 'pointer', transition: 'all 0.2s',
+        textAlign: 'left', width: '100%',
+      }}>
+      <div style={{ ...M, fontSize: 11, fontWeight: 700, color, letterSpacing: '0.08em', marginBottom: 3 }}>&#9658; {label}</div>
+      <div style={{ fontSize: 12, color: C.dim }}>{sub}</div>
+    </button>
+  );
+}
+
+export default function App() {
+  const [screen,  setScreen]  = useState('menu');
+  const [diff,    setDiff]    = useState(20);
+  const [room,    setRoom]    = useState(null);
+  const [cycles,  setCycles]  = useState([]);
+  const [pIdx,    setPIdx]    = useState(0);
+  const [opened,  setOpened]  = useState([]);
+  const [opensLeft, setLeft]  = useState(0);
+  const [results, setResults] = useState([]);
+  const [mode,    setMode]    = useState('manual');
+  const [flash,   setFlash]   = useState(null);
+  const [flashing,setFlashing]= useState(false);
+  const [gameResult,setGR]    = useState(null);
+  const [stats,   setStats]   = useState({ wins: 0, total: 0 });
+  const ref = useRef({});
+  ref.current = { room, pIdx, opened, opensLeft, results, mode, flashing, diff };
+
+  const cfg = CONFIGS[diff];
+
+  function startGame(m, d) {
+    const { N, HALF } = CONFIGS[d || diff];
+    const r = shuffle(Array.from({ length: N }, (_, i) => i + 1));
+    setRoom(r); setCycles(getCycles(r, N)); setPIdx(0); setOpened([]);
+    setLeft(HALF); setResults(Array(N).fill('pending')); setMode(m);
+    setFlash(null); setFlashing(false); setGR(null); setScreen('game');
+  }
+
+  function processOpen(boxIdx) {
+    const { room, pIdx, opened, opensLeft, results, flashing, diff } = ref.current;
+    const { HALF, N } = CONFIGS[diff];
+    if (!room || flashing || opened.includes(boxIdx)) return;
+    const newOpened = [...opened, boxIdx], newLeft = opensLeft - 1;
+    setOpened(newOpened); setLeft(newLeft);
+    const slip = room[boxIdx], target = pIdx + 1;
+
+    if (slip === target) {
+      const nr = [...results]; nr[pIdx] = 'win'; setResults(nr);
+      setFlash({ boxIdx, outcome: 'win' }); setFlashing(true);
+      setTimeout(() => {
+        setFlash(null); setFlashing(false);
+        const next = nr.findIndex(r => r === 'pending');
+        if (next === -1) { setGR('win'); setStats(s => ({ wins: s.wins + 1, total: s.total + 1 })); setScreen('end'); }
+        else { setPIdx(next); setOpened([]); setLeft(HALF); }
+      }, FLASH_MS);
+    } else if (newLeft === 0) {
+      const nr = [...results]; nr[pIdx] = 'lose'; setResults(nr);
+      setFlash({ boxIdx, outcome: 'lose' }); setFlashing(true);
+      setTimeout(() => {
+        setFlash(null); setFlashing(false);
+        setGR('lose'); setStats(s => ({ ...s, total: s.total + 1 })); setScreen('end');
+      }, FLASH_MS);
+    }
+  }
+
+  useEffect(() => {
+    if (screen !== 'game' || mode === 'manual') return;
+    const { N, HALF, AUTO } = cfg;
+    let cancelled = false;
+
+    function getNext() {
+      const { room, pIdx, opened, opensLeft, flashing, diff } = ref.current;
+      if (cancelled || !room || flashing || screen !== 'game') return;
+      const target = pIdx + 1;
+      let nextBox;
+      if (mode === 'smart') {
+        nextBox = opened.length === 0 ? pIdx : room[opened[opened.length - 1]] - 1;
+      } else {
+        const avail = Array.from({ length: N }, (_, i) => i).filter(i => !opened.includes(i));
+        if (avail.length === 0) return;
+        nextBox = avail[Math.floor(Math.random() * avail.length)];
+      }
+      processOpen(nextBox);
+      if (!cancelled) setTimeout(getNext, AUTO);
+    }
+    const t = setTimeout(getNext, AUTO);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [screen, mode, pIdx]);
+
+  if (screen === 'menu') {
+    return (
+      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 20px' }}>
+        <div style={{ maxWidth: 480, width: '100%' }}>
+          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.3em', textAlign: 'center', marginBottom: 16 }}>PROBABILITY SIMULATION</div>
+          <div style={{ textAlign: 'center', marginBottom: 4 }}>
+            <span style={{ fontSize: 52, fontWeight: 900, color: C.text, lineHeight: 1 }}>100 </span>
+            <span style={{ fontSize: 52, fontWeight: 900, color: C.amber, lineHeight: 1 }}>PRISONERS</span>
+          </div>
+          <div style={{ textAlign: 'center', color: C.dim, fontSize: 12, marginBottom: 28 }}>
+            Based on the 2003 puzzle by Gal &amp; Miltersen &middot; Smart strategy wins ~31%
+          </div>
+
+          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.2em', textAlign: 'center', marginBottom: 10 }}>SELECT DIFFICULTY</div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 6 }}>
+            {[20, 50, 100].map(d => <DiffTab key={d} d={d} active={diff === d} onClick={() => setDiff(d)} />)}
+          </div>
+          <div style={{ ...M, fontSize: 10, color: C.dim, textAlign: 'center', marginBottom: 22 }}>
+            {diff} prisoners &middot; {diff/2} opens each &middot; {CONFIGS[diff].sub}
+          </div>
+
+          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 10, padding: '14px 18px', marginBottom: 20 }}>
+            <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.12em', marginBottom: 10 }}>THE RULES</div>
+            {[
+              diff + " prisoners numbered 1-" + diff,
+              diff + " boxes each hide one random slip",
+              "Each prisoner may open " + diff/2 + " boxes",
+              "ALL must find their own number — or everyone dies"
+            ].map((r, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: C.dim }}>
+                <span style={{ color: C.amber }}>&#9658;</span> {r}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <ModeBtn label="PLAY YOURSELF" sub="Open boxes manually — learn the strategy" color={C.amber} onClick={() => startGame('manual')} />
+            <ModeBtn label="SMART STRATEGY" sub="Follow the cycle algorithm — wins ~31%" color="#22c55e" onClick={() => startGame('smart')} />
+            <ModeBtn label="RANDOM STRATEGY" sub="Open at random — watch it almost always fail" color="#f43f5e" onClick={() => startGame('random')} />
+          </div>
+
+          {stats.total > 0 && (
+            <div style={{ ...M, fontSize: 10, color: C.dim, textAlign: 'center', marginTop: 16, letterSpacing: '0.08em' }}>
+              {stats.wins}/{stats.total} GAMES WON &middot; {Math.round(100 * stats.wins / stats.total)}% WIN RATE
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === 'game') {
+    const { N, HALF, COLS, BOXH, MAXW, DOT, GAP } = cfg;
+    const target = pIdx + 1;
+    const won = results.filter(r => r === 'win').length;
+
+    return (
+      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '14px 16px', overflowY: 'auto' }}>
+        <div style={{ maxWidth: MAXW, width: '100%' }}>
+          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.2em', textAlign: 'center', marginBottom: 10 }}>
+            {diff} PRISONERS &middot; {mode === 'manual' ? 'MANUAL' : mode === 'smart' ? 'SMART STRATEGY' : 'RANDOM'}
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: GAP, marginBottom: 12, justifyContent: 'center' }}>
+            {results.map((r, i) => (
+              <div key={i} style={{
+                width: DOT, height: DOT, borderRadius: '50%', transition: 'all 0.25s',
+                background: r === 'win' ? C.green : r === 'lose' ? C.red : i === pIdx ? C.amber : C.border,
+                boxShadow: i === pIdx ? "0 0 7px " + C.amber : 'none',
+                flexShrink: 0,
+              }} />
+            ))}
+          </div>
+
+          <div style={{ background: C.surface, border: "1px solid " + C.borderBright, borderRadius: 10, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>PRISONER</div>
+              <div style={{ ...M, fontSize: 32, fontWeight: 900, color: C.amber, lineHeight: 1 }}>
+                #{String(target).padStart(diff === 100 ? 3 : 2, '0')}
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>SAFE</div>
+              <div style={{ ...M, fontSize: 20, fontWeight: 700, color: C.green }}>{won}/{N}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>OPENS LEFT</div>
+              <div style={{ ...M, fontSize: 32, fontWeight: 900, lineHeight: 1, color: opensLeft <= Math.floor(HALF * 0.2) ? C.red : opensLeft <= Math.floor(HALF * 0.4) ? C.amber : C.text }}>
+                {opensLeft}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: "repeat(" + COLS + ", 1fr)", gap: 5, marginBottom: 12 }}>
+            {Array.from({ length: N }, (_, i) => {
+              const isOpen = opened.includes(i);
+              const slip = isOpen ? room[i] : null;
+              return (
+                <Box key={i} num={i + 1} slip={slip} isOpen={isOpen}
+                  flashType={flash && flash.boxIdx === i ? flash.outcome : null}
+                  isTarget={slip === target} boxH={BOXH}
+                  canClick={mode === 'manual' && !flashing}
+                  onClick={() => processOpen(i)} />
+              );
+            })}
+          </div>
+
+          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: '9px 14px', fontSize: 11, color: C.dim, textAlign: 'center' }}>
+            {mode === 'manual' && opened.length === 0 && "Start at Box " + target + " — read the slip — open that box — repeat"}
+            {mode === 'manual' && opened.length > 0 && opened.length + " of " + HALF + " opens used"}
+            {mode === 'smart' && "Following cycle: Box " + target + " to slip to next box..."}
+            {mode === 'random' && "Opening at random..."}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === 'end') {
+    const { N, HALF, MAXW } = cfg;
+    const sorted = [...cycles].sort((a, b) => b.length - a.length);
+    const maxLen = sorted[0] ? sorted[0].length : 0;
+
+    return (
+      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px', overflowY: 'auto' }}>
+        <div style={{ maxWidth: MAXW, width: '100%' }}>
+
+          <div style={{ textAlign: 'center', marginBottom: 22 }}>
+            <div style={{ ...M, fontSize: 9, letterSpacing: '0.3em', color: gameResult === 'win' ? C.green : C.red, marginBottom: 6 }}>
+              &#9658; {gameResult === 'win' ? 'MISSION COMPLETE' : 'MISSION FAILED'} &middot; {diff} PRISONERS
+            </div>
+            <div style={{ fontSize: 56, fontWeight: 900, lineHeight: 1, color: gameResult === 'win' ? C.green : C.red }}>
+              {gameResult === 'win' ? 'ESCAPED' : 'EXECUTED'}
+            </div>
+            <div style={{ color: C.dim, fontSize: 12, marginTop: 8 }}>
+              {gameResult === 'win'
+                ? "All " + N + " prisoners found their slip — ~31% probability"
+                : "Cycle of " + maxLen + " was fatal — limit was " + HALF}
+            </div>
+          </div>
+
+          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 10, padding: '12px', marginBottom: 14, display: 'flex', justifyContent: 'space-around' }}>
+            {[['GAMES', stats.total, C.text], ['WINS', stats.wins, C.green],
+              ['WIN RATE', (stats.total ? Math.round(100 * stats.wins / stats.total) : 0) + "%", C.amber]].map(([l, v, c]) => (
+              <div key={l} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 2 }}>{l}</div>
+                <div style={{ ...M, fontSize: 26, fontWeight: 700, color: c }}>{v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 12, padding: '14px', marginBottom: 18 }}>
+            <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.15em', marginBottom: 14 }}>
+              PERMUTATION CYCLES &middot; {sorted.length} FOUND
+            </div>
+            {sorted.map((cyc, ci) => {
+              const col = CYCLE_CLRS[ci % CYCLE_CLRS.length];
+              const lethal = cyc.length > HALF;
+              const SHOW = 14;
+              const overflow = cyc.length > SHOW;
+              const shown = overflow ? cyc.slice(0, SHOW) : cyc;
+              return (
+                <div key={ci} style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                    <span style={{ ...M, fontSize: 9, color: col, letterSpacing: '0.08em' }}>CYCLE {ci + 1}</span>
+                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, color: lethal ? C.red : C.green, background: lethal ? C.red + "22" : C.green + "22", border: "1px solid " + (lethal ? C.red : C.green) + "44" }}>
+                      {cyc.length} {lethal ? 'LETHAL' : 'SAFE'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
+                    {shown.map((b, bi) => (
+                      <span key={bi} style={{ ...M, fontSize: 10, fontWeight: 700, color: col, background: col + "1a", border: "1px solid " + col + "44", borderRadius: 4, padding: '2px 5px' }}>
+                        {b + 1}
+                      </span>
+                    ))}
+                    {overflow && <span style={{ ...M, fontSize: 10, color: C.dim }}>+{cyc.length - SHOW} more</span>}
+                    <span style={{ ...M, fontSize: 12, color: C.muted }}>&#8629;</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => setScreen('menu')} style={{ flex: 1, background: 'transparent', border: "2px solid " + C.border, borderRadius: 10, padding: '13px', color: C.dim, ...M, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', cursor: 'pointer' }}>
+              &#9658; MENU
+            </button>
+            <button onClick={() => startGame(mode, diff)} style={{ flex: 2, background: C.amber + "14", border: "2px solid " + C.amber, borderRadius: 10, padding: '13px', color: C.amber, ...M, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', cursor: 'pointer' }}>
+              &#9658; PLAY AGAIN
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('sim-root')).render(<App />);
+</script>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 60);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
