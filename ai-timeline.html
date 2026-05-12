@@ -98,10 +98,10 @@ footer p { margin: 0; color: var(--muted); letter-spacing: 0.18em; text-transfor
   <div id="timeline-root"></div>
 </main>
 <footer><p>MentiSystema</p></footer>
-
+ 
 <script type="text/babel">
 const { useState, useEffect } = React;
-
+ 
 const SUMMARIES = {
   "1966-ELIZA - Joseph Weizenbaum": {
     pages: [
@@ -205,7 +205,7 @@ const SUMMARIES = {
     ]
   }
 };
-
+ 
 const ERA_CONFIG = {
   origin:       { label: "Origin",       color: "#60a5fa", years: "1956-1972" },
   collapse:     { label: "Collapse",     color: "#f87171", years: "1973-1981" },
@@ -214,15 +214,15 @@ const ERA_CONFIG = {
   scale:        { label: "Scale",        color: "#00e0b8", years: "2017-2024" },
   future:       { label: "Future",       color: "#00f5d4", years: "2025-"     }
 };
-
+ 
 const TYPE_COLORS = {
   Paper: "#818cf8", Book: "#fb923c", System: "#34d399", Report: "#f472b6",
   Dataset: "#facc15", Competition: "#facc15", Project: "#00e0b8",
   Event: "#a78bfa", Systems: "#34d399"
 };
-
+ 
 function typeColor(t) { return TYPE_COLORS[t.split("/")[0].trim()] || "#94a3b8"; }
-
+ 
 const TIMELINE = [
   {year:1956,era:"origin",label:"Dartmouth Workshop",type:"Report",description:"Birth of Artificial Intelligence. The founding moment where the field was named and its ambitions declared.",tags:["founding","symbolic"]},
   {year:1965,era:"origin",label:"J. Alan Robinson - Resolution Principle",type:"Paper",description:"Established the logical foundation for automated theorem proving, enabling machines to reason from formal rules.",tags:["logic","reasoning"]},
@@ -273,12 +273,12 @@ const TIMELINE = [
   {year:2026,era:"future",label:"Claude Mythos - Anthropic",type:"System",description:"Next-generation model with extended reasoning, deeper world modeling, and enhanced alignment.",tags:["llm","future"]},
   {year:2026,era:"future",label:"Project Glasswing - Anthropic",type:"Project",description:"Research initiative exploring transparent, interpretable AI with verifiable reasoning chains.",tags:["interpretability","future"]}
 ];
-
+ 
 const ALL_TAGS = [...new Set(TIMELINE.flatMap(e => e.tags))].sort();
 const ALL_ERAS = Object.keys(ERA_CONFIG);
 const summaryKey = e => e.year + "-" + e.label;
 const hasSummary = e => !!SUMMARIES[summaryKey(e)];
-
+ 
 const STYLES = `
   .ms-scan{position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,224,184,.5),transparent);animation:scanPage 6s linear infinite;pointer-events:none;z-index:100}
   @keyframes scanPage{0%{top:0;opacity:0}5%{opacity:.4}95%{opacity:.4}100%{top:100vh;opacity:0}}
@@ -358,7 +358,7 @@ const STYLES = `
   .ms-pip{height:6px;border-radius:3px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.1)}
   .ms-pgl{font-size:9px;color:#334155;letter-spacing:.12em;font-family:'Space Mono',monospace;margin-left:10px}
 `;
-
+ 
 function HUDPanel({ entry, onClose }) {
   const ec = ERA_CONFIG[entry.era] || {};
   const color = ec.color || "#00e0b8";
@@ -419,7 +419,7 @@ function HUDPanel({ entry, onClose }) {
     </div>
   );
 }
-
+ 
 function Timeline() {
   const [eras, setEras] = useState(new Set(ALL_ERAS));
   const [tags, setTags] = useState(new Set());
@@ -427,7 +427,7 @@ function Timeline() {
   const [active, setActive] = useState(null);
   const [reading, setReading] = useState(null);
   const [view, setView] = useState("timeline");
-
+ 
   const toggleEra = era => setEras(prev => {
     const n = new Set(prev);
     if (n.has(era)) { if (n.size > 1) n.delete(era); } else n.add(era);
@@ -438,7 +438,7 @@ function Timeline() {
     n.has(tag) ? n.delete(tag) : n.add(tag);
     return n;
   });
-
+ 
   const filtered = TIMELINE.filter(e => {
     if (!eras.has(e.era)) return false;
     if (tags.size > 0 && !e.tags.some(t => tags.has(t))) return false;
@@ -448,26 +448,26 @@ function Timeline() {
     }
     return true;
   }).sort((a,b) => a.year - b.year);
-
+ 
   useEffect(() => {
     const el = document.getElementById("entry-count-display");
     if (el) el.innerHTML = "ENTRIES<strong>" + filtered.length + "</strong>";
   }, [filtered.length]);
-
+ 
   useEffect(() => {
     const s = document.createElement("style");
     s.textContent = STYLES;
     document.head.appendChild(s);
     return () => document.head.removeChild(s);
   }, []);
-
+ 
   const isActive = e => active && active.label === e.label && active.year === e.year;
-
+ 
   return (
     <div>
       <div className="ms-scan" />
       {reading && <HUDPanel entry={reading} onClose={() => setReading(null)} />}
-
+ 
       <div className="ms-controls">
         <div className="ms-row">
           <div className="ms-search-wrap">
@@ -501,7 +501,7 @@ function Timeline() {
           {tags.size > 0 && <button className="ms-tag clr" onClick={() => setTags(new Set())}>clear x</button>}
         </div>
       </div>
-
+ 
       {view === "timeline" && (
         <div className="ms-tl-wrap">
           <div className="ms-tl-line" />
@@ -537,7 +537,7 @@ function Timeline() {
           })}
         </div>
       )}
-
+ 
       {view === "grid" && (
         <div className="ms-grid">
           {filtered.map(e => {
@@ -568,7 +568,7 @@ function Timeline() {
     </div>
   );
 }
-
+ 
 ReactDOM.createRoot(document.getElementById("timeline-root")).render(<Timeline />);
 </script>
 </body>
