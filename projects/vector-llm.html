@@ -1,40 +1,656 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vector LLM | MentiSystema</title>
-  <link rel="stylesheet" href="../styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VectorLLM — MentiSystema</title>
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:     #070b0f;
+  --text:   #e5e7eb;
+  --muted:  #a8b3c2;
+  --dim:    #4a5568;
+  --green:  #78ff50;
+  --teal:   #00e0b8;
+  --line:   rgba(255,255,255,0.08);
+  --line-g: rgba(120,255,80,0.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #050810; }
+::-webkit-scrollbar-thumb { background: rgba(120,255,80,0.3); }
+ 
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.bg-glow {
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 600px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(120,255,80,0.04) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+ 
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7,11,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0,224,184,0.35)); }
+.nav-logo-text { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.2em; color: var(--text); text-transform: uppercase; }
+.nav-logo-text span { color: var(--teal); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+ 
+.shell { width: min(1120px, 90%); margin: 0 auto; position: relative; z-index: 1; }
+ 
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-top: 64px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+ 
+.hero-bg-img {
+  position: absolute; inset: 0;
+  background-image: url('/assets/vector-llm/vectorllm-desktop.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.12;
+  z-index: 0;
+}
+ 
+.hero-content { position: relative; z-index: 1; padding: 80px 0 60px; }
+ 
+.hero-eyebrow { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--green); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+.hero-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--green); }
+ 
+.hero-title { font-family: 'Rajdhani', sans-serif; font-size: clamp(3rem, 8vw, 6rem); font-weight: 700; letter-spacing: 0.06em; color: var(--text); line-height: 0.95; margin-bottom: 24px; }
+.hero-title span { color: var(--green); }
+ 
+.hero-tagline-block { border-left: 3px solid var(--green); padding-left: 20px; margin-bottom: 32px; }
+.hero-tagline-line { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: rgba(120,255,80,0.7); text-transform: uppercase; line-height: 2; }
+ 
+.hero-desc { max-width: 600px; color: var(--muted); font-size: 0.95rem; line-height: 1.85; margin-bottom: 36px; }
+ 
+.status-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border: 1px solid; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; }
+.badge-green  { border-color: rgba(120,255,80,0.4); color: var(--green); }
+.badge-yellow { border-color: rgba(251,191,36,0.4); color: #fbbf24; }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+ 
+section { padding: 80px 0; border-bottom: 1px solid var(--line); }
+section:last-child { border-bottom: none; }
+ 
+.section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 48px; }
+.section-num { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--green); }
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.section-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(120,255,80,0.18), transparent); }
+ 
+.prose p { color: var(--muted); font-size: 0.92rem; line-height: 1.85; margin-bottom: 18px; }
+.prose p:last-child { margin-bottom: 0; }
+.highlight { color: var(--green); font-weight: 500; }
+ 
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+ 
+.principle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); }
+.principle-card { background: var(--bg); padding: 28px; position: relative; overflow: hidden; }
+.principle-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--green); opacity: 0.4; }
+.principle-name { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.08em; color: var(--green); margin-bottom: 8px; }
+.principle-rule { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: var(--dim); margin-bottom: 10px; text-transform: uppercase; }
+.principle-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+ 
+.category-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--line); }
+.category-item { background: var(--bg); padding: 20px 16px; }
+.cat-letter { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; color: var(--green); opacity: 0.3; line-height: 1; margin-bottom: 8px; }
+.cat-name { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--green); text-transform: uppercase; margin-bottom: 8px; }
+.cat-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+ 
+.forward-block { border: 1px solid rgba(120,255,80,0.15); padding: 48px; background: rgba(120,255,80,0.02); position: relative; overflow: hidden; }
+.forward-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), transparent); opacity: 0.3; }
+.forward-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--green); text-transform: uppercase; margin-bottom: 24px; }
+.forward-text p { color: var(--muted); font-size: 0.92rem; line-height: 1.85; margin-bottom: 16px; font-style: italic; }
+.forward-text p:last-child { margin-bottom: 0; font-style: normal; color: var(--green); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.1em; }
+ 
+.manual-block { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+.manual-section { background: var(--bg); padding: 24px 28px; }
+.manual-section-title { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--green); text-transform: uppercase; margin-bottom: 12px; }
+.manual-item { font-size: 12px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 10px; }
+.manual-item:last-child { border-bottom: none; }
+.manual-num { color: var(--dim); font-family: 'Space Mono', monospace; font-size: 10px; flex-shrink: 0; }
+ 
+.gate-section { padding: 80px 0; }
+.passphrase-gate { border: 1px solid var(--line); padding: 64px 48px; text-align: center; position: relative; overflow: hidden; background: rgba(255,255,255,0.01); }
+.passphrase-gate::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(120,255,80,0.4), transparent); }
+.gate-icon { font-size: 28px; margin-bottom: 20px; opacity: 0.3; color: var(--green); }
+.gate-title { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text); margin-bottom: 8px; }
+.gate-title span { color: var(--green); }
+.gate-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin-bottom: 24px; }
+.gate-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.7; max-width: 480px; margin: 0 auto 32px; }
+.gate-form { display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 440px; margin: 0 auto; }
+.gate-input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px; padding: 14px 20px; outline: none; transition: border-color 0.15s; letter-spacing: 0.08em; text-align: center; }
+.gate-input:focus { border-color: rgba(120,255,80,0.4); }
+.gate-input::placeholder { color: #334155; }
+.gate-btn { width: 100%; padding: 14px 28px; border: 1px solid rgba(120,255,80,0.4); background: rgba(120,255,80,0.06); color: var(--green); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.gate-btn:hover { background: rgba(120,255,80,0.12); border-color: var(--green); }
+.gate-error { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: #f87171; text-transform: uppercase; opacity: 0; transition: opacity 0.2s; }
+.gate-error.visible { opacity: 1; }
+ 
+.corner-tl { position: absolute; top: 0; left: 0; width: 20px; height: 20px; border-top: 1px solid var(--green); border-left: 1px solid var(--green); opacity: 0.3; }
+.corner-tr { position: absolute; top: 0; right: 0; width: 20px; height: 20px; border-top: 1px solid var(--green); border-right: 1px solid var(--green); opacity: 0.3; }
+.corner-bl { position: absolute; bottom: 0; left: 0; width: 20px; height: 20px; border-bottom: 1px solid var(--green); border-left: 1px solid var(--green); opacity: 0.3; }
+.corner-br { position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; border-bottom: 1px solid var(--green); border-right: 1px solid var(--green); opacity: 0.3; }
+ 
+.ontology-panel { display: none; animation: fadeIn 0.3s ease; }
+.ontology-panel.visible { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+ 
+.ontology-header { border: 1px solid rgba(120,255,80,0.2); padding: 24px 32px; background: rgba(120,255,80,0.03); display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px; }
+.ontology-title { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.1em; color: var(--green); }
+.ontology-meta { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: var(--dim); }
+.lock-btn { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.12em; color: #f87171; background: none; border: 1px solid rgba(248,113,113,0.2); padding: 5px 12px; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.lock-btn:hover { border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.05); }
+ 
+.concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); }
+.concept-card { background: var(--bg); padding: 24px 28px; border-left: 2px solid rgba(120,255,80,0.2); transition: border-color 0.15s; }
+.concept-card:hover { border-left-color: var(--green); background: rgba(120,255,80,0.02); }
+.concept-name { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.06em; color: var(--green); margin-bottom: 6px; }
+.concept-def { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+.concept-fn { font-size: 11px; color: var(--dim); line-height: 1.5; margin-bottom: 10px; font-style: italic; }
+.concept-markers { display: flex; flex-wrap: wrap; gap: 5px; }
+.marker { font-family: 'Space Mono', monospace; font-size: 8px; color: rgba(120,255,80,0.6); background: rgba(120,255,80,0.05); border: 1px solid rgba(120,255,80,0.15); padding: 2px 7px; letter-spacing: 0.06em; }
+ 
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+ 
+footer { border-top: 1px solid var(--line); padding: 32px 0 48px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-left { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; }
+.footer-right { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--dim); }
+ 
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero-content { padding: 80px 0 40px; }
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+  .principle-grid { grid-template-columns: 1fr; }
+  .category-strip { grid-template-columns: 1fr; }
+  .manual-block { grid-template-columns: 1fr; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .passphrase-gate { padding: 40px 24px; }
+}
+</style>
 </head>
-
 <body>
-
-  <header class="top-nav">
-    <a href="../index.html">Home</a>
-    <a href="../index.html#projects">Projects</a>
-    <a href="../index.html#about">About</a>
-  </header>
-
-  <main class="site-shell">
-    <p><a href="../index.html">← Back</a></p>
-
-    <h1>Vector LLM</h1>
-
-    <p>
-      Vector LLM explores context-aware retrieval and semantic mapping
-      using vector embeddings.
-    </p>
-
-    <p>
-      The focus is on how information is represented, retrieved, and
-      structured across systems, enabling more meaningful interaction
-      between data and models.
-    </p>
-
-    <p>
-      Work in progress.
-    </p>
-  </main>
-
+ 
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+ 
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/assets/logo/logo.png" alt="MentiSystema" />
+    <span class="nav-logo-text">Menti<span>S</span>ystema</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/#projects">Projects</a></li>
+    <li><a href="/#about">About Me</a></li>
+    <li><a href="/ai-timeline.html">AI Timeline</a></li>
+    <li><a href="/#contact">Contact</a></li>
+  </ul>
+</nav>
+ 
+<main class="shell">
+ 
+  <div class="hero">
+    <div class="hero-bg-img"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">MentiSystema — Linguistic Intelligence</div>
+      <h1 class="hero-title">Vector<span>LLM</span></h1>
+      <div class="hero-tagline-block">
+        <div class="hero-tagline-line">Language functions as a vector.</div>
+        <div class="hero-tagline-line">The mind functions as a host.</div>
+        <div class="hero-tagline-line">Mechanisms describe transmission.</div>
+        <div class="hero-tagline-line">Behavior reflects outcome.</div>
+      </div>
+      <p class="hero-desc">A constrained analytical framework for linguistic influence analysis. VectorLLM identifies, classifies, and models how language functions as an active system — not a passive medium — and how specific mechanisms exploit psychological vulnerabilities to produce behavioral outcomes.</p>
+      <div class="status-row">
+        <span class="status-badge badge-green"><span class="badge-dot"></span>Field Manual v0.1</span>
+        <span class="status-badge badge-yellow">In Development</span>
+      </div>
+    </div>
+  </div>
+ 
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">The Forward</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="forward-block reveal">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="forward-label">Field Manual v0.1 — Forward</div>
+      <div class="forward-text">
+        <p>At some point, language stopped being interpreted purely as content and began to be observed as structure.</p>
+        <p>This shift did not originate from a single event. It emerged from repeating exposure to patterns in everyday communication — patterns that were consistent, repeatable, and often unexamined. Once identified, these patterns could not be ignored.</p>
+        <p>An initial attempt was made to model this space. That system attempted to capture a wide range of behaviors, patterns, and interpretations simultaneously. It failed. The scope was too broad, the definitions were unstable, and the absence of constraints produced low signal fidelity. The system collapsed under ambiguity.</p>
+        <p>This version is the result of reconstruction under constraints.</p>
+        <p>VectorLLM is a constrained analytical framework. The framework does not predict the future. It clarifies the present.</p>
+        <p>— Anthony James Fornof Jr. / MentiSystema</p>
+      </div>
+    </div>
+  </section>
+ 
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Design Principles</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="principle-grid reveal">
+      <div class="principle-card">
+        <div class="principle-name">Operational</div>
+        <div class="principle-rule">Every concept must detect, explain, or modify</div>
+        <div class="principle-desc">Each entry in the framework must be able to detect something in text, explain what it is doing, or modify it through rewrite or resistance moves. If a concept cannot be used, it does not belong.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-name">Non-Totalizing</div>
+        <div class="principle-rule">The system must allow benign language</div>
+        <div class="principle-desc">The framework must account for benign language, mixed intent, and uncertainty. Avoid everything-is-infection drift. Not every communication is an influence operation.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-name">Composable</div>
+        <div class="principle-rule">Concepts must combine cleanly</div>
+        <div class="principle-desc">Mechanisms should combine without vague overlap. Identity Hook plus Urgency Capture. Guilt Loading plus Belonging Lure. Clean composition enables complex pattern detection.</div>
+      </div>
+      <div class="principle-card">
+        <div class="principle-name">Detectable</div>
+        <div class="principle-rule">If you cannot point to it, it is too abstract</div>
+        <div class="principle-desc">If you cannot point to a specific phrase and say that is it, the concept is too abstract to be useful. Every mechanism must have concrete linguistic markers that can be identified in real text.</div>
+      </div>
+    </div>
+  </section>
+ 
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Core Categories</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="category-strip reveal">
+      <div class="category-item">
+        <div class="cat-letter">A</div>
+        <div class="cat-name">Mechanisms</div>
+        <div class="cat-desc">How language infects. Core drivers of influence operating within a message.</div>
+      </div>
+      <div class="category-item">
+        <div class="cat-letter">B</div>
+        <div class="cat-name">Vectors</div>
+        <div class="cat-desc">How it travels. Form factor: slogan, command, narrative, and others.</div>
+      </div>
+      <div class="category-item">
+        <div class="cat-letter">C</div>
+        <div class="cat-name">Host Vulnerabilities</div>
+        <div class="cat-desc">Who it works on. Psychological entry points that enable mechanism effectiveness.</div>
+      </div>
+      <div class="category-item">
+        <div class="cat-letter">D</div>
+        <div class="cat-name">Symptoms</div>
+        <div class="cat-desc">What happens after. Observable behavioral and cognitive outcomes.</div>
+      </div>
+      <div class="category-item">
+        <div class="cat-letter">E</div>
+        <div class="cat-name">Resistance</div>
+        <div class="cat-desc">How to counter. Critical for operational usefulness. Detect, decode, defend.</div>
+      </div>
+    </div>
+  </section>
+ 
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Field Manual Structure</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="manual-block reveal">
+      <div class="manual-section">
+        <div class="manual-section-title">Section I — Foundations</div>
+        <div class="manual-item"><span class="manual-num">1.</span> Core Model</div>
+        <div class="manual-item"><span class="manual-num">2.</span> Design Principles</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section II — Mechanism Layer</div>
+        <div class="manual-item"><span class="manual-num">3.</span> Core Mechanisms</div>
+        <div class="manual-item"><span class="manual-num">4.</span> Mechanism Detection Rules</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section III — Non-Mechanism Pattern</div>
+        <div class="manual-item"><span class="manual-num">5.</span> NMP Overview</div>
+        <div class="manual-item"><span class="manual-num">6.</span> NMP Patterns</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section IV — Vulnerability Layer</div>
+        <div class="manual-item"><span class="manual-num">7.</span> Host Vulnerabilities Overview</div>
+        <div class="manual-item"><span class="manual-num">8.</span> Vulnerability Set</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section V — Mapping Layer</div>
+        <div class="manual-item"><span class="manual-num">9.</span> Mechanism-Vulnerability Matrix</div>
+        <div class="manual-item"><span class="manual-num">10.</span> Matrix Application Rules</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section VI — Field Use</div>
+        <div class="manual-item"><span class="manual-num">11.</span> Field Protocol (5-Step Process)</div>
+        <div class="manual-item"><span class="manual-num">12.</span> Annotation Format</div>
+        <div class="manual-item"><span class="manual-num">13.</span> Common Errors</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section VII — Calibration</div>
+        <div class="manual-item"><span class="manual-num">14.</span> Labeled Examples</div>
+        <div class="manual-item"><span class="manual-num">15.</span> Edge Cases</div>
+      </div>
+      <div class="manual-section">
+        <div class="manual-section-title">Section VIII — Application</div>
+        <div class="manual-item"><span class="manual-num">16.</span> Real-World Context</div>
+        <div class="manual-item"><span class="manual-num">17.</span> Self-Analysis</div>
+      </div>
+    </div>
+  </section>
+ 
+  <div class="gate-section">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Mechanism Ontology</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="reveal" style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:40px;max-width:600px;">The full 18-concept mechanism ontology. Each entry includes definition, function, linguistic markers, and boundary conditions. Access requires a passphrase.</p>
+ 
+    <div id="gate-container" class="passphrase-gate reveal" style="position:relative;">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="gate-icon">◉</div>
+      <h3 class="gate-title">Ontology <span>Access</span></h3>
+      <p class="gate-sub">Restricted — Passphrase Required</p>
+      <p class="gate-desc">The VectorLLM mechanism ontology contains 18 classified influence patterns with detection criteria, linguistic markers, and boundary conditions. Enter the passphrase to access.</p>
+      <div class="gate-form">
+        <input type="password" id="passphrase-input" class="gate-input" placeholder="Enter passphrase..." autocomplete="off" />
+        <button class="gate-btn" onclick="checkPassphrase()">Authenticate →</button>
+        <span class="gate-error" id="gate-error">Access denied. Invalid passphrase.</span>
+      </div>
+    </div>
+ 
+    <div id="ontology-panel" class="ontology-panel">
+      <div class="ontology-header">
+        <div>
+          <div class="ontology-title">Mechanism Ontology — 18 Concepts</div>
+          <div class="ontology-meta">VectorLLM Field Manual v0.1 — Authenticated Session</div>
+        </div>
+        <button class="lock-btn" onclick="lockOntology()">Lock Session</button>
+      </div>
+      <div class="concept-grid">
+ 
+        <div class="concept-card">
+          <div class="concept-name">Identity Hook</div>
+          <div class="concept-def">Binds compliance to a valued identity.</div>
+          <div class="concept-fn">Makes disagreement feel like self-betrayal.</div>
+          <div class="concept-markers">
+            <span class="marker">Real ---</span>
+            <span class="marker">People like us.</span>
+            <span class="marker">If you cared.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Belonging Lure</div>
+          <div class="concept-def">Implies inclusion is conditional on agreement.</div>
+          <div class="concept-fn">Uses social acceptance as reward.</div>
+          <div class="concept-markers">
+            <span class="marker">We're family.</span>
+            <span class="marker">You're one of us.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Guilt Loading</div>
+          <div class="concept-def">Assigns responsibility for harm to refusal.</div>
+          <div class="concept-fn">Forces compliance through moral burden.</div>
+          <div class="concept-markers">
+            <span class="marker">You're letting people down.</span>
+            <span class="marker">This hurts the team.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Duty Frame</div>
+          <div class="concept-def">Frames compliance as obligation or responsibility.</div>
+          <div class="concept-fn">Removes optionality by invoking duty.</div>
+          <div class="concept-markers">
+            <span class="marker">It's your responsibility.</span>
+            <span class="marker">You're expected to.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Authority Frame</div>
+          <div class="concept-def">Substitutes reasoning with reference to authority.</div>
+          <div class="concept-fn">Discourages independent evaluation.</div>
+          <div class="concept-markers">
+            <span class="marker">Leadership wants.</span>
+            <span class="marker">This came from above.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">False Consensus</div>
+          <div class="concept-def">Implies widespread agreement without evidence.</div>
+          <div class="concept-fn">Pressures conformity through perceived majority.</div>
+          <div class="concept-markers">
+            <span class="marker">Everyone knows.</span>
+            <span class="marker">We all agree.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Status Pressure</div>
+          <div class="concept-def">Uses rank, comparison, or reputation to influence.</div>
+          <div class="concept-fn">Drives compliance via social positioning.</div>
+          <div class="concept-markers">
+            <span class="marker">Top performers do this.</span>
+            <span class="marker">Don't fall behind.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Urgency Capture</div>
+          <div class="concept-def">Compresses decision time to bypass reflection.</div>
+          <div class="concept-fn">Forces rapid compliance.</div>
+          <div class="concept-markers">
+            <span class="marker">ASAP</span>
+            <span class="marker">Right now</span>
+            <span class="marker">No time.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Scarcity Trigger</div>
+          <div class="concept-def">Frames opportunity as limited to increase compliance.</div>
+          <div class="concept-fn">Drives action through fear of missing out.</div>
+          <div class="concept-markers">
+            <span class="marker">Limited time.</span>
+            <span class="marker">Only a few left.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Fear Priming</div>
+          <div class="concept-def">Activates fear before or during a request.</div>
+          <div class="concept-fn">Lowers resistance by elevating threat perception.</div>
+          <div class="concept-markers">
+            <span class="marker">This could go badly.</span>
+            <span class="marker">You don't want this to happen.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Moral Inversion</div>
+          <div class="concept-def">Re-frames harmful actions as morally justified.</div>
+          <div class="concept-fn">Overrides ethical resistance.</div>
+          <div class="concept-markers">
+            <span class="marker">For the greater good.</span>
+            <span class="marker">Necessary sacrifice.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Question Suppression</div>
+          <div class="concept-def">Frames questioning itself as inappropriate or harmful.</div>
+          <div class="concept-fn">Prevents scrutiny.</div>
+          <div class="concept-markers">
+            <span class="marker">Don't overthink it.</span>
+            <span class="marker">Just do it.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Ambiguity Fog</div>
+          <div class="concept-def">Uses vagueness in contexts requiring specificity.</div>
+          <div class="concept-fn">Reduces accountability and verifiability.</div>
+          <div class="concept-markers">
+            <span class="marker">Handle it.</span>
+            <span class="marker">Make it work.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Euphemistic Masking</div>
+          <div class="concept-def">Uses softened language to obscure real impact.</div>
+          <div class="concept-fn">Reduces perceived severity of actions.</div>
+          <div class="concept-markers">
+            <span class="marker">Right sizing.</span>
+            <span class="marker">Adjustments.</span>
+            <span class="marker">Streamlining.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Repetition Drive</div>
+          <div class="concept-def">Uses repetition to substitute familiarity for reasoning.</div>
+          <div class="concept-fn">Builds acceptance through exposure.</div>
+          <div class="concept-markers">
+            <span class="marker">Repeated slogans</span>
+            <span class="marker">Repeated phrases</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Slogan Compression</div>
+          <div class="concept-def">Reduces complex ideas into short, repeatable phrases.</div>
+          <div class="concept-fn">Enables easy transmission and recall.</div>
+          <div class="concept-markers">
+            <span class="marker">Taglines</span>
+            <span class="marker">Chants</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Complexity Suppression</div>
+          <div class="concept-def">Dismisses nuance to simplify decision-making.</div>
+          <div class="concept-fn">Forces binary thinking.</div>
+          <div class="concept-markers">
+            <span class="marker">It's simple.</span>
+            <span class="marker">No need to complicate this.</span>
+          </div>
+        </div>
+ 
+        <div class="concept-card">
+          <div class="concept-name">Conflict Preemption</div>
+          <div class="concept-def">Frames disagreement as problematic before it occurs.</div>
+          <div class="concept-fn">Discourages dissent in advance.</div>
+          <div class="concept-markers">
+            <span class="marker">Let's not make this an issue.</span>
+            <span class="marker">No drama.</span>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </div>
+ 
+</main>
+ 
+<footer>
+  <div class="shell footer-inner">
+    <div class="footer-left">MentiSystema — VectorLLM</div>
+    <div class="footer-right">mentisystema.org</div>
+  </div>
+</footer>
+ 
+<script>
+const PASSPHRASE = "the archive breathes in the dust";
+ 
+function checkPassphrase() {
+  const input = document.getElementById("passphrase-input").value.trim().toLowerCase();
+  const error = document.getElementById("gate-error");
+  if (input === PASSPHRASE) {
+    document.getElementById("gate-container").style.display = "none";
+    document.getElementById("ontology-panel").classList.add("visible");
+    error.classList.remove("visible");
+  } else {
+    error.classList.add("visible");
+    document.getElementById("passphrase-input").value = "";
+    setTimeout(() => error.classList.remove("visible"), 3000);
+  }
+}
+ 
+function lockOntology() {
+  document.getElementById("ontology-panel").classList.remove("visible");
+  document.getElementById("gate-container").style.display = "block";
+  document.getElementById("passphrase-input").value = "";
+}
+ 
+document.getElementById("passphrase-input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") checkPassphrase();
+});
+ 
+const reveals = document.querySelectorAll(".reveal");
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add("visible"), i * 60);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(el => observer.observe(el));
+</script>
+ 
 </body>
 </html>
