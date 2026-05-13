@@ -222,16 +222,22 @@ footer { border-top: 1px solid var(--line); padding: 32px 0 48px; display: flex;
 
 <main class="shell">
 
-  <header class="page-header">
-    <div class="page-eyebrow">MentiSystema Research</div>
-    <h1 class="page-title">Friction <span>Bloom</span></h1>
-    <p class="page-subtitle">Behavioral Algorithm — Pathfinding Research — Agent Adaptability</p>
-    <p class="page-desc">An experimental algorithm for studying how controlled spatial disruptions force autonomous agents into emergent adaptive behavior. Tracks Bloom Score, Novelty, Coherence, and Chaos across grid-scaled simulation environments.</p>
-    <div class="status-row">
-      <span class="status-badge badge-active"><span class="badge-dot"></span>Active Research</span>
-      <span class="status-badge badge-dataset">Dataset 001 Published</span>
-    </div>
-  </header>
+<div style="position:relative;min-height:80vh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div style="position:absolute;inset:0;background-image:url('/assets/friction-bloom/frictionbloom_side.png');background-size:cover;background-position:center 30%;z-index:0;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,11,15,0.2) 0%,rgba(7,11,15,0.85) 70%,rgba(7,11,15,1) 100%);z-index:1;"></div>
+  <div style="position:relative;z-index:2;">
+    <header class="page-header" style="border-bottom:none;padding-top:120px;">
+      <div class="page-eyebrow">MentiSystema Research</div>
+      <h1 class="page-title">Friction <span>Bloom</span></h1>
+      <p class="page-subtitle">Behavioral Algorithm — Pathfinding Research — Agent Adaptability</p>
+      <p class="page-desc">An experimental algorithm for studying how controlled spatial disruptions force autonomous agents into emergent adaptive behavior. Tracks Bloom Score, Novelty, Coherence, and Chaos across grid-scaled simulation environments.</p>
+      <div class="status-row">
+        <span class="status-badge badge-active"><span class="badge-dot"></span>Active Research</span>
+        <span class="status-badge badge-dataset">Dataset 001 Published</span>
+      </div>
+    </header>
+  </div>
+</div>
 
   <section>
     <div class="section-header reveal">
