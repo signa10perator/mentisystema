@@ -62,16 +62,24 @@
             <a href="https://mentisystema.org" className="home-link">HOME</a>
           </nav>
 
-          <div className={`content ${mounted ? 'fade-in' : ''}`}>
-            <div className="logo-area">
-              <svg viewBox="0 0 200 200" className="access-icon">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" strokeWidth="2" />
-                <path d="M 100 60 L 140 100 L 100 140 L 60 100 Z" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                <line x1="100" y1="60" x2="100" y2="140" stroke="currentColor" strokeWidth="2" />
-                <line x1="60" y1="100" x2="140" y2="100" stroke="currentColor" strokeWidth="2" />
-              </svg>
+        <div className="logo-area">
+              <img src="./red_logo.png" alt="MentiSystema Logo" className="logo-image" />
             </div>
 
+            <h1 className="title">
+              <span className="title-part">M</span>
+              <span className="title-part">≡</span>
+              <span className="title-part">N</span>
+              <span className="title-part">T</span>
+              <span className="title-part">I</span>
+              <span className="title-part">S</span>
+              <span className="title-part">Y</span>
+              <span className="title-part">S</span>
+              <span className="title-part">T</span>
+              <span className="title-part">≡</span>
+              <span className="title-part">M</span>
+              <span className="title-part">A</span>
+            </h1>           
             <h1 className="title">MENTISYSTEMA</h1>
             <p className="subtitle">SIGNAL RECEIVED</p>
 
@@ -190,28 +198,45 @@
             }
 
             .logo-area {
-              margin-bottom: 40px;
-              height: 120px;
+              margin-bottom: 30px;
+              height: 100px;
               display: flex;
               align-items: center;
               justify-content: center;
             }
 
-            .access-icon {
-              width: 100px;
-              height: 100px;
-              color: #000000;
-              stroke: #000000;
+            .logo-image {
+              max-height: 100px;
+              max-width: 150px;
+              object-fit: contain;
             }
 
             .title {
-              font-size: 48px;
-              font-weight: 700;
-              letter-spacing: 4px;
+              font-size: 56px;
+              font-weight: 900;
+              letter-spacing: 8px;
               margin-bottom: 8px;
               font-family: 'Arial', sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 2px;
             }
 
+            .title-part {
+              display: inline-block;
+              transition: all 0.3s ease;
+            }
+
+            .title-part:nth-child(2),
+            .title-part:nth-child(10) {
+              color: #CC0000;
+              font-weight: 900;
+            }
+
+            .content:hover .title-part {
+              transform: scaleY(1.05);
+            }
             .subtitle {
               font-size: 13px;
               letter-spacing: 2px;
@@ -444,7 +469,7 @@
                 </div>
 
                 <div class="footer">
-                  <div class="signature">Anthony Fornof</div>
+                  <div class="signature">
                   <div class="founder-name">ANTHONY FORNOF</div>
                   <div class="founder-title">FOUNDER - MENTISYSTEMA</div>
                 </div>
