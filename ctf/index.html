@@ -7,6 +7,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #ffffff; color: #000000; font-family: 'Courier New', monospace; overflow: hidden; }
@@ -101,7 +102,7 @@
               {error && (<div className="error-message"><span className="error-dot">●</span> {error}</div>)}
               <button type="submit" className="access-button">ACCESS TERMINAL</button>
             </form>
-            <p className="hint">caesar shift by III reveals path</p>
+            <p className="hint">Caesar Shift by III reveals path</p>
           </div>
         </div>
       );
@@ -124,34 +125,54 @@
         const saved = localStorage.getItem('ctf_leaderboard');
         if (saved) setLeaderboard(JSON.parse(saved));
       }, []);
-      const downloadCertificate = (handle) => {
-        if (!handle.trim()) return;
-        const certificateHTML = `<!DOCTYPE html><html><head><style>body{margin:0;padding:20px;font-family:'Courier New',monospace}.certificate{width:100%;max-width:900px;margin:0 auto;background:#fff;padding:60px;position:relative}.diagonal{position:absolute;background:#CC0000}.diagonal-tr{width:300px;height:300px;top:-50px;right:-50px;transform:rotate(45deg);opacity:0.1}.diagonal-bl{width:300px;height:300px;bottom:-50px;left:-50px;transform:rotate(45deg);opacity:0.1}.content{position:relative;z-index:1;min-height:500px;display:flex;flex-direction:column;justify-content:space-between}.header{text-align:center;margin-bottom:40px}.logo-text{font-size:24px;font-weight:bold;letter-spacing:3px;margin-bottom:10px}.subtitle{font-size:12px;letter-spacing:2px;color:#CC0000;font-weight:600;margin-bottom:20px}.divider{height:2px;background:#CC0000;width:60%;margin:0 auto 20px}.challenge-title{font-size:20px;letter-spacing:3px;color:#CC0000;font-weight:bold;margin:30px 0}.fields{margin:40px 0}.field-row{display:flex;justify-content:space-between;margin-bottom:30px;width:100%}.field{flex:1}.field-label{font-size:11px;letter-spacing:1px;font-weight:600;margin-bottom:8px}.field-value{font-size:14px;border-bottom:1px solid #000;padding-bottom:4px;min-height:20px}.footer{text-align:center;margin-top:40px}.signature{font-size:16px;font-style:italic;margin-bottom:10px}.founder-name{font-size:12px;letter-spacing:1px;margin-bottom:2px}.founder-title{font-size:11px;letter-spacing:1px;color:#666}</style></head><body><div class="certificate"><div class="diagonal diagonal-tr"></div><div class="diagonal diagonal-bl"></div><div class="content"><div class="header"><div class="logo-text">MENTISYSTEMA</div><div class="subtitle">SIGNAL CAPTURED</div><div class="divider"></div></div><div><div class="challenge-title">[CTRL-RUPTURE]</div><div class="fields"><div class="field-row"><div class="field"><div class="field-label">HANDLE:</div><div class="field-value">${handle.toUpperCase()}</div></div></div><div class="field-row"><div class="field"><div class="field-label">CAPTURED:</div><div class="field-value">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div></div></div></div></div><div class="footer"><div class="signature">Anthony Fornof</div><div class="founder-name">ANTHONY FORNOF</div><div class="founder-title">FOUNDER - MENTISYSTEMA</div></div></div></div></body></html>`;
-        const blob = new Blob([certificateHTML], { type: 'text/html' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `CTRL-RUPTURE_${handle.toUpperCase()}_${Date.now()}.html`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        const timestamp = new Date().toLocaleString();
-        const updatedLeaderboard = [...leaderboard, { handle, timestamp }];
-        setLeaderboard(updatedLeaderboard);
-        localStorage.setItem('ctf_leaderboard', JSON.stringify(updatedLeaderboard));
-        const newLines = [...lines];
-        newLines.pop();
-        newLines.push({ type: 'response', text: `CERTIFICATE DOWNLOADED: CTRL-RUPTURE_${handle.toUpperCase()}.html` });
-        newLines.push({ type: 'system', text: '' });
-        newLines.push({ type: 'response', text: '=== LEADERBOARD ===' });
-        updatedLeaderboard.forEach((entry, idx) => {
-          newLines.push({ type: 'response', text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}` });
-        });
-        newLines.push({ type: 'prompt', text: '> ' });
-        setLines(newLines);
-        setFlagRevealed(false);
-      };
+        const downloadCertificate = (handle) => {
+          if (!handle.trim()) return;
+
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 900;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.drawImage(img, 0, 0, 1200, 900);
+    
+    ctx.font = 'bold 28px Arial';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.fillText(handle.toUpperCase(), 600, 650);
+    
+    ctx.font = '20px Courier New';
+    ctx.fillStyle = '#000000';
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillText(dateStr, 600, 720);
+    
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `CTRL-RUPTURE_${handle.toUpperCase()}_${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+  img.src = './flag-template.png';
+
+  const timestamp = new Date().toLocaleString();
+  const updatedLeaderboard = [...leaderboard, { handle, timestamp }];
+  setLeaderboard(updatedLeaderboard);
+  localStorage.setItem('ctf_leaderboard', JSON.stringify(updatedLeaderboard));
+
+  const newLines = [...lines];
+  newLines.pop();
+  newLines.push({ type: 'response', text: `CERTIFICATE DOWNLOADED: CTRL-RUPTURE_${handle.toUpperCase()}.png` });
+  newLines.push({ type: 'system', text: '' });
+  newLines.push({ type: 'response', text: '=== LEADERBOARD ===' });
+  updatedLeaderboard.forEach((entry, idx) => {
+    newLines.push({ type: 'response', text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}` });
+  });
+  newLines.push({ type: 'prompt', text: '> ' });
+  setLines(newLines);
+  setFlagRevealed(false);
+};
       const handleCommand = (e) => {
         if (e.key === 'Enter' && input.trim()) {
           const newLines = [...lines];
