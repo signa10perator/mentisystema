@@ -140,12 +140,12 @@
     ctx.font = 'bold 28px Arial';
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
-    ctx.fillText(handle.toUpperCase(), 600, 760);
+    ctx.fillText(handle.toUpperCase(), 600, 800);
     
     ctx.font = '20px Courier New';
     ctx.fillStyle = '#000000';
     const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    ctx.fillText(dateStr, 600, 8300);
+    ctx.fillText(dateStr, 600, 830);
     
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
