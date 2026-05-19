@@ -526,7 +526,7 @@ function Timeline() {
  
   useEffect(() => {
     const el = document.getElementById("entry-count-display");
-    if (el) el.innerHTML = "ENTRIES<strong>" + filtered.length + "</strong>";
+    if (el) { const s = el.querySelector('strong'); if (s) s.textContent = filtered.length; }
   }, [filtered.length]);
  
   useEffect(() => {

@@ -112,7 +112,7 @@
       const [input, setInput] = useState('');
       const [flagRevealed, setFlagRevealed] = useState(false);
       const [leaderboard, setLeaderboard] = useState([]);
-      const CONTACT_INFO = { name: 'Anthony Fornof', email: 'signa10perator@mentisystema.org', phone: '928-920-9881' };
+      const CONTACT_INFO = { name: 'Anthony Fornof', email: 'signa10perator@mentisystema.org' };
       useEffect(() => {
         const terminalLines = [
           { type: 'system', text: '> CTRL-RUPTURE SYSTEM INITIALIZED' },
@@ -123,7 +123,7 @@
         ];
         setLines(terminalLines);
         const saved = localStorage.getItem('ctf_leaderboard');
-        if (saved) setLeaderboard(JSON.parse(saved));
+        if (saved) { try { setLeaderboard(JSON.parse(saved)); } catch(e) {} }
       }, []);
         const downloadCertificate = (handle) => {
           if (!handle.trim()) return;
@@ -185,7 +185,6 @@
             newLines.push({ type: 'response', text: 'SIGNAL DECODED:' });
             newLines.push({ type: 'response', text: `NAME: ${CONTACT_INFO.name}` });
             newLines.push({ type: 'response', text: `EMAIL: ${CONTACT_INFO.email}` });
-            newLines.push({ type: 'response', text: `PHONE: ${CONTACT_INFO.phone}` });
             newLines.push({ type: 'system', text: '' });
             newLines.push({ type: 'response', text: 'ENTER HANDLE TO CAPTURE FLAG:' });
             newLines.push({ type: 'prompt', text: '> HANDLE: ' });
