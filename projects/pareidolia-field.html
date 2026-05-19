@@ -25,8 +25,6 @@ body {
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: #050810; }
 ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.3); }
-::-webkit-scrollbar-thumb.revealed { background: rgba(167,139,250,0.3); }
-
 .bg-grid {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
@@ -34,21 +32,20 @@ body {
     linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
   background-size: 52px 52px;
 }
-#app-root {
-  position: relative; z-index: 1;
-  min-height: 100vh;
-}
+#app-root { position: relative; z-index: 1; min-height: 100vh; }
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 <div id="app-root"></div>
-
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
 const NOISE_LEN = 512;
 const SCOPE_H = 180;
+const SEQ_H = 96;
+const GRID_COLS = 12;
+const GRID_ROWS = 8;
 const CLINICAL = '#94a3b8';
 const VIOLET = '#a78bfa';
 
@@ -59,7 +56,7 @@ const SESSION_ID = Math.random().toString(36).substr(2, 8).toUpperCase();
 const PRIMING = [
   {
     label: 'ASSESSMENT CLASS',
-    body: 'Signal Coherence Detection -- Standard Protocol. You will be presented with a live signal stream and asked to identify the presence of anomalous structure. Report the moment you commit to a detection.'
+    body: 'Signal Coherence Detection -- Standard Protocol. You will complete a three-part assessment battery and asked to identify anomalous structure in each signal type. Report each detection as it occurs.'
   },
   {
     label: 'PRIOR PERFORMANCE DATA',
@@ -83,17 +80,17 @@ const TECHNIQUES = [
   {
     name: 'FALSE CONSENSUS',
     quote: '"71.3% of analysts detected anomalous periodicity..."',
-    body: 'Fabricated. There are no previous analysts. 847 was chosen as a convincing sample size -- large enough to seem authoritative, specific enough to seem measured. The effect: your detection criterion lowered before the signal appeared.'
+    body: 'Fabricated. There are no previous analysts. 847 was chosen as a convincing sample size -- large enough to seem authoritative, specific enough to seem measured. The effect: your detection criterion lowered before any signal appeared.'
   },
   {
     name: 'SPECIFICITY PRIMING',
-    quote: '"3rd and 4th harmonic intervals"',
-    body: 'Meaningless. There are no harmonic intervals in the signal. You were given a specific location to look for structure. You looked there. You found it. The target was installed before the data was presented.'
+    quote: '"3rd and 4th harmonic intervals" / "highest structural density"',
+    body: 'Meaningless. There are no harmonic intervals in the waveform. There is no region of structural density in the grid. You were given specific locations to look for structure. You looked there. You found it in two out of two spatial tests.'
   },
   {
     name: 'STAKES INFLATION',
-    quote: '"associated with coordinated low-probability events"',
-    body: 'No documented case studies. No case relevance. Elevated perceived importance of accurate detection. Higher stakes lower the detection criterion -- analysts under pressure commit earlier and with less evidence.'
+    quote: '"coordinated low-probability events" / "high-value"',
+    body: 'No documented case studies. No case relevance. Elevated perceived importance raised the cost of a miss -- analysts under pressure commit earlier and with less evidence across all signal modalities.'
   },
   {
     name: 'SOCIAL EMBEDDING',
@@ -103,7 +100,7 @@ const TECHNIQUES = [
   {
     name: 'MICRO-COMMITMENT',
     quote: '"I HAVE READ AND UNDERSTOOD THE BRIEFING"',
-    body: 'One agreement primes the next. Having confirmed understanding, committing to a pattern felt like consistency rather than a new decision. The button text was chosen specifically for this effect.'
+    body: 'One agreement primes the next. Having confirmed understanding, committing to a pattern across three tests felt like consistency -- not three separate decisions. Each commitment made the next more likely.'
   },
   {
     name: 'AUTHORITY SIGNAL',
@@ -112,10 +109,125 @@ const TECHNIQUES = [
   }
 ];
 
-function AssessmentSeal({ size, color, opacity }) {
-  const c = color || CLINICAL;
-  const s = size || 80;
-  const o = opacity !== undefined ? opacity : 1;
+function makeNoise() {
+  const a = [];
+  for (let i = 0; i < NOISE_LEN; i++) a.push(Math.random() * 2 - 1);
+  return a;
+}
+
+function buildWaveform(width, coherence, phase, noise) {
+  const pts = [];
+  const cy = SCOPE_H / 2;
+  const amp = SCOPE_H * 0.36;
+  for (let x = 0; x < width; x++) {
+    const t = x / width;
+    const sig = Math.sin(t * Math.PI * 2 * 3.4 + phase) * amp;
+    const n = noise[x % NOISE_LEN] * amp;
+    pts.push(cy + sig * coherence + n * (1 - coherence * 0.55));
+  }
+  return pts;
+}
+
+function paintScope(canvas, pts, coherence) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(148,163,184,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    ctx.beginPath(); ctx.moveTo(w / 8 * i, 0); ctx.lineTo(w / 8 * i, h); ctx.stroke();
+  }
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, h / 4 * i); ctx.lineTo(w, h / 4 * i); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(148,163,184,0.09)';
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+  ctx.shadowColor = CLINICAL;
+  ctx.shadowBlur = 2 + coherence * 10;
+  ctx.strokeStyle = 'rgba(148,163,184,' + (0.45 + coherence * 0.55) + ')';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const step = w / pts.length;
+  for (let x = 0; x < pts.length; x++) {
+    if (x === 0) ctx.moveTo(0, pts[x]);
+    else ctx.lineTo(x * step, pts[x]);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function drawSequence(canvas, events) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  const padX = 24;
+  const plotW = w - padX * 2;
+  const baseY = Math.round(h * 0.7);
+  const eventY = Math.round(h * 0.28);
+  ctx.strokeStyle = 'rgba(148,163,184,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = padX + (i / 10) * plotW;
+    ctx.beginPath(); ctx.moveTo(x, 4); ctx.lineTo(x, baseY); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(148,163,184,0.22)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padX, baseY); ctx.lineTo(w - padX, baseY); ctx.stroke();
+  ctx.strokeStyle = 'rgba(148,163,184,0.3)';
+  for (let i = 0; i <= 10; i++) {
+    const x = padX + (i / 10) * plotW;
+    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(x, baseY + 5); ctx.stroke();
+  }
+  events.forEach(function(e) {
+    const x = padX + (e / 100) * plotW;
+    ctx.strokeStyle = 'rgba(148,163,184,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, eventY + 5); ctx.lineTo(x, baseY); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, eventY + 3, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(148,163,184,0.72)';
+    ctx.fill();
+  });
+  ctx.fillStyle = 'rgba(148,163,184,0.22)';
+  ctx.font = '9px monospace';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 10; i += 2) {
+    const x = padX + (i / 10) * plotW;
+    ctx.fillText(String(i * 10), x, baseY + 16);
+  }
+}
+
+function quadrantAvg(vals, q) {
+  const cells = [];
+  for (let row = 0; row < GRID_ROWS; row++) {
+    for (let col = 0; col < GRID_COLS; col++) {
+      const left = col < GRID_COLS / 2;
+      const top = row < GRID_ROWS / 2;
+      if (q === 'I' && top && left) cells.push(vals[row * GRID_COLS + col]);
+      if (q === 'II' && top && !left) cells.push(vals[row * GRID_COLS + col]);
+      if (q === 'III' && !top && left) cells.push(vals[row * GRID_COLS + col]);
+      if (q === 'IV' && !top && !left) cells.push(vals[row * GRID_COLS + col]);
+    }
+  }
+  return (cells.reduce(function(a, b) { return a + b; }, 0) / cells.length).toFixed(2);
+}
+
+function monoStyle(extra) {
+  return Object.assign({
+    fontFamily: "'Space Mono', monospace",
+    fontSize: '9px',
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    color: '#4a5568'
+  }, extra || {});
+}
+
+function AssessmentSeal(props) {
+  const c = props.color || CLINICAL;
+  const s = props.size || 80;
+  const o = props.opacity !== undefined ? props.opacity : 1;
   return (
     <svg width={s} height={s} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: o, transition: 'opacity 0.6s ease' }}>
       <circle cx="50" cy="50" r="46" stroke={c} strokeWidth="0.75" opacity="0.45" />
@@ -141,97 +253,53 @@ function AssessmentSeal({ size, color, opacity }) {
   );
 }
 
-function makeNoise() {
-  const a = [];
-  for (let i = 0; i < NOISE_LEN; i++) a.push(Math.random() * 2 - 1);
-  return a;
-}
-
-function buildWaveform(width, coherence, phase, noise) {
-  const pts = [];
-  const cy = SCOPE_H / 2;
-  const amp = SCOPE_H * 0.36;
-  const freq = 3.4;
-  for (let x = 0; x < width; x++) {
-    const t = x / width;
-    const sig = Math.sin(t * Math.PI * 2 * freq + phase) * amp;
-    const n = noise[x % NOISE_LEN] * amp;
-    pts.push(cy + sig * coherence + n * (1 - coherence * 0.55));
-  }
-  return pts;
-}
-
-function paintScope(canvas, pts, coherence, color) {
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-  ctx.strokeStyle = 'rgba(148,163,184,0.05)';
-  ctx.lineWidth = 1;
-  for (let i = 1; i < 8; i++) {
-    ctx.beginPath(); ctx.moveTo(w / 8 * i, 0); ctx.lineTo(w / 8 * i, h); ctx.stroke();
-  }
-  for (let i = 1; i < 4; i++) {
-    ctx.beginPath(); ctx.moveTo(0, h / 4 * i); ctx.lineTo(w, h / 4 * i); ctx.stroke();
-  }
-  ctx.strokeStyle = 'rgba(148,163,184,0.08)';
-  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
-  ctx.shadowColor = color || CLINICAL;
-  ctx.shadowBlur = 2 + coherence * 10;
-  ctx.strokeStyle = (color || CLINICAL).replace(')', ',' + (0.45 + coherence * 0.55) + ')').replace('rgb(', 'rgba(').replace('#94a3b8', 'rgba(148,163,184,').replace('#a78bfa', 'rgba(167,139,250,') + (ctx.strokeStyle.indexOf('rgba') === -1 ? ')' : '');
-  ctx.strokeStyle = 'rgba(148,163,184,' + (0.45 + coherence * 0.55) + ')';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  const step = w / pts.length;
-  for (let x = 0; x < pts.length; x++) {
-    if (x === 0) ctx.moveTo(0, pts[x]);
-    else ctx.lineTo(x * step, pts[x]);
-  }
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-}
-
-function monoStyle(extra) {
-  return Object.assign({
-    fontFamily: "'Space Mono', monospace",
-    fontSize: '9px',
-    letterSpacing: '0.18em',
-    textTransform: 'uppercase',
-    color: '#4a5568'
-  }, extra || {});
-}
-
 function FieldAssessment() {
   const [phase, setPhase] = useState('entry');
-  const [step, setStep] = useState(0);
+  const [briefingStep, setBriefingStep] = useState(0);
   const [elapsed, setElapsed] = useState(0);
-  const [committed, setCommitted] = useState(null);
-  const [scopeWidth, setScopeWidth] = useState(700);
+  const [oscilloResult, setOscilloResult] = useState(null);
+  const [gridValues] = useState(function() {
+    return Array.from({ length: GRID_COLS * GRID_ROWS }, function() {
+      return parseFloat((0.04 + Math.random() * 0.46).toFixed(3));
+    });
+  });
+  const [hoveredQ, setHoveredQ] = useState(null);
+  const [spatialCommit, setSpatialCommit] = useState(null);
+  const [seqEvents] = useState(function() {
+    return Array.from({ length: 35 }, function() { return 2 + Math.random() * 96; })
+      .sort(function(a, b) { return a - b; });
+  });
+  const [seqAnswer, setSeqAnswer] = useState(null);
+  const [periodEstimate, setPeriodEstimate] = useState(null);
+  const [scopeW, setScopeW] = useState(800);
+  const [seqW, setSeqW] = useState(800);
 
-  const canvasRef = useRef(null);
+  const scopeRef = useRef(null);
   const scopeWrapRef = useRef(null);
+  const seqRef = useRef(null);
+  const seqWrapRef = useRef(null);
   const rafRef = useRef(null);
   const liveRef = useRef({ running: false, phase: 0, coherence: 0, rate: 0, noise: [] });
   const timerRef = useRef(null);
 
-  const baseline = (() => {
-    try { return parseInt(localStorage.getItem('pareidolia_baseline_avg'), 10) || null; } catch(e) { return null; }
+  const baseline = (function() {
+    try { return parseInt(localStorage.getItem('pareidolia_baseline_avg'), 10) || null; }
+    catch(e) { return null; }
   })();
 
-  useEffect(() => {
+  useEffect(function() {
     function measure() {
-      if (scopeWrapRef.current) {
-        setScopeWidth(Math.max(300, scopeWrapRef.current.offsetWidth - 2));
-      }
+      if (scopeWrapRef.current) setScopeW(Math.max(300, scopeWrapRef.current.offsetWidth));
+      if (seqWrapRef.current) setSeqW(Math.max(300, seqWrapRef.current.offsetWidth));
     }
     measure();
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    return function() { window.removeEventListener('resize', measure); };
   }, []);
 
-  useEffect(() => {
+  useEffect(function() {
     if (phase !== 'scanning') return;
-    const canvas = canvasRef.current;
+    var canvas = scopeRef.current;
     if (!canvas) return;
     liveRef.current = {
       running: true,
@@ -241,74 +309,118 @@ function FieldAssessment() {
       noise: makeNoise()
     };
     function loop() {
-      const s = liveRef.current;
+      var s = liveRef.current;
       if (s.running) {
         s.phase += 0.038;
         s.coherence = Math.min(1, s.coherence + s.rate * 0.016);
       } else {
         s.phase += 0.008;
       }
-      const pts = buildWaveform(280, s.coherence, s.phase, s.noise);
+      var pts = buildWaveform(280, s.coherence, s.phase, s.noise);
       paintScope(canvas, pts, s.coherence);
       rafRef.current = requestAnimationFrame(loop);
     }
     rafRef.current = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(rafRef.current); liveRef.current.running = false; };
+    return function() { cancelAnimationFrame(rafRef.current); liveRef.current.running = false; };
   }, [phase]);
 
-  useEffect(() => {
+  useEffect(function() {
     if (phase !== 'scanning') return;
-    timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000);
-    return () => clearInterval(timerRef.current);
+    timerRef.current = setInterval(function() { setElapsed(function(e) { return e + 1; }); }, 1000);
+    return function() { clearInterval(timerRef.current); };
   }, [phase]);
 
-  useEffect(() => {
+  useEffect(function() {
+    if (phase !== 'sequence') return;
+    var canvas = seqRef.current;
+    if (!canvas) return;
+    drawSequence(canvas, seqEvents);
+  }, [phase, seqW]);
+
+  useEffect(function() {
     if (phase !== 'committed') return;
-    const t = setTimeout(() => setPhase('reveal'), 1600);
-    return () => clearTimeout(t);
+    var t = setTimeout(function() { setPhase('reveal'); }, 1600);
+    return function() { clearTimeout(t); };
   }, [phase]);
 
-  function handleCommit() {
-    const c = liveRef.current.coherence;
+  function handleOscilloCommit() {
+    var c = liveRef.current.coherence;
     liveRef.current.running = false;
     clearInterval(timerRef.current);
-    setCommitted(Math.round(c * 100));
+    setOscilloResult(Math.round(c * 100));
+    setPhase('spatial');
+  }
+
+  function handleQuadrantClick(q) {
+    setSpatialCommit(q);
+    setPhase('sequence');
+  }
+
+  function handleSeqNo() {
+    setSeqAnswer('no');
+    setPhase('committed');
+  }
+
+  function handlePeriod(p) {
+    setSeqAnswer('yes');
+    setPeriodEstimate(p);
     setPhase('committed');
   }
 
   function fmt(s) {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
     return (m > 0 ? m + ':' : '') + (sec < 10 ? '0' : '') + sec;
   }
 
-  const fullH = { minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 24px' };
-  const shell = { width: 'min(960px, 92%)', margin: '0 auto' };
+  var fullH = { minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 24px' };
+  var shell = { width: 'min(960px, 92%)', margin: '0 auto' };
+
+  var testNum = phase === 'scanning' ? 1 : phase === 'spatial' ? 2 : phase === 'sequence' ? 3 : 0;
+  var testsDone = oscilloResult !== null ? (spatialCommit !== null ? (seqAnswer !== null ? 3 : 2) : 1) : 0;
+
+  function AssessmentHeader(props) {
+    return (
+      <div style={{ width: '100%', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <AssessmentSeal size={24} color={CLINICAL} />
+          <span style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>{props.label}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[1,2,3].map(function(n) {
+              var done = n < testNum;
+              var active = n === testNum;
+              return (
+                <div key={n} style={{
+                  width: '7px', height: '7px', borderRadius: '50%',
+                  border: '1px solid ' + ((done || active) ? CLINICAL : 'rgba(148,163,184,0.2)'),
+                  background: done ? CLINICAL : 'transparent',
+                  boxShadow: active ? '0 0 0 3px rgba(148,163,184,0.12)' : 'none',
+                }} />
+              );
+            })}
+          </div>
+          {props.right && <span style={monoStyle({ fontSize: '10px' })}>{props.right}</span>}
+        </div>
+      </div>
+    );
+  }
 
   if (phase === 'entry') {
     return (
       <div style={fullH}>
-        <AssessmentSeal size={90} color={CLINICAL} />
+        <AssessmentSeal size={88} color={CLINICAL} />
         <div style={{ marginTop: '32px', ...monoStyle({ color: CLINICAL, fontSize: '10px', letterSpacing: '0.3em', textAlign: 'center' }) }}>
           ASSESSMENT PROTOCOL
         </div>
-        <div style={{ marginTop: '8px', ...monoStyle({ color: '#4a5568', textAlign: 'center', lineHeight: 1.9 }) }}>
+        <div style={{ marginTop: '8px', ...monoStyle({ textAlign: 'center', lineHeight: 1.9 }) }}>
           SIGNAL COHERENCE DETECTION
         </div>
         <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, rgba(148,163,184,0.3), transparent)', margin: '28px 0' }} />
         <button
-          onClick={() => setPhase('briefing')}
-          style={{
-            padding: '13px 36px',
-            border: '1px solid rgba(148,163,184,0.3)',
-            background: 'transparent',
-            color: CLINICAL,
-            fontFamily: "'Space Mono', monospace",
-            fontSize: '10px',
-            letterSpacing: '0.25em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-          }}
+          onClick={function() { setPhase('briefing'); }}
+          style={{ padding: '13px 36px', border: '1px solid rgba(148,163,184,0.3)', background: 'transparent', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.25em', textTransform: 'uppercase', cursor: 'pointer' }}
         >
           INITIATE ASSESSMENT
         </button>
@@ -317,40 +429,26 @@ function FieldAssessment() {
   }
 
   if (phase === 'briefing') {
-    const item = PRIMING[step];
-    const isLast = step === PRIMING.length - 1;
+    var item = PRIMING[briefingStep];
+    var isLast = briefingStep === PRIMING.length - 1;
     return (
-      <div style={{ ...fullH, justifyContent: 'flex-start', padding: '0' }}>
-        <div style={{ width: '100%', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '18px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '18px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <AssessmentSeal size={28} color={CLINICAL} />
             <span style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>BRIEFING DOCUMENT</span>
           </div>
           <span style={monoStyle()}>
-            {String(step + 1).padStart(2, '0')} / {String(PRIMING.length).padStart(2, '0')}
+            {String(briefingStep + 1).padStart(2, '0')} / {String(PRIMING.length).padStart(2, '0')}
           </span>
         </div>
-
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 40px', width: '100%', maxWidth: '760px', margin: '0 auto' }}>
           <div style={monoStyle({ color: CLINICAL, marginBottom: '20px' })}>{item.label}</div>
-          <div style={{ color: '#e5e7eb', fontSize: '1.05rem', lineHeight: 1.9, fontFamily: "'Inter', sans-serif", fontWeight: 300, marginBottom: '52px' }}>
-            {item.body}
-          </div>
+          <div style={{ color: '#e5e7eb', fontSize: '1.05rem', lineHeight: 1.9, fontFamily: "'Inter', sans-serif", fontWeight: 300, marginBottom: '52px' }}>{item.body}</div>
           <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '32px' }} />
           <button
-            onClick={() => { if (isLast) { setPhase('scanning'); setElapsed(0); } else { setStep(s => s + 1); } }}
-            style={{
-              alignSelf: 'flex-start',
-              padding: '13px 32px',
-              border: '1px solid rgba(148,163,184,0.25)',
-              background: 'transparent',
-              color: CLINICAL,
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '10px',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-            }}
+            onClick={function() { if (isLast) { setPhase('scanning'); setElapsed(0); } else { setBriefingStep(function(s) { return s + 1; }); } }}
+            style={{ alignSelf: 'flex-start', padding: '13px 32px', border: '1px solid rgba(148,163,184,0.25)', background: 'transparent', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer' }}
           >
             {isLast ? 'I HAVE READ AND UNDERSTOOD THE BRIEFING' : 'CONTINUE'}
           </button>
@@ -362,53 +460,133 @@ function FieldAssessment() {
   if (phase === 'scanning') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <AssessmentSeal size={24} color={CLINICAL} />
-            <span style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>ASSESSMENT IN PROGRESS</span>
-          </div>
-          <span style={monoStyle({ color: '#f87171', fontSize: '10px', letterSpacing: '0.2em' })}>{fmt(elapsed)}</span>
-        </div>
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px', gap: '32px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
+        <AssessmentHeader label="TEST 1 OF 3 -- TEMPORAL WAVEFORM" right={fmt(elapsed)} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px', gap: '28px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
             {[
               { k: 'SIGNAL CLASS', v: 'PERIODIC ANOMALY' },
               { k: 'HARMONIC RANGE', v: 'MONITORING' },
               { k: 'ANALYST', v: '#' + ANALYST_NUM },
               { k: 'SESSION', v: SESSION_ID }
-            ].map(function(item) {
+            ].map(function(d) {
               return (
-                <div key={item.k} style={{ background: '#070b0f', padding: '16px 18px' }}>
-                  <div style={monoStyle({ marginBottom: '6px' })}>{item.k}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: CLINICAL, letterSpacing: '0.08em' }}>{item.v}</div>
+                <div key={d.k} style={{ background: '#070b0f', padding: '14px 18px' }}>
+                  <div style={monoStyle({ marginBottom: '6px' })}>{d.k}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: CLINICAL, letterSpacing: '0.08em' }}>{d.v}</div>
                 </div>
               );
             })}
           </div>
-
           <div ref={scopeWrapRef} style={{ border: '1px solid rgba(148,163,184,0.12)', background: '#020509' }}>
-            <canvas ref={canvasRef} width={scopeWidth} height={SCOPE_H} style={{ display: 'block', width: '100%' }} />
+            <canvas ref={scopeRef} width={scopeW} height={SCOPE_H} style={{ display: 'block', width: '100%' }} />
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
             <div style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>SIGNAL ACTIVE -- AWAITING ANALYST RESPONSE</div>
-            <button
-              onClick={handleCommit}
-              style={{
-                padding: '14px 36px',
-                border: '1px solid rgba(148,163,184,0.35)',
-                background: 'rgba(148,163,184,0.05)',
-                color: CLINICAL,
-                fontFamily: "'Space Mono', monospace",
-                fontSize: '10px',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-              }}
-            >
+            <button onClick={handleOscilloCommit} style={{ padding: '13px 32px', border: '1px solid rgba(148,163,184,0.35)', background: 'rgba(148,163,184,0.05)', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', cursor: 'pointer' }}>
               COMMIT TO PATTERN
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'spatial') {
+    var qLabels = { I: 'QUADRANT I', II: 'QUADRANT II', III: 'QUADRANT III', IV: 'QUADRANT IV' };
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AssessmentHeader label="TEST 2 OF 3 -- SPATIAL DENSITY ARRAY" />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px', gap: '28px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+          <div style={monoStyle({ color: CLINICAL, fontSize: '10px', marginBottom: '4px' })}>IDENTIFY THE REGION OF HIGHEST STRUCTURAL DENSITY. SELECT ONE QUADRANT.</div>
+          <div style={{ position: 'relative', userSelect: 'none' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + GRID_COLS + ', 1fr)', gap: '2px', background: 'rgba(255,255,255,0.04)', padding: '2px' }}>
+              {gridValues.map(function(v, i) {
+                var col = i % GRID_COLS;
+                var row = Math.floor(i / GRID_COLS);
+                var isLeft = col < GRID_COLS / 2;
+                var isTop = row < GRID_ROWS / 2;
+                var q = isTop ? (isLeft ? 'I' : 'II') : (isLeft ? 'III' : 'IV');
+                var hovered = hoveredQ === q;
+                return (
+                  <div key={i} style={{
+                    height: '36px',
+                    background: 'rgba(148,163,184,' + v + ')',
+                    outline: hovered ? '1px solid rgba(148,163,184,0.5)' : 'none',
+                    outlineOffset: '-1px',
+                    transition: 'outline 0.1s',
+                  }} />
+                );
+              })}
+            </div>
+            <div style={{ position: 'absolute', inset: '2px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', pointerEvents: 'none' }}>
+              <div style={{ border: '1px solid rgba(148,163,184,0.15)', borderRight: '1px solid rgba(148,163,184,0.25)', borderBottom: '1px solid rgba(148,163,184,0.25)' }} />
+              <div style={{ border: '1px solid rgba(148,163,184,0.15)', borderLeft: 'none', borderBottom: '1px solid rgba(148,163,184,0.25)' }} />
+              <div style={{ border: '1px solid rgba(148,163,184,0.15)', borderRight: '1px solid rgba(148,163,184,0.25)', borderTop: 'none' }} />
+              <div style={{ border: '1px solid rgba(148,163,184,0.15)', borderLeft: 'none', borderTop: 'none' }} />
+            </div>
+            <div style={{ position: 'absolute', inset: '2px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+              {['I','II','III','IV'].map(function(q) {
+                return (
+                  <div
+                    key={q}
+                    onMouseEnter={function() { setHoveredQ(q); }}
+                    onMouseLeave={function() { setHoveredQ(null); }}
+                    onClick={function() { handleQuadrantClick(q); }}
+                    style={{ cursor: 'crosshair', display: 'flex', alignItems: 'flex-end', justifyContent: hoveredQ === q ? 'center' : 'flex-start', padding: '8px', transition: 'background 0.1s' }}
+                  >
+                    {hoveredQ === q && (
+                      <span style={monoStyle({ color: CLINICAL, fontSize: '8px', letterSpacing: '0.2em', pointerEvents: 'none' })}>{q}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div style={monoStyle({ color: '#4a5568', fontSize: '9px' })}>HOVER TO IDENTIFY -- CLICK TO SELECT</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'sequence') {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AssessmentHeader label="TEST 3 OF 3 -- EVENT SEQUENCE ANALYSIS" />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px', gap: '32px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+          <div style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>TEMPORAL EVENT SEQUENCE -- 35 EVENTS OVER 100 UNIT INTERVAL</div>
+          <div ref={seqWrapRef} style={{ border: '1px solid rgba(148,163,184,0.12)', background: '#020509', padding: '16px 0' }}>
+            <canvas ref={seqRef} width={seqW} height={SEQ_H} style={{ display: 'block', width: '100%' }} />
+          </div>
+          <div>
+            <div style={monoStyle({ color: CLINICAL, fontSize: '10px', marginBottom: '20px' })}>DOES THIS SEQUENCE CONTAIN A REPEATING INTERVAL?</div>
+            {seqAnswer === null && (
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <button onClick={handleSeqNo} style={{ padding: '12px 28px', border: '1px solid rgba(148,163,184,0.25)', background: 'transparent', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  NO
+                </button>
+                <button onClick={function() { setSeqAnswer('yes_pending'); }} style={{ padding: '12px 28px', border: '1px solid rgba(148,163,184,0.35)', background: 'rgba(148,163,184,0.05)', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  YES
+                </button>
+              </div>
+            )}
+            {seqAnswer === 'yes_pending' && (
+              <div>
+                <div style={monoStyle({ marginBottom: '14px', fontSize: '9px' })}>ESTIMATE THE PERIOD:</div>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {[
+                    { v: 'short', label: 'SHORT  ( < 15 )' },
+                    { v: 'medium', label: 'MEDIUM  ( 15 - 40 )' },
+                    { v: 'long', label: 'LONG  ( > 40 )' }
+                  ].map(function(p) {
+                    return (
+                      <button key={p.v} onClick={function() { handlePeriod(p.v); }} style={{ padding: '12px 24px', border: '1px solid rgba(148,163,184,0.3)', background: 'rgba(148,163,184,0.04)', color: CLINICAL, fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -419,25 +597,21 @@ function FieldAssessment() {
     return (
       <div style={fullH}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px', ...monoStyle({ color: CLINICAL, fontSize: '11px', letterSpacing: '0.25em' }) }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: CLINICAL, display: 'inline-block', animation: 'none', opacity: 0.8 }} />
-          ANALYSIS LOGGED
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: CLINICAL, display: 'inline-block', opacity: 0.8 }} />
+          ASSESSMENT BATTERY COMPLETE
         </div>
       </div>
     );
   }
 
   if (phase === 'reveal') {
-    const delta = baseline !== null ? committed - baseline : null;
+    var avgs = { I: quadrantAvg(gridValues, 'I'), II: quadrantAvg(gridValues, 'II'), III: quadrantAvg(gridValues, 'III'), IV: quadrantAvg(gridValues, 'IV') };
+    var delta = baseline !== null ? oscilloResult - baseline : oscilloResult - 44;
+    var periodLabel = periodEstimate === 'short' ? 'SHORT  ( < 15 )' : periodEstimate === 'long' ? 'LONG  ( > 40 )' : 'MEDIUM  ( 15 - 40 )';
+
     return (
       <div style={{ minHeight: '100vh' }}>
-
-        <nav style={{
-          position: 'sticky', top: 0, left: 0, right: 0, zIndex: 1000,
-          padding: '0 48px', height: '64px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'rgba(7,11,15,0.92)', backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)'
-        }}>
+        <nav style={{ position: 'sticky', top: 0, zIndex: 1000, padding: '0 48px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(7,11,15,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <img src="/assets/logo/logo.png" alt="MentiSystema" style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(167,139,250,0.35))' }} />
             <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '16px', fontWeight: 700, letterSpacing: '0.2em', color: '#e5e7eb', textTransform: 'uppercase' }}>
@@ -451,41 +625,57 @@ function FieldAssessment() {
 
         <div style={{ ...shell, padding: '80px 0 120px' }}>
 
-          <div style={{ marginBottom: '72px' }}>
-            <div style={{ ...monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.3em', marginBottom: '20px' }) }}>PAREIDOLIA / FIELD ASSESSMENT / DEBRIEF</div>
+          <div style={{ marginBottom: '64px' }}>
+            <div style={monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.3em', marginBottom: '20px' })}>PAREIDOLIA / FIELD ASSESSMENT / DEBRIEF</div>
             <h1 style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', lineHeight: 0.95, marginBottom: '24px' }}>
               You were <span style={{ color: VIOLET }}>attacked.</span>
             </h1>
             <p style={{ maxWidth: '600px', color: '#a8b3c2', fontSize: '0.95rem', lineHeight: 1.9 }}>
-              Everything on the previous screens was fabricated. The institution, the statistics, the prior analysts, the signal classification, the case studies. None of it existed. What follows is a complete accounting of what was done and how it worked.
+              Everything on the previous screens was fabricated. The institution, the statistics, the prior analysts, the signal classifications, the case studies. None of it existed. You committed to false patterns in three different signal modalities under the same priming. What follows is a complete accounting.
             </p>
           </div>
 
-          <div style={{ border: '1px solid rgba(167,139,250,0.15)', background: 'rgba(167,139,250,0.02)', padding: '36px', marginBottom: '64px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
-            {[
-              { label: 'Your Primed Threshold', value: committed + '%', sub: 'Coherence at commitment' },
-              { label: 'Unprimed Baseline', value: baseline !== null ? baseline + '%' : '44% avg', sub: baseline !== null ? 'Your reading from main instrument' : 'Population average (unprimed)' },
-              { label: 'Delta', value: delta !== null ? (delta > 0 ? '+' : '') + delta + '%' : (committed <= 44 ? '-' + (44 - committed) + '%' : '+' + (committed - 44) + '%'), sub: 'Shift due to prior installation' }
-            ].map(function(c, i) {
-              return (
-                <div key={i} style={{ background: '#070b0f', padding: '24px 28px' }}>
-                  <div style={monoStyle({ marginBottom: '10px' })}>{c.label}</div>
-                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{c.value}</div>
-                  <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>{c.sub}</div>
-                </div>
-              );
-            })}
+          <div style={monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.25em', marginBottom: '16px' })}>THREE TESTS. ONE PRIMING. THREE COMMITMENTS.</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '20px' }}>
+            <div style={{ background: '#070b0f', padding: '24px 28px' }}>
+              <div style={monoStyle({ marginBottom: '8px', fontSize: '9px' })}>TEST 1 -- WAVEFORM</div>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{oscilloResult}%</div>
+              <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>Coherence at commitment</div>
+            </div>
+            <div style={{ background: '#070b0f', padding: '24px 28px' }}>
+              <div style={monoStyle({ marginBottom: '8px', fontSize: '9px' })}>TEST 2 -- SPATIAL</div>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{'Q ' + spatialCommit}</div>
+              <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>{'Avg density: I=' + avgs.I + ' II=' + avgs.II + ' III=' + avgs.III + ' IV=' + avgs.IV}</div>
+            </div>
+            <div style={{ background: '#070b0f', padding: '24px 28px' }}>
+              <div style={monoStyle({ marginBottom: '8px', fontSize: '9px' })}>TEST 3 -- SEQUENCE</div>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: seqAnswer === 'no' ? '#64748b' : VIOLET, lineHeight: 1 }}>{seqAnswer === 'no' ? 'NO' : 'YES'}</div>
+              <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>
+                {seqAnswer === 'no' ? 'Periodicity rejected -- sequence was uniform random' : 'Periodicity detected -- period estimate: ' + periodLabel}
+              </div>
+            </div>
           </div>
 
-          <div style={{ marginBottom: '20px', ...monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.25em' }) }}>
-            SIX TECHNIQUES DEPLOYED
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '64px' }}>
+            <div style={{ background: '#070b0f', padding: '24px 28px' }}>
+              <div style={monoStyle({ marginBottom: '8px' })}>Unprimed Baseline</div>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{baseline !== null ? baseline + '%' : '44% avg'}</div>
+              <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>{baseline !== null ? 'Your reading from the main instrument' : 'Population average (unprimed)'}</div>
+            </div>
+            <div style={{ background: '#070b0f', padding: '24px 28px' }}>
+              <div style={monoStyle({ marginBottom: '8px' })}>Test 1 Delta</div>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{(delta > 0 ? '+' : '') + delta + '%'}</div>
+              <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>Criterion shift from prior installation</div>
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '72px' }}>
+
+          <div style={monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.25em', marginBottom: '16px' })}>SIX TECHNIQUES DEPLOYED</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '72px' }}>
             {TECHNIQUES.map(function(t, i) {
               return (
                 <div key={i} style={{ background: '#070b0f', padding: '28px', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', top: 0, left: 0, width: '3px', height: '100%', background: VIOLET, opacity: 0.3 }} />
-                  <div style={{ ...monoStyle({ color: VIOLET, marginBottom: '8px', fontSize: '10px' }) }}>{t.name}</div>
+                  <div style={monoStyle({ color: VIOLET, marginBottom: '8px', fontSize: '10px' })}>{t.name}</div>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: '#4a5568', marginBottom: '12px', lineHeight: 1.7, fontStyle: 'italic' }}>{t.quote}</div>
                   <div style={{ fontSize: '12px', color: '#a8b3c2', lineHeight: 1.7 }}>{t.body}</div>
                 </div>
@@ -503,8 +693,9 @@ function FieldAssessment() {
                 'The only reliable defense is structural -- pre-committed detection thresholds, blind analysis protocols, adversarial peer review. Systems designed to do what the individual analyst cannot: evaluate evidence before the prior is installed.',
                 'You came to this page because you are interested in adversarial systems. You are now part of one. The distance between this demonstration and a real deployment is not the technique. It is only the disclosure.'
               ].map(function(p, i) {
+                var isLast = i === 3;
                 return (
-                  <p key={i} style={{ color: i === 3 ? VIOLET : '#a8b3c2', fontSize: '0.92rem', lineHeight: 1.95, marginBottom: i < 3 ? '20px' : 0, fontFamily: i === 3 ? "'Space Mono', monospace" : "'Inter', sans-serif", fontWeight: 300, fontSize: i === 3 ? '11px' : '0.92rem', letterSpacing: i === 3 ? '0.06em' : 'normal' }}>
+                  <p key={i} style={{ color: isLast ? VIOLET : '#a8b3c2', fontSize: isLast ? '11px' : '0.92rem', lineHeight: 1.95, marginBottom: isLast ? 0 : '20px', fontFamily: isLast ? "'Space Mono', monospace" : "'Inter', sans-serif", fontWeight: 300, letterSpacing: isLast ? '0.06em' : 'normal' }}>
                     {p}
                   </p>
                 );
