@@ -558,23 +558,50 @@ transition: opacity 0.7s ease, transform 0.7s ease;
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+.mobile-nav { display: none; }
+.nav-hamburger { display: none; }
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
 nav { padding: 0 24px; }
 
 .nav-links { display: none; }
 
+.nav-hamburger {
+display: flex; align-items: center;
+background: none; border: none; cursor: pointer;
+color: var(--muted);
+font-family: 'Space Mono', monospace;
+font-size: 9px; letter-spacing: 0.15em;
+text-transform: uppercase; padding: 8px 0;
+transition: color 0.15s;
+}
+.nav-hamburger:hover { color: var(--teal); }
+
 .mobile-nav {
-display: flex; gap: 20px; flex-wrap: wrap;
-padding: 16px 0; justify-content: center;
+display: flex; flex-direction: column;
+position: fixed; top: 64px; left: 0; right: 0; z-index: 999;
+background: rgba(7,11,15,0.97);
+backdrop-filter: blur(12px);
 border-bottom: 1px solid var(--line);
-position: relative; z-index: 1;
+padding: 0 24px;
+max-height: 0; overflow: hidden;
+transition: max-height 0.35s ease, padding 0.35s ease;
+}
+.mobile-nav.open {
+max-height: 400px;
+padding: 20px 24px;
 }
 .mobile-nav a {
 color: var(--muted); text-decoration: none;
 font-family: 'Space Mono', monospace;
-font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+padding: 14px 0;
+border-bottom: 1px solid var(--line);
+transition: color 0.15s;
 }
+.mobile-nav a:last-child { border-bottom: none; }
+.mobile-nav a:hover { color: var(--teal); }
 
 .shell { width: 92%; }
 
@@ -620,20 +647,19 @@ footer { flex-direction: column; gap: 12px; text-align: center; }
 <li><a href="/ai-timeline.html">AI Timeline</a></li>
 <li><a href="#contact">Contact</a></li>
 </ul>
+<button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">MENU</button>
 </nav>
+
+<div class="mobile-nav" id="mobile-nav">
+<a href="#projects" onclick="closeMobileNav()">Projects</a>
+<a href="#research" onclick="closeMobileNav()">Research</a>
+<a href="#about" onclick="closeMobileNav()">About</a>
+<a href="/ai-timeline.html" onclick="closeMobileNav()">AI Timeline</a>
+<a href="#contact" onclick="closeMobileNav()">Contact</a>
+</div>
 
 <main>
 <div class="shell">
-
-```
-<!-- Mobile nav -->
-<div class="mobile-nav">
-<a href="#projects">Projects</a>
-<a href="#research">Research</a>
-<a href="#about">About</a>
-<a href="/ai-timeline.html">AI Timeline</a>
-<a href="#contact">Contact</a>
-</div>
 
 <!-- ── Hero ── -->
 <section class="hero" style="position:relative;">
@@ -983,6 +1009,14 @@ navLinks.forEach(a => {
 a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
 });
 });
+
+// Mobile nav toggle
+function toggleMobileNav() {
+document.getElementById('mobile-nav').classList.toggle('open');
+}
+function closeMobileNav() {
+document.getElementById('mobile-nav').classList.remove('open');
+}
 </script>
 
 </body>
