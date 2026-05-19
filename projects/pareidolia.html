@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PAREIDOLIA -- MentiSystema</title>
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --bg: #070b0f;
+  --text: #e5e7eb;
+  --muted: #a8b3c2;
+  --dim: #4a5568;
+  --violet: #a78bfa;
+  --line: rgba(255,255,255,0.08);
+  --line-v: rgba(167,139,250,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #050810; }
+::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); }
+
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.bg-glow {
+  position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 600px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(167,139,250,0.07) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.bg-glow-2 {
+  position: fixed; bottom: -10%; right: -10%;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(167,139,250,0.04) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 0 48px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(7,11,15,0.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(167,139,250,0.35)); }
+.nav-logo-text { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.2em; color: var(--text); text-transform: uppercase; }
+.nav-logo-text span { color: var(--violet); }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-links a.active { color: var(--violet); }
+
+.shell { width: min(1120px, 90%); margin: 0 auto; position: relative; z-index: 1; }
+
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-top: 64px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 0.25em;
+  color: var(--violet); text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 14px;
+}
+.hero-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--violet); }
+
+.hero-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  font-weight: 700; letter-spacing: 0.14em;
+  color: var(--text); line-height: 0.95;
+  margin-bottom: 28px; text-transform: uppercase;
+}
+.hero-title span { color: var(--violet); }
+
+.hero-tagline-block {
+  border-left: 3px solid var(--violet);
+  padding-left: 20px; margin-bottom: 32px;
+}
+.hero-tagline-line {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em;
+  color: rgba(167,139,250,0.65); text-transform: uppercase; line-height: 2.1;
+}
+
+.hero-desc {
+  max-width: 580px; color: var(--muted);
+  font-size: 0.95rem; line-height: 1.9; margin-bottom: 36px;
+}
+
+.status-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.status-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border: 1px solid;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.badge-violet { border-color: rgba(167,139,250,0.35); color: var(--violet); }
+.badge-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+section { padding: 88px 0; border-bottom: 1px solid var(--line); }
+section:last-child { border-bottom: none; }
+
+.section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 52px; }
+.section-num { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--violet); }
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.section-line { flex: 1; height: 1px; background: linear-gradient(to right, var(--line-v), transparent); }
+
+.prose p { color: var(--muted); font-size: 0.92rem; line-height: 1.9; margin-bottom: 20px; }
+.prose p:last-child { margin-bottom: 0; }
+.hl { color: var(--violet); font-weight: 500; }
+.prose em { color: var(--text); font-style: italic; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: start; }
+
+.concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); margin-bottom: 48px; }
+.concept-card { background: var(--bg); padding: 28px; position: relative; overflow: hidden; }
+.concept-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--violet); opacity: 0.35; }
+.concept-name { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; color: var(--violet); margin-bottom: 6px; }
+.concept-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: var(--dim); margin-bottom: 12px; text-transform: uppercase; }
+.concept-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+.sdt-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); margin: 36px 0; }
+.sdt-cell { background: var(--bg); padding: 22px; }
+.sdt-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; margin-bottom: 8px; }
+.sdt-value { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+.sdt-desc { font-size: 11px; color: var(--muted); line-height: 1.55; }
+
+.forward-block { border: 1px solid rgba(167,139,250,0.14); padding: 48px; background: rgba(167,139,250,0.02); position: relative; overflow: hidden; }
+.forward-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--violet), transparent); opacity: 0.3; }
+.forward-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--violet); text-transform: uppercase; margin-bottom: 28px; }
+.forward-text p { color: var(--muted); font-size: 0.92rem; line-height: 1.9; margin-bottom: 18px; }
+.forward-text p:last-child { margin-bottom: 0; color: var(--violet); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.1em; font-style: normal; }
+
+footer { border-top: 1px solid var(--line); margin-top: 80px; padding: 28px 0 40px; text-align: center; }
+footer p { margin: 0; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; font-size: 0.78rem; }
+
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .sdt-strip { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/assets/logo/logo.png" alt="MentiSystema" />
+    <span class="nav-logo-text">Menti<span>S</span>ystema</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/#projects">Projects</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/ai-timeline.html">Timeline</a></li>
+  </ul>
+</nav>
+
+<div class="shell">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Adversarial Psychology / Pattern Cognition</div>
+    <h1 class="hero-title">PARE<span>I</span>DOLIA</h1>
+    <div class="hero-tagline-block">
+      <div class="hero-tagline-line">Coherence Injection as Attack Surface</div>
+      <div class="hero-tagline-line">The Signal That Was Never There</div>
+    </div>
+    <p class="hero-desc">
+      Every human analyst is a pattern-recognition engine with no off switch.
+      PAREIDOLIA maps the threshold between noise and committed false belief,
+      and asks what happens when that threshold is found, held, and exploited.
+    </p>
+    <div class="status-row">
+      <span class="status-badge badge-violet"><span class="badge-dot"></span>Active Research</span>
+      <span class="status-badge badge-violet">Behavioral / Adversarial</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">The Condition</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="two-col">
+      <div class="prose">
+        <p>
+          In 1958, German psychiatrist Klaus Conrad coined <span class="hl">apophenia</span> to describe a symptom
+          he observed in schizophrenic patients: the unmotivated experience of meaningful connections between
+          unrelated things. He named the earliest stage <em>Trema</em> -- a state of charged, anxious readiness --
+          and the second stage <em>Apophanie</em>, from the Greek <em>apo</em> (away) and <em>phaenein</em>
+          (to show): the moment hidden meaning breaks through the surface of the world.
+        </p>
+        <p>
+          Conrad framed this as pathology. He was half right. What he described is not a malfunction -- it is
+          the human pattern-recognition system running at full capacity in an environment that does not warrant it.
+          The system is not broken. It is being misled.
+        </p>
+        <p>
+          <span class="hl">Pareidolia</span> is the perceptual subspecies: seeing faces in clouds, figures in
+          static, intent in noise. It is apophenia with a sensory mask. The brain's object-recognition circuits
+          fire before the frontal lobe can audit the input, producing conviction before evidence.
+        </p>
+      </div>
+      <div class="prose">
+        <p>
+          The evolutionary logic is unambiguous. In a world where a shadow might be a predator, the cost of a
+          false positive is embarrassment. The cost of a false negative is death. Natural selection built a
+          system biased toward detection, not accuracy. The brain does not ask "is there a pattern?" It asks
+          "what is the most plausible pattern given this data?" -- and then commits.
+        </p>
+        <p>
+          This bias is not historical. It is running right now, in every intelligence analyst studying satellite
+          imagery, every security researcher reading logs, every radiologist reading a scan. The same circuitry
+          that saw faces in cave walls sees intent in noise, clusters in scatter, trends in drift.
+        </p>
+        <p>
+          PAREIDOLIA begins with a single question: if the bias cannot be turned off, can it be aimed?
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Signal Detection Theory and the Bias Parameter</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="prose" style="max-width:760px; margin-bottom:36px;">
+      <p>
+        Signal Detection Theory, formalized by Green and Swets in 1966, separates two quantities the human mind
+        conflates: <span class="hl">sensitivity</span> (d-prime) -- the true ability to distinguish signal from
+        noise -- and <span class="hl">criterion</span> (beta) -- the internal threshold at which the observer
+        commits to "yes, there is something here."
+      </p>
+      <p>
+        Sensitivity is relatively stable across context. Criterion is not. It shifts under cognitive load,
+        emotional arousal, sleep deprivation, and social pressure. An analyst told that "something is likely
+        here" will lower their criterion without realizing it, generating more false positives while believing
+        they are being appropriately vigilant. The signal they find feels real because it was found, not
+        because it is there.
+      </p>
+    </div>
+    <div class="sdt-strip">
+      <div class="sdt-cell">
+        <div class="sdt-label" style="color:#a78bfa;">Hit</div>
+        <div class="sdt-value" style="color:#a78bfa;">TP</div>
+        <div class="sdt-desc">Signal present, analyst responds. The expected outcome -- weaponized as a baseline trust that makes false positives plausible.</div>
+      </div>
+      <div class="sdt-cell">
+        <div class="sdt-label" style="color:#f87171;">False Alarm</div>
+        <div class="sdt-value" style="color:#f87171;">FP</div>
+        <div class="sdt-desc">Signal absent, analyst responds. The target state. Maximized by lowering criterion without degrading the analyst's perceived sensitivity.</div>
+      </div>
+      <div class="sdt-cell">
+        <div class="sdt-label" style="color:#4a5568;">Miss</div>
+        <div class="sdt-value" style="color:#4a5568;">FN</div>
+        <div class="sdt-desc">Signal present, analyst does not respond. Too low a false alarm rate indicates the injected coherence is insufficient.</div>
+      </div>
+      <div class="sdt-cell">
+        <div class="sdt-label" style="color:#4a5568;">Correct Rejection</div>
+        <div class="sdt-value" style="color:#4a5568;">TN</div>
+        <div class="sdt-desc">Signal absent, analyst does not respond. The attack's failure state. Coherence is below the commitment threshold.</div>
+      </div>
+    </div>
+    <div class="prose" style="max-width:760px;">
+      <p>
+        The adversarial insight is this: an attacker does not need to overcome an analyst's sensitivity.
+        They need only to shift their criterion. A primed analyst will commit to a false pattern that an
+        unprimed analyst would ignore -- not because they are less capable, but because their internal
+        threshold has been relocated without their awareness.
+      </p>
+      <p>
+        The Receiver Operating Characteristic curve maps the full space of possible tradeoffs. A skilled
+        analyst operates upper-left: high hit rate, low false alarm rate. The PAREIDOLIA attack does not
+        push the analyst off the curve. It moves them along it, toward a region of higher false alarm rate
+        that they experience as appropriate vigilance.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Predictive Processing and the Prior</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="two-col">
+      <div class="prose">
+        <p>
+          Karl Friston's predictive processing framework reframes perception entirely. The brain does not
+          passively receive sensory input and interpret it. It generates <span class="hl">predictions</span>
+          about the world -- hypotheses -- and compares them to incoming data. What we experience as
+          perception is the brain's best guess, corrected by prediction error.
+        </p>
+        <p>
+          This architecture has a critical property: the prior matters. A confident expectation suppresses
+          prediction error. The brain sees what it expects to see and discounts contradictory evidence.
+          Friston calls this <span class="hl">precision-weighted prediction error minimization</span>. A high-precision
+          prior is difficult to dislodge not because of logic, but because of architecture.
+        </p>
+        <p>
+          The adversarial implication is direct: if you can install a prior, you can shape perception --
+          not by changing the data, but by changing what the analyst expects to find in it.
+        </p>
+      </div>
+      <div class="prose">
+        <p>
+          Intelligence briefings, threat assessments, and peer statements are all prior-installers.
+          "We believe there may be activity in sector 7" is not a neutral statement. It loads a prior
+          that will resist disconfirmation. Subsequent ambiguous data resolves in favor of the prior
+          because that is how the perceptual system is built -- not as a failure of judgment, but as
+          an expression of Bayesian inference operating on manipulated inputs.
+        </p>
+        <p>
+          The two-stage PAREIDOLIA model exploits this directly. Stage one is prior installation:
+          credible, low-commitment signals that establish the expectation of a pattern. Stage two is
+          coherence injection: structured noise calibrated to confirm what the analyst already
+          half-believes.
+        </p>
+        <p>
+          The prior does most of the work. The injected coherence only needs to be sufficient to
+          confirm an expectation, not to produce one from nothing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">The Attack Model</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-name">Prior Installation</div>
+        <div class="concept-sub">Phase 01 / Criterion Shift</div>
+        <div class="concept-desc">
+          Credible context is established before data is introduced. Briefings, authority signals,
+          peer consensus, or anomaly reports lower the analyst's detection criterion without
+          presenting false data. Only framing changes. The analyst is not deceived yet -- they
+          are prepared to deceive themselves.
+        </div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-name">Coherence Injection</div>
+        <div class="concept-sub">Phase 02 / Signal Calibration</div>
+        <div class="concept-desc">
+          Structured noise is introduced into the data stream. Coherence is calibrated to the
+          individual threshold: high enough to trigger commitment, low enough to appear organic.
+          The analyst finds the pattern they were primed to find and experiences it as discovery,
+          not as a reaction to planted structure.
+        </div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-name">Commitment Lock</div>
+        <div class="concept-sub">Phase 03 / Belief Crystallization</div>
+        <div class="concept-desc">
+          Once the analyst commits verbally or in writing, confirmation bias and sunk-cost
+          dynamics maintain the belief. Contradictory data is processed as anomalous rather
+          than disconfirming. The false pattern becomes self-sustaining without further
+          input from the attacker.
+        </div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-name">Threshold Variance</div>
+        <div class="concept-sub">Key Variable / Individual Calibration</div>
+        <div class="concept-desc">
+          Detection threshold varies significantly between individuals and across contexts.
+          Fatigue, cognitive load, domain expertise, and emotional state all shift criterion.
+          A well-calibrated attack targets the distribution, not a single threshold value,
+          accepting some false negatives in exchange for undetectable coherence levels.
+        </div>
+      </div>
+    </div>
+    <div class="prose" style="max-width:760px;">
+      <p>
+        The critical design constraint is the <span class="hl">detectability boundary</span>. Too
+        little coherence and the analyst correctly rejects the noise. Too much and the fabrication
+        becomes visible -- the structure is too clean, the pattern too convenient. The attack
+        operates in the narrow band between these limits, where coherence is sufficient to produce
+        commitment but insufficient to produce suspicion.
+      </p>
+      <p>
+        This band is not fixed. It shifts with context, expertise, and cognitive state.
+        The instrument below is designed to locate it.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Threshold Calibration -- Live Instrument</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="prose" style="max-width:760px; margin-bottom:36px;">
+      <p>
+        The instrument below presents a live signal stream. Each trial begins as pure noise.
+        Coherence is injected at a randomized, hidden rate. Press
+        <span class="hl">PATTERN DETECTED</span> the moment you commit to seeing structure
+        in the waveform. Your threshold -- the coherence level at the moment of commitment --
+        is recorded. Five trials build your response distribution.
+      </p>
+      <p>You are the subject.</p>
+    </div>
+    <div id="scope-root"></div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Thesis</span>
+      <span class="section-line"></span>
+    </div>
+    <div class="forward-block">
+      <div class="forward-label">Research Position</div>
+      <div class="forward-text">
+        <p>
+          Adversarial research has focused almost entirely on technical surfaces: code, networks,
+          protocols, models. The human analyst is treated as the trusted endpoint -- the final
+          verification layer that cannot be compromised without direct deception.
+        </p>
+        <p>
+          This framing is wrong. The human analyst is not the verification layer. They are the
+          most reliably exploitable surface in the chain -- not through deception, but through
+          the fundamental architecture of perception itself. Apophenia is not a vulnerability
+          in the analyst. It is a vulnerability in the species.
+        </p>
+        <p>
+          PAREIDOLIA does not require lying. It requires understanding how the brain resolves
+          ambiguity -- and providing the right kind of ambiguity at the right moment. The
+          pattern that commits an analyst is not false. It is simply not there. The difference
+          is invisible from the inside.
+        </p>
+        <p>Understanding the threshold is the first step toward defending it. The instrument is the map.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>MentiSystema -- Behavioral AI / Signal Intelligence / Adversarial Research</p>
+</footer>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const TOTAL_TRIALS = 5;
+const SCOPE_HEIGHT = 200;
+const NOISE_LEN = 512;
+
+function makeNoise() {
+  const arr = [];
+  for (let i = 0; i < NOISE_LEN; i++) {
+    arr.push(Math.random() * 2 - 1);
+  }
+  return arr;
+}
+
+function buildWaveform(width, coherence, phase, noise) {
+  const pts = [];
+  const cy = SCOPE_HEIGHT / 2;
+  const amp = SCOPE_HEIGHT * 0.36;
+  const freq = 3.4;
+  for (let x = 0; x < width; x++) {
+    const t = x / width;
+    const sig = Math.sin(t * Math.PI * 2 * freq + phase) * amp;
+    const n = noise[x % NOISE_LEN] * amp;
+    pts.push(cy + sig * coherence + n * (1 - coherence * 0.55));
+  }
+  return pts;
+}
+
+function paintScope(canvas, pts, coherence) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.strokeStyle = 'rgba(167,139,250,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    ctx.beginPath(); ctx.moveTo(w / 8 * i, 0); ctx.lineTo(w / 8 * i, h); ctx.stroke();
+  }
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, h / 4 * i); ctx.lineTo(w, h / 4 * i); ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(167,139,250,0.09)';
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+
+  ctx.shadowColor = '#a78bfa';
+  ctx.shadowBlur = 3 + coherence * 14;
+  ctx.strokeStyle = 'rgba(167,139,250,' + (0.45 + coherence * 0.55) + ')';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const step = w / pts.length;
+  for (let x = 0; x < pts.length; x++) {
+    if (x === 0) ctx.moveTo(0, pts[x]);
+    else ctx.lineTo(x * step, pts[x]);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function ScopeInstrument() {
+  const canvasRef = useRef(null);
+  const rafRef = useRef(null);
+  const liveRef = useRef({ running: false, phase: 0, coherence: 0, rate: 0, noise: [] });
+
+  const [width, setWidth] = useState(800);
+  const [isRunning, setIsRunning] = useState(false);
+  const [trial, setTrial] = useState(0);
+  const [results, setResults] = useState([]);
+  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState('AWAITING CALIBRATION');
+
+  useEffect(() => {
+    function measure() {
+      if (canvasRef.current) {
+        const w = canvasRef.current.parentElement.offsetWidth;
+        setWidth(Math.max(320, w));
+      }
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    function loop() {
+      const s = liveRef.current;
+      if (s.running) {
+        s.phase += 0.038;
+        s.coherence = Math.min(1, s.coherence + s.rate * 0.016);
+        const pts = buildWaveform(280, s.coherence, s.phase, s.noise);
+        paintScope(canvas, pts, s.coherence);
+      } else {
+        const idleNoise = makeNoise();
+        const pts = buildWaveform(280, 0.02, s.phase, idleNoise);
+        s.phase += 0.01;
+        paintScope(canvas, pts, 0.02);
+      }
+      rafRef.current = requestAnimationFrame(loop);
+    }
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  function startTrial() {
+    liveRef.current = {
+      running: true,
+      phase: Math.random() * Math.PI * 2,
+      coherence: 0,
+      rate: 0.035 + Math.random() * 0.065,
+      noise: makeNoise(),
+    };
+    setIsRunning(true);
+    setStatus('SCANNING...');
+  }
+
+  function handleDetect() {
+    const c = liveRef.current.coherence;
+    liveRef.current.running = false;
+    const pct = Math.round(c * 100);
+    const next = [...results, pct];
+    setResults(next);
+    setIsRunning(false);
+    if (next.length >= TOTAL_TRIALS) {
+      setDone(true);
+      setStatus('CALIBRATION COMPLETE');
+    } else {
+      setTrial(t => t + 1);
+      setStatus('THRESHOLD LOGGED -- READY');
+    }
+  }
+
+  function handleReset() {
+    liveRef.current.running = false;
+    setIsRunning(false);
+    setTrial(0);
+    setResults([]);
+    setDone(false);
+    setStatus('AWAITING CALIBRATION');
+  }
+
+  const avg = results.length > 0
+    ? Math.round(results.reduce((a, b) => a + b, 0) / results.length)
+    : null;
+
+  const variance = results.length > 1
+    ? Math.round(Math.sqrt(results.reduce((a, v) => a + Math.pow(v - avg, 2), 0) / results.length))
+    : null;
+
+  function profileText(a) {
+    if (a <= 28) return 'LOW THRESHOLD -- You commit early. High susceptibility to coherence injection under prior installation. A primed context would move this lower still.';
+    if (a <= 52) return 'MODERATE THRESHOLD -- Within the primary attack band. Coherence at this level is hardest to consciously detect. The pattern feels found, not planted.';
+    if (a <= 72) return 'ELEVATED THRESHOLD -- You resist early commitment. Effective attack requires stronger prior installation or increased cognitive load to shift criterion.';
+    return 'HIGH THRESHOLD -- Robust against standard coherence injection. Attack requires domain-specific signal design or significant prior loading to achieve commitment.';
+  }
+
+  const wrapStyle = {
+    border: '1px solid rgba(167,139,250,0.18)',
+    background: 'rgba(167,139,250,0.02)',
+    padding: '40px',
+  };
+  const monoSm = {
+    fontFamily: "'Space Mono', monospace",
+    fontSize: '9px',
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    color: '#4a5568',
+  };
+
+  return (
+    <div style={wrapStyle}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.15rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            PAREIDOLIA / <span style={{ color: '#a78bfa' }}>Signal Instrument</span>
+          </div>
+          <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
+            {Array.from({ length: TOTAL_TRIALS }).map((_, i) => {
+              const isComplete = i < results.length;
+              const isCurrent = i === results.length && isRunning;
+              return (
+                <div key={i} style={{
+                  width: '8px', height: '8px', borderRadius: '50%',
+                  border: '1px solid ' + (isComplete ? '#a78bfa' : isCurrent ? '#a78bfa' : 'rgba(167,139,250,0.25)'),
+                  background: isComplete ? '#a78bfa' : 'transparent',
+                  boxShadow: isCurrent ? '0 0 0 3px rgba(167,139,250,0.15)' : 'none',
+                }} />
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ ...monoSm, textAlign: 'right', lineHeight: 1.9 }}>
+          <div>TRIAL {Math.min(results.length + 1, TOTAL_TRIALS)} / {TOTAL_TRIALS}</div>
+          <div>COHERENCE INJECTION -- RANDOMIZED RATE</div>
+        </div>
+      </div>
+
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={SCOPE_HEIGHT}
+        style={{ display: 'block', width: '100%', background: '#020509', border: '1px solid rgba(167,139,250,0.12)' }}
+      />
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px', flexWrap: 'wrap', gap: '14px' }}>
+        <div style={{ ...monoSm, color: isRunning ? '#a78bfa' : '#4a5568', fontSize: '10px' }}>{status}</div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {!done && !isRunning && (
+            <button onClick={startTrial} style={{
+              padding: '12px 28px', border: '1px solid rgba(167,139,250,0.4)',
+              background: 'rgba(167,139,250,0.06)', color: '#a78bfa',
+              fontFamily: "'Space Mono', monospace", fontSize: '10px',
+              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
+            }}>
+              {results.length === 0 ? 'BEGIN CALIBRATION' : 'NEXT TRIAL'}
+            </button>
+          )}
+          {isRunning && (
+            <button onClick={handleDetect} style={{
+              padding: '12px 28px', border: '1px solid rgba(167,139,250,0.5)',
+              background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
+              fontFamily: "'Space Mono', monospace", fontSize: '10px',
+              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
+            }}>
+              PATTERN DETECTED
+            </button>
+          )}
+          {results.length > 0 && (
+            <button onClick={handleReset} style={{
+              padding: '12px 28px', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'transparent', color: '#a8b3c2',
+              fontFamily: "'Space Mono', monospace", fontSize: '10px',
+              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
+            }}>
+              RESET
+            </button>
+          )}
+        </div>
+      </div>
+
+      {results.length > 0 && (
+        <div style={{ marginTop: '28px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '24px' }}>
+          <div style={monoSm}>Threshold Distribution</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginTop: '16px' }}>
+            {[
+              { label: 'Avg Threshold', value: avg !== null ? avg + '%' : '---', sub: 'Coherence at commitment' },
+              { label: 'Std Deviation', value: variance !== null ? variance + '%' : '---', sub: 'Spread across trials' },
+              { label: 'Readings', value: results.length + '/' + TOTAL_TRIALS, sub: results.map(r => r + '%').join('  ') },
+            ].map((c, i) => (
+              <div key={i} style={{ background: '#070b0f', padding: '20px' }}>
+                <div style={{ ...monoSm, marginBottom: '8px' }}>{c.label}</div>
+                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2rem', fontWeight: 700, color: '#a78bfa', lineHeight: 1 }}>{c.value}</div>
+                <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px', letterSpacing: '0.02em' }}>{c.sub}</div>
+              </div>
+            ))}
+          </div>
+          {done && avg !== null && (
+            <div style={{
+              marginTop: '20px', padding: '16px 20px',
+              border: '1px solid rgba(167,139,250,0.14)',
+              background: 'rgba(167,139,250,0.03)',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '11px', lineHeight: 1.75, color: '#a8b3c2',
+              letterSpacing: '0.03em',
+            }}>
+              {profileText(avg)}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('scope-root'));
+root.render(<ScopeInstrument />);
+</script>
+</body>
+</html>
