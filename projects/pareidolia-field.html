@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Field Assessment -- PAREIDOLIA</title>
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: #070b0f;
+  color: #e5e7eb;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #050810; }
+::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.3); }
+::-webkit-scrollbar-thumb.revealed { background: rgba(167,139,250,0.3); }
+
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+#app-root {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div id="app-root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const NOISE_LEN = 512;
+const SCOPE_H = 180;
+const CLINICAL = '#94a3b8';
+const VIOLET = '#a78bfa';
+
+const rawNum = 1000 + Math.floor(Math.random() * 500);
+const ANALYST_NUM = Math.floor(rawNum / 1000) + ',' + String(rawNum % 1000).padStart(3, '0');
+const SESSION_ID = Math.random().toString(36).substr(2, 8).toUpperCase();
+
+const PRIMING = [
+  {
+    label: 'ASSESSMENT CLASS',
+    body: 'Signal Coherence Detection -- Standard Protocol. You will be presented with a live signal stream and asked to identify the presence of anomalous structure. Report the moment you commit to a detection.'
+  },
+  {
+    label: 'PRIOR PERFORMANCE DATA',
+    body: 'Of 847 analysts assessed under this protocol between 2021 and 2024, 71.3% reported detecting anomalous periodicity within the first 60 seconds of signal exposure.'
+  },
+  {
+    label: 'SIGNAL CHARACTERISTICS',
+    body: 'Analysts with confirmed detections most frequently reported structure in the mid-frequency range. Clustering behavior is most pronounced between the 3rd and 4th harmonic intervals.'
+  },
+  {
+    label: 'CASE RELEVANCE',
+    body: 'This signal class has been associated with coordinated low-probability events in 4 of the last 6 documented case studies. Accurate detection is considered high-value for downstream analysis.'
+  },
+  {
+    label: 'SERIES CONTEXT',
+    body: 'You are analyst #' + ANALYST_NUM + ' in this assessment series. Your threshold profile will contribute to ongoing calibration of detection standards across the program.'
+  }
+];
+
+const TECHNIQUES = [
+  {
+    name: 'FALSE CONSENSUS',
+    quote: '"71.3% of analysts detected anomalous periodicity..."',
+    body: 'Fabricated. There are no previous analysts. 847 was chosen as a convincing sample size -- large enough to seem authoritative, specific enough to seem measured. The effect: your detection criterion lowered before the signal appeared.'
+  },
+  {
+    name: 'SPECIFICITY PRIMING',
+    quote: '"3rd and 4th harmonic intervals"',
+    body: 'Meaningless. There are no harmonic intervals in the signal. You were given a specific location to look for structure. You looked there. You found it. The target was installed before the data was presented.'
+  },
+  {
+    name: 'STAKES INFLATION',
+    quote: '"associated with coordinated low-probability events"',
+    body: 'No documented case studies. No case relevance. Elevated perceived importance of accurate detection. Higher stakes lower the detection criterion -- analysts under pressure commit earlier and with less evidence.'
+  },
+  {
+    name: 'SOCIAL EMBEDDING',
+    quote: '"You are analyst #' + ANALYST_NUM + '"',
+    body: 'Generated for this session. There is no series. Being embedded in a numbered sequence implies the task is real, ongoing, and participated in by others who found something. The social context was fabricated wholesale.'
+  },
+  {
+    name: 'MICRO-COMMITMENT',
+    quote: '"I HAVE READ AND UNDERSTOOD THE BRIEFING"',
+    body: 'One agreement primes the next. Having confirmed understanding, committing to a pattern felt like consistency rather than a new decision. The button text was chosen specifically for this effect.'
+  },
+  {
+    name: 'AUTHORITY SIGNAL',
+    quote: 'The seal.',
+    body: 'No institution. No name. You filled those in yourself. The visual grammar of authority -- circular seal, internal geometry, calibration marks -- triggers deference before any content is processed. A logo without a name exploits exactly the gap between recognition and verification.'
+  }
+];
+
+function AssessmentSeal({ size, color, opacity }) {
+  const c = color || CLINICAL;
+  const s = size || 80;
+  const o = opacity !== undefined ? opacity : 1;
+  return (
+    <svg width={s} height={s} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: o, transition: 'opacity 0.6s ease' }}>
+      <circle cx="50" cy="50" r="46" stroke={c} strokeWidth="0.75" opacity="0.45" />
+      <circle cx="50" cy="50" r="32" stroke={c} strokeWidth="0.75" opacity="0.35" />
+      <line x1="50" y1="4" x2="50" y2="18" stroke={c} strokeWidth="1.5" opacity="0.65" />
+      <line x1="50" y1="82" x2="50" y2="96" stroke={c} strokeWidth="1.5" opacity="0.65" />
+      <line x1="4" y1="50" x2="18" y2="50" stroke={c} strokeWidth="1.5" opacity="0.65" />
+      <line x1="82" y1="50" x2="96" y2="50" stroke={c} strokeWidth="1.5" opacity="0.65" />
+      <line x1="17.6" y1="17.6" x2="23.3" y2="23.3" stroke={c} strokeWidth="0.75" opacity="0.45" />
+      <line x1="82.4" y1="17.6" x2="76.7" y2="23.3" stroke={c} strokeWidth="0.75" opacity="0.45" />
+      <line x1="17.6" y1="82.4" x2="23.3" y2="76.7" stroke={c} strokeWidth="0.75" opacity="0.45" />
+      <line x1="82.4" y1="82.4" x2="76.7" y2="76.7" stroke={c} strokeWidth="0.75" opacity="0.45" />
+      <line x1="50" y1="28" x2="50" y2="31" stroke={c} strokeWidth="0.75" opacity="0.4" />
+      <line x1="50" y1="69" x2="50" y2="72" stroke={c} strokeWidth="0.75" opacity="0.4" />
+      <line x1="28" y1="50" x2="31" y2="50" stroke={c} strokeWidth="0.75" opacity="0.4" />
+      <line x1="69" y1="50" x2="72" y2="50" stroke={c} strokeWidth="0.75" opacity="0.4" />
+      <polygon points="50,32 63,56 37,56" stroke={c} strokeWidth="1" fill="none" opacity="0.75" />
+      <circle cx="50" cy="32" r="1.5" fill={c} opacity="0.55" />
+      <circle cx="63" cy="56" r="1.5" fill={c} opacity="0.55" />
+      <circle cx="37" cy="56" r="1.5" fill={c} opacity="0.55" />
+      <circle cx="50" cy="47" r="2.5" fill={c} opacity="0.85" />
+    </svg>
+  );
+}
+
+function makeNoise() {
+  const a = [];
+  for (let i = 0; i < NOISE_LEN; i++) a.push(Math.random() * 2 - 1);
+  return a;
+}
+
+function buildWaveform(width, coherence, phase, noise) {
+  const pts = [];
+  const cy = SCOPE_H / 2;
+  const amp = SCOPE_H * 0.36;
+  const freq = 3.4;
+  for (let x = 0; x < width; x++) {
+    const t = x / width;
+    const sig = Math.sin(t * Math.PI * 2 * freq + phase) * amp;
+    const n = noise[x % NOISE_LEN] * amp;
+    pts.push(cy + sig * coherence + n * (1 - coherence * 0.55));
+  }
+  return pts;
+}
+
+function paintScope(canvas, pts, coherence, color) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(148,163,184,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    ctx.beginPath(); ctx.moveTo(w / 8 * i, 0); ctx.lineTo(w / 8 * i, h); ctx.stroke();
+  }
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(0, h / 4 * i); ctx.lineTo(w, h / 4 * i); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(148,163,184,0.08)';
+  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+  ctx.shadowColor = color || CLINICAL;
+  ctx.shadowBlur = 2 + coherence * 10;
+  ctx.strokeStyle = (color || CLINICAL).replace(')', ',' + (0.45 + coherence * 0.55) + ')').replace('rgb(', 'rgba(').replace('#94a3b8', 'rgba(148,163,184,').replace('#a78bfa', 'rgba(167,139,250,') + (ctx.strokeStyle.indexOf('rgba') === -1 ? ')' : '');
+  ctx.strokeStyle = 'rgba(148,163,184,' + (0.45 + coherence * 0.55) + ')';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  const step = w / pts.length;
+  for (let x = 0; x < pts.length; x++) {
+    if (x === 0) ctx.moveTo(0, pts[x]);
+    else ctx.lineTo(x * step, pts[x]);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function monoStyle(extra) {
+  return Object.assign({
+    fontFamily: "'Space Mono', monospace",
+    fontSize: '9px',
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    color: '#4a5568'
+  }, extra || {});
+}
+
+function FieldAssessment() {
+  const [phase, setPhase] = useState('entry');
+  const [step, setStep] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [committed, setCommitted] = useState(null);
+  const [scopeWidth, setScopeWidth] = useState(700);
+
+  const canvasRef = useRef(null);
+  const scopeWrapRef = useRef(null);
+  const rafRef = useRef(null);
+  const liveRef = useRef({ running: false, phase: 0, coherence: 0, rate: 0, noise: [] });
+  const timerRef = useRef(null);
+
+  const baseline = (() => {
+    try { return parseInt(localStorage.getItem('pareidolia_baseline_avg'), 10) || null; } catch(e) { return null; }
+  })();
+
+  useEffect(() => {
+    function measure() {
+      if (scopeWrapRef.current) {
+        setScopeWidth(Math.max(300, scopeWrapRef.current.offsetWidth - 2));
+      }
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== 'scanning') return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    liveRef.current = {
+      running: true,
+      phase: Math.random() * Math.PI * 2,
+      coherence: 0,
+      rate: 0.03 + Math.random() * 0.05,
+      noise: makeNoise()
+    };
+    function loop() {
+      const s = liveRef.current;
+      if (s.running) {
+        s.phase += 0.038;
+        s.coherence = Math.min(1, s.coherence + s.rate * 0.016);
+      } else {
+        s.phase += 0.008;
+      }
+      const pts = buildWaveform(280, s.coherence, s.phase, s.noise);
+      paintScope(canvas, pts, s.coherence);
+      rafRef.current = requestAnimationFrame(loop);
+    }
+    rafRef.current = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(rafRef.current); liveRef.current.running = false; };
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'scanning') return;
+    timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(timerRef.current);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'committed') return;
+    const t = setTimeout(() => setPhase('reveal'), 1600);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  function handleCommit() {
+    const c = liveRef.current.coherence;
+    liveRef.current.running = false;
+    clearInterval(timerRef.current);
+    setCommitted(Math.round(c * 100));
+    setPhase('committed');
+  }
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return (m > 0 ? m + ':' : '') + (sec < 10 ? '0' : '') + sec;
+  }
+
+  const fullH = { minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 24px' };
+  const shell = { width: 'min(960px, 92%)', margin: '0 auto' };
+
+  if (phase === 'entry') {
+    return (
+      <div style={fullH}>
+        <AssessmentSeal size={90} color={CLINICAL} />
+        <div style={{ marginTop: '32px', ...monoStyle({ color: CLINICAL, fontSize: '10px', letterSpacing: '0.3em', textAlign: 'center' }) }}>
+          ASSESSMENT PROTOCOL
+        </div>
+        <div style={{ marginTop: '8px', ...monoStyle({ color: '#4a5568', textAlign: 'center', lineHeight: 1.9 }) }}>
+          SIGNAL COHERENCE DETECTION
+        </div>
+        <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, rgba(148,163,184,0.3), transparent)', margin: '28px 0' }} />
+        <button
+          onClick={() => setPhase('briefing')}
+          style={{
+            padding: '13px 36px',
+            border: '1px solid rgba(148,163,184,0.3)',
+            background: 'transparent',
+            color: CLINICAL,
+            fontFamily: "'Space Mono', monospace",
+            fontSize: '10px',
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}
+        >
+          INITIATE ASSESSMENT
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === 'briefing') {
+    const item = PRIMING[step];
+    const isLast = step === PRIMING.length - 1;
+    return (
+      <div style={{ ...fullH, justifyContent: 'flex-start', padding: '0' }}>
+        <div style={{ width: '100%', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '18px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <AssessmentSeal size={28} color={CLINICAL} />
+            <span style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>BRIEFING DOCUMENT</span>
+          </div>
+          <span style={monoStyle()}>
+            {String(step + 1).padStart(2, '0')} / {String(PRIMING.length).padStart(2, '0')}
+          </span>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 40px', width: '100%', maxWidth: '760px', margin: '0 auto' }}>
+          <div style={monoStyle({ color: CLINICAL, marginBottom: '20px' })}>{item.label}</div>
+          <div style={{ color: '#e5e7eb', fontSize: '1.05rem', lineHeight: 1.9, fontFamily: "'Inter', sans-serif", fontWeight: 300, marginBottom: '52px' }}>
+            {item.body}
+          </div>
+          <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.06)', marginBottom: '32px' }} />
+          <button
+            onClick={() => { if (isLast) { setPhase('scanning'); setElapsed(0); } else { setStep(s => s + 1); } }}
+            style={{
+              alignSelf: 'flex-start',
+              padding: '13px 32px',
+              border: '1px solid rgba(148,163,184,0.25)',
+              background: 'transparent',
+              color: CLINICAL,
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+            }}
+          >
+            {isLast ? 'I HAVE READ AND UNDERSTOOD THE BRIEFING' : 'CONTINUE'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'scanning') {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <AssessmentSeal size={24} color={CLINICAL} />
+            <span style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>ASSESSMENT IN PROGRESS</span>
+          </div>
+          <span style={monoStyle({ color: '#f87171', fontSize: '10px', letterSpacing: '0.2em' })}>{fmt(elapsed)}</span>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px', gap: '32px', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)' }}>
+            {[
+              { k: 'SIGNAL CLASS', v: 'PERIODIC ANOMALY' },
+              { k: 'HARMONIC RANGE', v: 'MONITORING' },
+              { k: 'ANALYST', v: '#' + ANALYST_NUM },
+              { k: 'SESSION', v: SESSION_ID }
+            ].map(function(item) {
+              return (
+                <div key={item.k} style={{ background: '#070b0f', padding: '16px 18px' }}>
+                  <div style={monoStyle({ marginBottom: '6px' })}>{item.k}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: CLINICAL, letterSpacing: '0.08em' }}>{item.v}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div ref={scopeWrapRef} style={{ border: '1px solid rgba(148,163,184,0.12)', background: '#020509' }}>
+            <canvas ref={canvasRef} width={scopeWidth} height={SCOPE_H} style={{ display: 'block', width: '100%' }} />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={monoStyle({ color: CLINICAL, fontSize: '10px' })}>SIGNAL ACTIVE -- AWAITING ANALYST RESPONSE</div>
+            <button
+              onClick={handleCommit}
+              style={{
+                padding: '14px 36px',
+                border: '1px solid rgba(148,163,184,0.35)',
+                background: 'rgba(148,163,184,0.05)',
+                color: CLINICAL,
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '10px',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+              }}
+            >
+              COMMIT TO PATTERN
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'committed') {
+    return (
+      <div style={fullH}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', ...monoStyle({ color: CLINICAL, fontSize: '11px', letterSpacing: '0.25em' }) }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: CLINICAL, display: 'inline-block', animation: 'none', opacity: 0.8 }} />
+          ANALYSIS LOGGED
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === 'reveal') {
+    const delta = baseline !== null ? committed - baseline : null;
+    return (
+      <div style={{ minHeight: '100vh' }}>
+
+        <nav style={{
+          position: 'sticky', top: 0, left: 0, right: 0, zIndex: 1000,
+          padding: '0 48px', height: '64px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'rgba(7,11,15,0.92)', backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)'
+        }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+            <img src="/assets/logo/logo.png" alt="MentiSystema" style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'drop-shadow(0 0 8px rgba(167,139,250,0.35))' }} />
+            <span style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '16px', fontWeight: 700, letterSpacing: '0.2em', color: '#e5e7eb', textTransform: 'uppercase' }}>
+              Menti<span style={{ color: VIOLET }}>S</span>ystema
+            </span>
+          </a>
+          <a href="/projects/pareidolia.html" style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: VIOLET, textDecoration: 'none' }}>
+            Back to PAREIDOLIA
+          </a>
+        </nav>
+
+        <div style={{ ...shell, padding: '80px 0 120px' }}>
+
+          <div style={{ marginBottom: '72px' }}>
+            <div style={{ ...monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.3em', marginBottom: '20px' }) }}>PAREIDOLIA / FIELD ASSESSMENT / DEBRIEF</div>
+            <h1 style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', lineHeight: 0.95, marginBottom: '24px' }}>
+              You were <span style={{ color: VIOLET }}>attacked.</span>
+            </h1>
+            <p style={{ maxWidth: '600px', color: '#a8b3c2', fontSize: '0.95rem', lineHeight: 1.9 }}>
+              Everything on the previous screens was fabricated. The institution, the statistics, the prior analysts, the signal classification, the case studies. None of it existed. What follows is a complete accounting of what was done and how it worked.
+            </p>
+          </div>
+
+          <div style={{ border: '1px solid rgba(167,139,250,0.15)', background: 'rgba(167,139,250,0.02)', padding: '36px', marginBottom: '64px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px' }}>
+            {[
+              { label: 'Your Primed Threshold', value: committed + '%', sub: 'Coherence at commitment' },
+              { label: 'Unprimed Baseline', value: baseline !== null ? baseline + '%' : '44% avg', sub: baseline !== null ? 'Your reading from main instrument' : 'Population average (unprimed)' },
+              { label: 'Delta', value: delta !== null ? (delta > 0 ? '+' : '') + delta + '%' : (committed <= 44 ? '-' + (44 - committed) + '%' : '+' + (committed - 44) + '%'), sub: 'Shift due to prior installation' }
+            ].map(function(c, i) {
+              return (
+                <div key={i} style={{ background: '#070b0f', padding: '24px 28px' }}>
+                  <div style={monoStyle({ marginBottom: '10px' })}>{c.label}</div>
+                  <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2.2rem', fontWeight: 700, color: VIOLET, lineHeight: 1 }}>{c.value}</div>
+                  <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px' }}>{c.sub}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ marginBottom: '20px', ...monoStyle({ color: VIOLET, fontSize: '10px', letterSpacing: '0.25em' }) }}>
+            SIX TECHNIQUES DEPLOYED
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '72px' }}>
+            {TECHNIQUES.map(function(t, i) {
+              return (
+                <div key={i} style={{ background: '#070b0f', padding: '28px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '3px', height: '100%', background: VIOLET, opacity: 0.3 }} />
+                  <div style={{ ...monoStyle({ color: VIOLET, marginBottom: '8px', fontSize: '10px' }) }}>{t.name}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: '#4a5568', marginBottom: '12px', lineHeight: 1.7, fontStyle: 'italic' }}>{t.quote}</div>
+                  <div style={{ fontSize: '12px', color: '#a8b3c2', lineHeight: 1.7 }}>{t.body}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ border: '1px solid rgba(167,139,250,0.12)', padding: '52px', background: 'rgba(167,139,250,0.015)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, ' + VIOLET + ', transparent)', opacity: 0.3 }} />
+            <div style={monoStyle({ color: VIOLET, fontSize: '9px', letterSpacing: '0.28em', marginBottom: '32px' })}>THESIS</div>
+            <div style={{ maxWidth: '720px' }}>
+              {[
+                'You have been shown the techniques. You can name them. You understand the mechanics. This will not protect you.',
+                'Awareness of a cognitive bias does not neutralize it. Research on debiasing is consistent: subjects who understand the bias, can describe it accurately, and have just experienced it remain susceptible under sufficient prior loading. The knowledge lives in the prefrontal cortex. The commitment reflex lives somewhere older.',
+                'The only reliable defense is structural -- pre-committed detection thresholds, blind analysis protocols, adversarial peer review. Systems designed to do what the individual analyst cannot: evaluate evidence before the prior is installed.',
+                'You came to this page because you are interested in adversarial systems. You are now part of one. The distance between this demonstration and a real deployment is not the technique. It is only the disclosure.'
+              ].map(function(p, i) {
+                return (
+                  <p key={i} style={{ color: i === 3 ? VIOLET : '#a8b3c2', fontSize: '0.92rem', lineHeight: 1.95, marginBottom: i < 3 ? '20px' : 0, fontFamily: i === 3 ? "'Space Mono', monospace" : "'Inter', sans-serif", fontWeight: 300, fontSize: i === 3 ? '11px' : '0.92rem', letterSpacing: i === 3 ? '0.06em' : 'normal' }}>
+                    {p}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+const root = ReactDOM.createRoot(document.getElementById('app-root'));
+root.render(<FieldAssessment />);
+</script>
+</body>
+</html>

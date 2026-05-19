@@ -477,6 +477,16 @@ footer p { margin: 0; color: var(--muted); letter-spacing: 0.18em; text-transfor
     </div>
   </section>
 
+  <section style="padding: 72px 0; border-bottom: none; text-align: center;">
+    <div style="font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--dim); text-transform: uppercase; margin-bottom: 20px;">FIELD ASSESSMENT</div>
+    <p style="max-width: 480px; margin: 0 auto 32px; color: var(--muted); font-size: 0.88rem; line-height: 1.8;">
+      The instrument above measures your threshold in a neutral context. The field assessment runs the full attack pipeline -- prior installation, coherence injection, commitment -- without disclosure. You will not be told what is happening until it is over.
+    </p>
+    <a href="/projects/pareidolia-field.html" style="display: inline-block; padding: 14px 36px; border: 1px solid rgba(167,139,250,0.35); background: rgba(167,139,250,0.04); color: var(--violet); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none; transition: all 0.2s;">
+      ENTER FIELD ASSESSMENT
+    </a>
+  </section>
+
 </div>
 
 <footer>
@@ -612,6 +622,8 @@ function ScopeInstrument() {
     if (next.length >= TOTAL_TRIALS) {
       setDone(true);
       setStatus('CALIBRATION COMPLETE');
+      const a = Math.round(next.reduce((x, y) => x + y, 0) / next.length);
+      try { localStorage.setItem('pareidolia_baseline_avg', String(a)); } catch(e) {}
     } else {
       setTrial(t => t + 1);
       setStatus('THRESHOLD LOGGED -- READY');
