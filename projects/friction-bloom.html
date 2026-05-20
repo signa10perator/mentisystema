@@ -385,6 +385,77 @@ footer { border-top: 1px solid var(--line); padding: 32px 0 48px; display: flex;
     </div>
   </section>
 
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Dataset 002</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="dataset-block reveal">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="dataset-title">Technical Evaluation — <span>Dataset 002</span></div>
+      <div class="dataset-meta">400 Experiment Runs — Greedy Agent — Four Friction Modalities</div>
+      <p class="dataset-desc">A 10x scale replication of Dataset 001. The same Greedy Agent, same friction modalities, same grid range — run at 400 experiments to confirm whether the behavioral patterns established at N=40 hold under increased statistical pressure. Confirmation study.</p>
+      <div class="dataset-findings">
+        <div class="finding">
+          <div class="finding-label">Replication</div>
+          <div class="finding-text">Primary findings from Dataset 001 confirmed at N=400. Wall gap constraint dominance over scattered obstacles holds across the expanded run set.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Statistical Weight</div>
+          <div class="finding-text">10x increase in run count provides meaningful reduction in variance. Behavioral thresholds established at N=40 prove stable under replication.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Baseline Confirmed</div>
+          <div class="finding-text">Dataset 001 findings were not artifacts of low sample size. The friction modality hierarchy is reproducible and consistent across independent run sets.</div>
+        </div>
+      </div>
+      <a href="/assets/friction-bloom/dataset-002-report.pdf" target="_blank" class="pdf-link">
+        View Technical Evaluation (PDF) →
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header reveal">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Dataset 003</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="dataset-block reveal">
+      <div class="corner-tl"></div>
+      <div class="corner-tr"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="dataset-title">Technical Evaluation — <span>Dataset 003</span></div>
+      <div class="dataset-meta">4,000 Experiment Runs — Greedy Agent — Four Friction Modalities</div>
+      <p class="dataset-desc">Full-scale characterization study at N=4,000. At this volume, the complete distribution of each metric becomes visible — not just peaks and averages, but variance, tail behaviors, and the convergence point at which findings stabilize. The definitive behavioral profile of the Greedy Agent under Friction Bloom conditions.</p>
+      <div class="dataset-findings">
+        <div class="finding">
+          <div class="finding-label">Distribution</div>
+          <div class="finding-text">Full Bloom Score distributions characterized per friction type at scale. Variance and tail behaviors emerge that are statistically invisible at N=40 or N=400.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Convergence</div>
+          <div class="finding-text">Findings stabilize well below N=4,000 — confirming that the behavioral hierarchy observed across all three datasets is statistically robust and not dependent on run volume.</div>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Scale Invariance</div>
+          <div class="finding-text">Wall gap constraint dominance remains consistent at full scale. The friction modality hierarchy established at N=40 holds without degradation across 100x the original sample.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="/assets/friction-bloom/dataset-003-report.pdf" target="_blank" class="pdf-link">
+          View Technical Evaluation (PDF) →
+        </a>
+        <a href="/assets/friction-bloom/dataset-003-graph.pdf" target="_blank" class="pdf-link">
+          View Distribution Graphs (PDF) →
+        </a>
+      </div>
+    </div>
   </section>
 
 </main>
