@@ -206,6 +206,39 @@
     }
     @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
+    /* ── Don't Click Button ─────────────────────────────────────── */
+    .dont-click-btn {
+      background: #CC0000; color: #ffffff; border: none;
+      padding: 10px 22px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+      margin-top: 32px; display: inline-block;
+      opacity: 0.85;
+    }
+    .dont-click-btn:hover { opacity: 1; letter-spacing: 0.2em; }
+
+    /* ── Respek Modal ────────────────────────────────────────────── */
+    .respek-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .respek-overlay.open { display: flex; }
+    .respek-modal {
+      position: relative; max-width: 560px; width: 90%;
+      animation: fadeUp 0.3s ease;
+    }
+    .respek-modal img { width: 100%; display: block; }
+    .respek-close {
+      position: absolute; top: -32px; right: 0;
+      background: none; border: none; color: var(--muted);
+      font-family: 'Space Mono', monospace; font-size: 9px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; transition: color 0.15s;
+    }
+    .respek-close:hover { color: var(--text); }
+
     /* ── Section base ───────────────────────────────────────────── */
     section { padding: 100px 0; }
 
@@ -683,11 +716,21 @@ Where controlled disruption becomes emergent structure.
 <span class="chip">Signal Intelligence</span>
 </div>
 
+<button class="dont-click-btn" onclick="respekClick()">Don't Click This Button</button>
+
 <div class="hero-scroll">
 <span>Scroll</span>
 <div class="scroll-line"></div>
 </div>
 </section>
+
+<!-- Respek Modal -->
+<div class="respek-overlay" id="respek-overlay" onclick="closeRespek(event)">
+  <div class="respek-modal">
+    <button class="respek-close" onclick="closeRespekBtn()">CLOSE ×</button>
+    <img src="/assets/logo/respek_knuckles.png" alt="Respek Knuckles" />
+  </div>
+</div>
 
 
 <!-- ── Projects ── -->
@@ -1009,6 +1052,24 @@ navLinks.forEach(a => {
 a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
 });
 });
+
+// Don't Click button
+function respekClick() {
+  document.getElementById('respek-overlay').classList.add('open');
+  fetch('https://ntfy.sh/Limbic%20Rules!', {
+    method: 'POST',
+    body: 'Limbic Over-Ride',
+    headers: { 'Title': 'MentiSystema' }
+  });
+}
+function closeRespek(e) {
+  if (e.target === document.getElementById('respek-overlay')) {
+    document.getElementById('respek-overlay').classList.remove('open');
+  }
+}
+function closeRespekBtn() {
+  document.getElementById('respek-overlay').classList.remove('open');
+}
 
 // Mobile nav toggle
 function toggleMobileNav() {
