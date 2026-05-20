@@ -385,50 +385,6 @@ footer { border-top: 1px solid var(--line); padding: 32px 0 48px; display: flex;
     </div>
   </section>
 
-  <section class="observatory-section">
-    <div class="section-header reveal">
-      <span class="section-num">05</span>
-      <h2 class="section-title">Dendra: Observatory</h2>
-      <div class="section-line"></div>
-    </div>
-    <p class="reveal" style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:40px;max-width:600px;">Live experiment runner. Configure grid size and friction types, run experiments, observe outcomes in real time. Access requires a passphrase.</p>
-
-    <div id="gate-container" class="passphrase-gate reveal">
-      <div class="corner-tl"></div>
-      <div class="corner-tr"></div>
-      <div class="corner-bl"></div>
-      <div class="corner-br"></div>
-      <div class="gate-icon">◉</div>
-      <h3 class="gate-title">Observatory <span>Access</span></h3>
-      <p class="gate-sub">Restricted — Passphrase Required</p>
-      <p class="gate-desc">The Friction Bloom Observatory is a live experiment platform. Enter the passphrase to access the experiment runner, real-time results, and the memory layer.</p>
-      <div class="gate-form">
-        <input type="password" id="passphrase-input" class="gate-input" placeholder="Enter passphrase..." autocomplete="off" />
-        <button class="gate-btn" onclick="checkPassphrase()">Authenticate →</button>
-        <span class="gate-error" id="gate-error">Access denied. Invalid passphrase.</span>
-      </div>
-    </div>
-
-    <div id="observatory-frame" class="observatory-frame">
-      <div class="obs-header">
-        <div class="obs-title">
-          <span class="obs-dot"></span>
-          Dendra: Friction Bloom Observatory
-        </div>
-        <div class="obs-meta">Live — Session Active</div>
-      </div>
-      <iframe
-        id="obs-iframe"
-        class="obs-iframe"
-        src=""
-        title="Friction Bloom Observatory"
-        allow="clipboard-write">
-      </iframe>
-      <div class="obs-footer">
-        <span class="obs-footer-text">frictionbloom.streamlit.app — Authenticated Session</span>
-        <button class="obs-lock-btn" onclick="lockObservatory()">Lock Session</button>
-      </div>
-    </div>
   </section>
 
 </main>
@@ -441,35 +397,6 @@ footer { border-top: 1px solid var(--line); padding: 32px 0 48px; display: flex;
 </footer>
 
 <script>
-  const PASSPHRASE = "the archive breathes in the dust";
-  const OBS_URL = "https://frictionbloom-kalx9j86df5pyvbugbd9mw.streamlit.app/?embedded=true";
-
-  function checkPassphrase() {
-    const input = document.getElementById("passphrase-input").value.trim().toLowerCase();
-    const error = document.getElementById("gate-error");
-    if (input === PASSPHRASE) {
-      document.getElementById("gate-container").style.display = "none";
-      const frame = document.getElementById("observatory-frame");
-      frame.classList.add("visible");
-      document.getElementById("obs-iframe").src = OBS_URL;
-      error.classList.remove("visible");
-    } else {
-      error.classList.add("visible");
-      document.getElementById("passphrase-input").value = "";
-      setTimeout(() => error.classList.remove("visible"), 3000);
-    }
-  }
-
-  function lockObservatory() {
-    document.getElementById("observatory-frame").classList.remove("visible");
-    document.getElementById("obs-iframe").src = "";
-    document.getElementById("gate-container").style.display = "block";
-    document.getElementById("passphrase-input").value = "";
-  }
-
-  document.getElementById("passphrase-input").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") checkPassphrase();
-  });
 
   const reveals = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver((entries) => {
