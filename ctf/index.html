@@ -58,10 +58,29 @@
     .terminal-input-line { display: flex; align-items: center; padding: 0 20px 20px; }
     .terminal-input-line input { flex: 1; background: transparent; border: none; color: #FFFFFF; font-family: 'Courier New', monospace; font-size: 13px; outline: none; }
     .terminal-input-line input::placeholder { color: #666; }
+    .ticker-wrap { position: fixed; bottom: 0; left: 0; width: 100%; background: #000000; border-top: 2px solid #CC0000; overflow: hidden; z-index: 100; height: 30px; display: flex; align-items: center; }
+    .ticker-track { display: flex; white-space: nowrap; animation: ticker-scroll 32s linear infinite; }
+    .ticker-item { font-size: 11px; letter-spacing: 2px; font-family: 'Courier New', monospace; padding: 0 28px; color: #CC0000; }
+    .ticker-sep { color: rgba(255,255,255,0.2); padding: 0 4px; }
+    @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
   </style>
 </head>
 <body>
   <div id="root"></div>
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span class="ticker-item">URL: MENTISYSTEMA.ORG/CTF</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">ACCESS CODE: CTRL-RUPTURE</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">VENI VIDI VICI</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">CAESAR SHIFT: III</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">CONTROLLED DISRUPTION BECOMES EMERGENT STRUCTURE</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">URL: MENTISYSTEMA.ORG/CTF</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">ACCESS CODE: CTRL-RUPTURE</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">VENI VIDI VICI</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">CAESAR SHIFT: III</span><span class="ticker-sep">//</span>
+      <span class="ticker-item">CONTROLLED DISRUPTION BECOMES EMERGENT STRUCTURE</span><span class="ticker-sep">//</span>
+    </div>
+  </div>
   <script type="text/babel">
     const { useState, useEffect } = React;
     function CTFLanding() {
