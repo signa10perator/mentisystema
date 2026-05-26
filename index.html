@@ -582,22 +582,17 @@ letter-spacing: 0.1em; text-transform: uppercase;
 .ticker-item {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   color: var(--teal);
   text-transform: uppercase;
-  padding: 0 40px;
+  padding: 0 72px;
   opacity: 0.85;
 }
 .ticker-sep {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
-  letter-spacing: 0.1em;
-  color: rgba(0,224,184,0.28);
-  padding: 0 4px;
-}
-.ticker-label {
-  color: rgba(0,224,184,0.45);
-  margin-right: 10px;
+  color: rgba(0,224,184,0.3);
+  flex-shrink: 0;
 }
 @keyframes tickerScroll {
   from { transform: translateX(0); }
@@ -1126,23 +1121,23 @@ document.getElementById('mobile-nav').classList.remove('open');
 <!-- Ticker Tape -->
 <div class="ticker-bar" aria-hidden="true">
   <div class="ticker-track">
-    <span class="ticker-item"><span class="ticker-label">[ URL ]</span>phqwlvbvwhpd.ruj/fwi</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ ACCESS ]</span>FWUO-UXSWXUH</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ CIPHER ]</span>Caesar Shift III</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ SIGNAL ]</span>Intercepted</span>
-    <span class="ticker-sep">///</span>
+    <span class="ticker-item">phqwlvbvwhpd.ruj/fwi</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">Veni Vidi Vici</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">FWUO-UXSWXUH</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">III</span>
+    <span class="ticker-sep">|</span>
     <!-- duplicate for seamless loop -->
-    <span class="ticker-item"><span class="ticker-label">[ URL ]</span>phqwlvbvwhpd.ruj/fwi</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ ACCESS ]</span>FWUO-UXSWXUH</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ CIPHER ]</span>Caesar Shift III</span>
-    <span class="ticker-sep">///</span>
-    <span class="ticker-item"><span class="ticker-label">[ SIGNAL ]</span>Intercepted</span>
-    <span class="ticker-sep">///</span>
+    <span class="ticker-item">phqwlvbvwhpd.ruj/fwi</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">Veni Vidi Vici</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">FWUO-UXSWXUH</span>
+    <span class="ticker-sep">|</span>
+    <span class="ticker-item">III</span>
+    <span class="ticker-sep">|</span>
   </div>
 </div>
 
