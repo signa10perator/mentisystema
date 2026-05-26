@@ -2,23 +2,11 @@
 
 <html lang="en">
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WN3QZN1K6Z"></script>
-
-<script>
-  window.dataLayer = window.dataLayer || [];
-
-  function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-WN3QZN1K6Z');
-</script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MentiSystema</title>
   <meta name="description" content="Where controlled disruption becomes emergent structure. Systems lab for behavioral AI, signal intelligence, and adversarial research." />
-  <link rel="icon" href="/assets/logo/logo.png" />
+  <link rel="icon" href="/assets/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -160,7 +148,7 @@
       font-weight: 700;
       letter-spacing: 0.12em;
       line-height: 0.95;
-      color: #ffffff;
+      color: var(--text);
       text-transform: uppercase;
       animation: fadeUp 0.8s 0.2s ease both;
       margin-bottom: 8px;
@@ -217,39 +205,6 @@
       animation: scrollPulse 2s ease-in-out infinite;
     }
     @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
-
-    /* ── Don't Click Button ─────────────────────────────────────── */
-    .dont-click-btn {
-      background: #CC0000; color: #ffffff; border: none;
-      padding: 10px 22px;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-      cursor: pointer; transition: all 0.2s;
-      margin-top: 32px; display: inline-block;
-      opacity: 0.85;
-    }
-    .dont-click-btn:hover { opacity: 1; letter-spacing: 0.2em; }
-
-    /* ── Respek Modal ────────────────────────────────────────────── */
-    .respek-overlay {
-      display: none; position: fixed; inset: 0; z-index: 9999;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
-      align-items: center; justify-content: center;
-    }
-    .respek-overlay.open { display: flex; }
-    .respek-modal {
-      position: relative; max-width: 560px; width: 90%;
-      animation: fadeUp 0.3s ease;
-    }
-    .respek-modal img { width: 100%; display: block; }
-    .respek-close {
-      position: absolute; top: -32px; right: 0;
-      background: none; border: none; color: var(--muted);
-      font-family: 'Space Mono', monospace; font-size: 9px;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      cursor: pointer; transition: color 0.15s;
-    }
-    .respek-close:hover { color: var(--text); }
 
     /* ── Section base ───────────────────────────────────────────── */
     section { padding: 100px 0; }
@@ -573,48 +528,10 @@ letter-spacing: 0.1em; text-transform: uppercase;
 .status-val.live { color: var(--teal); }
 .status-val.wip { color: #fbbf24; }
 
-/* ── Ticker Tape ─────────────────────────────────────────────── */
-.ticker-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 998;
-  height: 36px;
-  background: rgba(7,11,15,0.96);
-  border-top: 1px solid rgba(0,224,184,0.18);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-.ticker-track {
-  display: flex;
-  animation: tickerScroll 8s linear infinite;
-  white-space: nowrap;
-  will-change: transform;
-}
-.ticker-item {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--teal);
-  text-transform: uppercase;
-  padding: 0 72px;
-  opacity: 0.85;
-}
-.ticker-sep {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: rgba(0,224,184,0.3);
-  flex-shrink: 0;
-}
-@keyframes tickerScroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
 /* ── Footer ─────────────────────────────────────────────────── */
 footer {
 border-top: 1px solid var(--line);
-padding: 32px 0 76px;
+padding: 32px 0 48px;
 display: flex; align-items: center;
 justify-content: space-between;
 }
@@ -641,50 +558,23 @@ transition: opacity 0.7s ease, transform 0.7s ease;
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-.mobile-nav { display: none; }
-.nav-hamburger { display: none; }
-
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
 nav { padding: 0 24px; }
 
 .nav-links { display: none; }
 
-.nav-hamburger {
-display: flex; align-items: center;
-background: none; border: none; cursor: pointer;
-color: var(--muted);
-font-family: 'Space Mono', monospace;
-font-size: 9px; letter-spacing: 0.15em;
-text-transform: uppercase; padding: 8px 0;
-transition: color 0.15s;
-}
-.nav-hamburger:hover { color: var(--teal); }
-
 .mobile-nav {
-display: flex; flex-direction: column;
-position: fixed; top: 64px; left: 0; right: 0; z-index: 999;
-background: rgba(7,11,15,0.97);
-backdrop-filter: blur(12px);
+display: flex; gap: 20px; flex-wrap: wrap;
+padding: 16px 0; justify-content: center;
 border-bottom: 1px solid var(--line);
-padding: 0 24px;
-max-height: 0; overflow: hidden;
-transition: max-height 0.35s ease, padding 0.35s ease;
-}
-.mobile-nav.open {
-max-height: 400px;
-padding: 20px 24px;
+position: relative; z-index: 1;
 }
 .mobile-nav a {
 color: var(--muted); text-decoration: none;
 font-family: 'Space Mono', monospace;
-font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-padding: 14px 0;
-border-bottom: 1px solid var(--line);
-transition: color 0.15s;
+font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
 }
-.mobile-nav a:last-child { border-bottom: none; }
-.mobile-nav a:hover { color: var(--teal); }
 
 .shell { width: 92%; }
 
@@ -720,7 +610,7 @@ footer { flex-direction: column; gap: 12px; text-align: center; }
 
 <nav>
 <a href="/" class="nav-logo">
-<img src="/assets/logo/logo.png" alt="MentiSystema" />
+<img src="/assets/logo.png" alt="MentiSystema" />
 <span class="nav-logo-text">Menti<span>S</span>ystema</span>
 </a>
 <ul class="nav-links">
@@ -730,24 +620,27 @@ footer { flex-direction: column; gap: 12px; text-align: center; }
 <li><a href="/ai-timeline.html">AI Timeline</a></li>
 <li><a href="#contact">Contact</a></li>
 </ul>
-<button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">MENU</button>
 </nav>
-
-<div class="mobile-nav" id="mobile-nav">
-<a href="#projects" onclick="closeMobileNav()">Projects</a>
-<a href="#research" onclick="closeMobileNav()">Research</a>
-<a href="#about" onclick="closeMobileNav()">About</a>
-<a href="/ai-timeline.html" onclick="closeMobileNav()">AI Timeline</a>
-<a href="#contact" onclick="closeMobileNav()">Contact</a>
-</div>
 
 <main>
 <div class="shell">
 
+```
+<!-- Mobile nav -->
+<div class="mobile-nav">
+<a href="#projects">Projects</a>
+<a href="#research">Research</a>
+<a href="#about">About</a>
+<a href="/ai-timeline.html">AI Timeline</a>
+<a href="#contact">Contact</a>
+</div>
+
 <!-- ── Hero ── -->
 <section class="hero" style="position:relative;">
+<div class="hero-eyebrow">MentiSystema Systems Lab</div>
+<img src="/assets/logo.png" alt="MentiSystema" class="hero-logo" />
 <h1 class="hero-title">
-M<span class="accent">≡</span>NTISYST<span class="accent">≡</span>MA
+Menti<span class="accent">S</span>ystema
 </h1>
 <p class="hero-sub">
 Behavioral AI · Signal Intelligence · Adversarial Research
@@ -764,22 +657,35 @@ Where controlled disruption becomes emergent structure.
 <span class="chip">Signal Intelligence</span>
 </div>
 
-<button class="dont-click-btn" onclick="respekClick()">Don't Click This Button</button>
-
 <div class="hero-scroll">
 <span>Scroll</span>
 <div class="scroll-line"></div>
 </div>
 </section>
 
-<!-- Respek Modal -->
-<div class="respek-overlay" id="respek-overlay" onclick="closeRespek(event)">
-  <div class="respek-modal">
-    <button class="respek-close" onclick="closeRespekBtn()">CLOSE ×</button>
-    <img src="/assets/logo/respek_knuckles.png" alt="Respek Knuckles" />
-  </div>
+<!-- ── Research Numbers ── -->
+<div class="research-strip reveal" id="research">
+<div class="research-item">
+<div class="research-num">001</div>
+<div class="research-label">Datasets Published</div>
+<div class="research-desc">Friction Bloom Dataset 001 — agent adaptability under controlled spatial perturbations.</div>
 </div>
-
+<div class="research-item">
+<div class="research-num">48</div>
+<div class="research-label">Experiment Entries</div>
+<div class="research-desc">Grid scaling from 5×5 to 15×15 across four friction modalities.</div>
+</div>
+<div class="research-item">
+<div class="research-num">4</div>
+<div class="research-label">Active Projects</div>
+<div class="research-desc">Friction Bloom, Dendra A-Eye, VectorLLM, Phreaker Box.</div>
+</div>
+<div class="research-item">
+<div class="research-num">3.94</div>
+<div class="research-label">Peak Bloom Score</div>
+<div class="research-desc">Maximum agent adaptability recorded under wall-gap constraint friction.</div>
+</div>
+</div>
 
 <!-- ── Projects ── -->
 <section id="projects">
@@ -874,23 +780,6 @@ Context-aware retrieval and semantic mapping system. Downstream training target 
 <div class="project-arrow">View Project →</div>
 </a>
 
-<a href="/projects/100-prisoners.html" class="project-card reveal">
-<div class="project-number">05</div>
-<span class="project-status status-active">Interactive</span>
-<h3 class="project-name">100 <span>Prisoners</span></h3>
-<p class="project-type">Probability Theory · Collective Cognition</p>
-<p class="project-desc">
-Based on the 2003 puzzle by Gal and Miltersen. A random strategy gives near-zero odds. One counterintuitive cycle-following strategy wins ~31% of the time. Play it, watch it, understand why.
-</p>
-<div class="project-tags">
-<span class="project-tag">Probability</span>
-<span class="project-tag">Simulation</span>
-<span class="project-tag">Cognitive Science</span>
-<span class="project-tag">Interactive</span>
-</div>
-<div class="project-arrow">View Project →</div>
-</a>
-
 <!-- Phreaker Box -->
 <a href="/projects/phreaker-box.html" class="project-card reveal">
 <div class="project-number">04</div>
@@ -905,24 +794,6 @@ Modern exploration of communication systems and signal infrastructure. Adversari
 <span class="project-tag">Adversarial</span>
 <span class="project-tag">SDR</span>
 <span class="project-tag">Communications</span>
-</div>
-<div class="project-arrow">View Project →</div>
-</a>
-
-<!-- PAREIDOLIA -->
-<a href="/projects/pareidolia.html" class="project-card reveal">
-<div class="project-number">06</div>
-<span class="project-status status-active">Active Research</span>
-<h3 class="project-name">Pare<span>idolia</span></h3>
-<p class="project-type">Adversarial Psychology · Pattern Cognition</p>
-<p class="project-desc">
-Coherence injection as attack surface. Maps the threshold between noise and committed false belief in human analysts — exploiting the perceptual bias evolution never switched off.
-</p>
-<div class="project-tags">
-<span class="project-tag">Adversarial</span>
-<span class="project-tag">Psychology</span>
-<span class="project-tag">Signal Detection</span>
-<span class="project-tag">Interactive</span>
 </div>
 <div class="project-arrow">View Project →</div>
 </a>
@@ -984,7 +855,7 @@ A reconstruction of artificial intelligence through its defining systems. Built 
 </div>
 <div class="about-grid">
 <div class="about-left reveal">
-<img src="/assets/logo/me.png" alt="Anthony Fornof" class="about-profile" />
+<img src="/assets/me.png" alt="Anthony Fornof" class="about-profile" />
 <div class="about-name">Anthony Fornof</div>
 <div class="about-role" style="margin-bottom:16px;">Founder · MentiSystema</div>
 <div class="about-role" style="color:var(--dim);margin-bottom:24px;">Experimental Psychology · Cognitive Neuroscience</div>
@@ -994,25 +865,25 @@ signa10perator@mentisystema.org
 </div>
 <div class="about-body reveal">
 <p>
-MentiSystema is not a portfolio. It is a working methodology — built at the boundary where cognitive science crosses into adversarial territory and the tools stop being academic.
+MentiSystema is a personal systems lab — built at the intersection of cognitive science, artificial intelligence, and adversarial thinking. The work here is independent research driven by curiosity, not curriculum.
 </p>
 <p>
-The foundation is Experimental Psychology and Cognitive Neuroscience. The behavioral architecture beneath Friction Bloom — stimulus, perturbation, adaptation, outcome — is clinical methodology reassigned to systems that were never meant to think.
+Currently studying Experimental Psychology and Cognitive Neuroscience. The behavioral frameworks that underpin Friction Bloom — stimulus, perturbation, adaptation, outcome — come directly from that academic foundation applied to autonomous systems.
 </p>
 <p>
-Certified in Generative AI Engineering, Python, Web Development, AI and Machine Learning, and Social Engineering. Everything here is built from scratch and documented in motion.
+Cerified in AI engineering, Python, and web development. Every project here — from the CNC-machined field kit to the pathfinding algorithm to the AI Timeline manual — is built from scratch and documented as it grows.
 </p>
 <p>
-Entered through AI and Python. The signal led to signals intelligence, penetration testing, hardware, adversarial psychology. Work that didn't fit an existing category built its own. That category is this.
+The rabbit hole started with an AI and Python course. It led to OSINT, the pentester community, hardware builds, and a body of research that didn't fit neatly into any existing category. MentiSystema is where it lives.
 </p>
 <div class="about-disciplines">
 <span class="discipline">Experimental Psychology</span>
 <span class="discipline">Cognitive Neuroscience</span>
-<span class="discipline">Generative AI Engineering</span>
-<span class="discipline">AI and Machine Learning</span>
+<span class="discipline">Behavioral AI</span>
+<span class="discipline">OSINT</span>
 <span class="discipline">Signal Intelligence</span>
 <span class="discipline">Adversarial Research</span>
-<span class="discipline">Social Engineering</span>
+<span class="discipline">Hardware</span>
 <span class="discipline">Python</span>
 </div>
 </div>
@@ -1050,10 +921,6 @@ signa10perator@mentisystema.org
 <span class="status-val wip">● In Development</span>
 </div>
 <div class="status-row">
-<span class="status-key">Pareidolia</span>
-<span class="status-val live">● Active</span>
-</div>
-<div class="status-row">
 <span class="status-key">AI Timeline</span>
 <span class="status-val live">● Live</span>
 </div>
@@ -1064,6 +931,7 @@ signa10perator@mentisystema.org
 </div>
 </div>
 </section>
+```
 
 </div><!-- /shell -->
 </main>
@@ -1100,56 +968,7 @@ navLinks.forEach(a => {
 a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
 });
 });
-
-// Don't Click button
-function respekClick() {
-  document.getElementById('respek-overlay').classList.add('open');
-  fetch('https://ntfy.sh/LimbicRules', {
-    method: 'POST',
-    body: 'Limbic Over-Ride',
-    headers: { 'Title': 'MentiSystema' }
-  });
-}
-function closeRespek(e) {
-  if (e.target === document.getElementById('respek-overlay')) {
-    document.getElementById('respek-overlay').classList.remove('open');
-  }
-}
-function closeRespekBtn() {
-  document.getElementById('respek-overlay').classList.remove('open');
-}
-
-// Mobile nav toggle
-function toggleMobileNav() {
-document.getElementById('mobile-nav').classList.toggle('open');
-}
-function closeMobileNav() {
-document.getElementById('mobile-nav').classList.remove('open');
-}
 </script>
-
-<!-- Ticker Tape -->
-<div class="ticker-bar" aria-hidden="true">
-  <div class="ticker-track">
-    <span class="ticker-item">phqwlvbvwhpd.ruj/fwi</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">Veni Vidi Vici</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">FWUO-UXSWXUH</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">III</span>
-    <span class="ticker-sep">|</span>
-    <!-- duplicate for seamless loop -->
-    <span class="ticker-item">phqwlvbvwhpd.ruj/fwi</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">Veni Vidi Vici</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">FWUO-UXSWXUH</span>
-    <span class="ticker-sep">|</span>
-    <span class="ticker-item">III</span>
-    <span class="ticker-sep">|</span>
-  </div>
-</div>
 
 </body>
 </html>

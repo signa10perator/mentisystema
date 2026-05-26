@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>AI Timeline — MentiSystema</title>
+
+<link rel="icon" href="/assets/logo.png" />
+
+<! Fonts >
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<link href="https://fonts.googleapis.com/css2?
+
+family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,40
+
+0&display=swap" rel="stylesheet" />
+
+<! React + Babel via CDN >
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+
+crossorigin></script>
+
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+
+/*  Site tokens (matches styles.css)
+
+ */
+
+:root {
+
+bg: #070b0f;
+
+panel: rgba(255,255,255,0.035);
+
+panel-strong: rgba(255,255,255,0.055);
+
+text: #e5e7eb;
+
+muted: #a8b3c2;
+
+teal: #00e0b8;
+
+purple: #9b5cff;
+
+line: rgba(255,255,255,0.11);
+
+line-teal: rgba(0,224,184,0.22);
+
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+
+color: var(text);
+
+font-family: Arial, Helvetica, sans-serif;background-color: var(bg);
+
+background-image:
+
+linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+
+linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+
+radial-gradient(circle at 50% 12%, rgba(0,224,184,0.14), transparent 28%),
+
+radial-gradient(circle at 85% 80%, rgba(155,92,255,0.11), transparent 30%);
+
+background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+
+background-attachment: fixed;
+
+}
+
+::-webkit-scrollbar { width: 4px; }
+
+::-webkit-scrollbar-track { background: #0a0e13; }
+
+::-webkit-scrollbar-thumb { background: rgba(0,224,184,0.25); }
+
+/*  Nav (matches site)
+
+ */
+
+.top-nav {
+
+position: fixed; top: 28px; right: 48px;
+
+z-index: 2000; display: flex; gap: 32px; align-items: center;
+
+}
+
+.top-nav a {
+
+color: var(text); text-decoration: none;
+
+font-size: 0.95rem; font-weight: 500; opacity: 0.9;
+
+}
+
+.top-nav a:hover { color: var(teal); }
+
+.top-nav a.active { color: var(teal); }
+
+/*  Shell
+
+
+
+ */
+
+.site-shell { width: min(1120px, 90%); margin: 0 auto; }
+
+/*  Page header
+
+
+
+ */
+
+.page-header {
+
+padding: 120px 0 48px;
+
+border-bottom: 1px solid var(line);
+
+margin-bottom: 0;
+
+}
+
+.page-header-inner {
+
+display: flex; align-items: flex-end;
+
+justify-content: space-between; gap: 24px; flex-wrap: wrap;
+
+}
+
+.page-eyebrow {
+
+font-family: 'Space Mono', monospace;
+
+font-size: 10px; letter-spacing: 0.25em;
+
+color: var(teal); text-transform: uppercase; margin-bottom: 10px;
+
+}
+
+.page-title {
+
+font-family: 'Rajdhani', sans-serif;
+
+font-size: clamp(2rem, 5vw, 3.2rem);
+
+font-weight: 700; letter-spacing: 0.1em;
+
+color: var(text); line-height: 1;}
+
+.page-title span { color: var(teal); }
+
+.page-desc {
+
+max-width: 540px; color: var(muted);
+
+font-size: 0.92rem; line-height: 1.7; margin-top: 14px;
+
+}
+
+.entry-count {
+
+font-family: 'Space Mono', monospace;
+
+font-size: 9px; letter-spacing: 0.15em; color: #1a4a3a;
+
+text-transform: uppercase; text-align: right;
+
+}
+
+.entry-count strong {
+
+display: block; font-size: 1.8rem;
+
+color: var(teal); font-family: 'Rajdhani', sans-serif;
+
+font-weight: 700; letter-spacing: 0.05em; line-height: 1;
+
+}
+
+/*  Footer
+
+
+
+ */
+
+footer {
+
+border-top: 1px solid var(line);
+
+margin-top: 80px; padding: 28px 0 40px; text-align: center;
+
+}
+
+footer p {
+
+margin: 0; color: var(muted); letter-spacing: 0.18em;
+
+text-transform: uppercase; font-size: 0.78rem;
+
+}
+
+/*  Timeline root
+
+
+
+ */
+
+#timeline-root { padding-bottom: 40px; }
+
+/*  Responsive nav
+
+
+
+ */
+
+@media (max-width: 900px) {
+
+.top-nav {
+
+position: static; justify-content: center;
+
+padding: 24px 0 0; gap: 18px; flex-wrap: wrap;
+
+}
+
+.page-header { padding: 40px 0 36px; }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<! Nav >
+
+<nav class="top-nav">
+
+<a href="/">Home</a>
+
+<a href="/#projects">Projects</a><a href="/#about">About Me</a>
+
+<a href="/ai-timeline.html" class="active">AI Timeline</a>
+
+<a href="/#contact">Contact</a>
+
+</nav>
+
+<main class="site-shell">
+
+```
+
+<! Page header >
+
+<header class="page-header">
+
+<div class="page-header-inner">
+
+<div>
+
+<div class="page-eyebrow">— MentiSystema Project —</div>
+
+<h1 class="page-title">AI <span>Timeline</span></h1>
+
+<p class="page-desc">
+
+A reconstruction of artificial intelligence through its defining systems.
+
+Built from primary papers. Chronology over narrative.
+
+</p>
+
+</div>
+
+<div class="entry-count" id="entry-count-display">
+
+ENTRIES<strong>—</strong>
+
+</div>
+
+</div>
+
+</header>
+
+<! React mounts here >
+
+<div id="timeline-root"></div>
+
+```
+
+</main>
+
+<footer>
+
+<p>MentiSystema</p>
+
+</footer>
+
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+// CSS injected into head
+
+
+
+
+
+const STYLES = `
+
+@keyframes hudFadeIn { from{opacity:0} to{opacity:1} }
+
+@keyframes hudSlideUp { from{opacity:0;transform:translateY(16px)}
+
+to{opacity:1;transform:translateY(0)} }
+
+@keyframes scanH { 0%{top:0;opacity:0} 5%{opacity:.35} 95%{opacity:.35} 100%
+
+{top:100%;opacity:0} }
+
+@keyframes cornerPulse{ 0%,100%{opacity:.5} 50%{opacity:1} }
+
+@keyframes scanPage { 0%{top:0;opacity:0} 5%{opacity:.5} 95%{opacity:.5} 100%
+
+{top:100vh;opacity:0} }
+
+.ms-scan-page {
+
+position:fixed;top:0;left:0;right:0;height:1px;
+
+background:linear-gradient(90deg,transparent,rgba(0,224,184,.5),transparent);animation:scanPage 6s linear infinite;
+
+pointer-events:none;z-index:100;
+
+}
+
+/* Controls */
+
+.ms-controls { padding:24px 0 20px; border-bottom:1px solid rgba(255,255,255,.08); }
+
+.ms-search-wrap { position:relative; flex:1; max-width:380px; }
+
+.ms-search-icon
+
+{ position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.3;pointer-
+
+events:none; }
+
+.ms-search {
+
+width:100%;background:rgba(255,255,255,.03);
+
+border:1px solid rgba(255,255,255,.1);color:#e5e7eb;
+
+font-family:'Space Mono',monospace;font-size:11px;
+
+padding:8px 14px 8px 36px;outline:none;
+
+transition:border-color .15s;letter-spacing:.04em;
+
+}
+
+.ms-search:focus { border-color:rgba(0,224,184,.4); }
+
+.ms-search::placeholder { color:#334155; }
+
+.ms-row { display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap; }
+
+.ms-view-btn {
+
+padding:6px 16px;font-family:'Space Mono',monospace;font-size:10px;
+
+letter-spacing:.1em;cursor:pointer;transition:all .15s;
+
+border:1px solid rgba(255,255,255,.1);background:transparent;
+
+color:#475569;text-transform:uppercase;
+
+}
+
+.ms-view-btn.active { background:rgba(0,224,184,.08);border-color:#00e0b8;color:#00e0b8; }
+
+.ms-era-btn {
+
+padding:5px 13px;border:1px solid;font-family:'Space Mono',monospace;
+
+font-size:9px;letter-spacing:.1em;cursor:pointer;transition:all .15s;
+
+text-transform:uppercase;
+
+}
+
+.ms-tag {
+
+padding:3px 10px;border:1px solid rgba(255,255,255,.1);
+
+font-size:9px;letter-spacing:.1em;cursor:pointer;transition:all .15s;
+
+text-transform:uppercase;font-family:'Space Mono',monospace;
+
+background:transparent;color:#64748b;
+
+}
+
+.ms-tag:hover { border-color:rgba(255,255,255,.25);color:#94a3b8; }
+
+.ms-tag.active { background:rgba(0,224,184,.08);border-color:#00e0b8;color:#00e0b8; }
+
+.ms-tag.clear { color:#f87171;border-color:rgba(248,113,113,.3); }
+
+/* Timeline */
+
+.ms-tl-wrap { padding-top:28px;position:relative; }
+
+.ms-tl-line {
+
+position:absolute;left:28px;top:0;bottom:0;width:1px;
+
+background:linear-gradient(to bottom,transparent,rgba(0,224,184,.28)
+
+5%,rgba(0,224,184,.12) 90%,transparent);
+
+}.ms-entry-row { display:flex;gap:20px;padding:6px 0 6px 24px;cursor:pointer;position:relative;
+
+}
+
+.ms-entry-row:hover .ms-card { border-
+
+color:rgba(0,224,184,.2);background:rgba(0,224,184,.02); }
+
+.ms-entry-row.active .ms-card { border-
+
+color:rgba(0,224,184,.5);background:rgba(0,224,184,.04); }
+
+.ms-dot {
+
+width:10px;height:10px;border-radius:50%;border:1px solid;
+
+flex-shrink:0;margin-top:18px;position:relative;z-index:2;
+
+transition:all .2s;background:#070b0f;margin-left:-19px;
+
+.ms-entry-row:hover .ms-dot,.ms-entry-row.active .ms-dot {
+
+transform:scale(1.4);box-shadow:0 0 8px currentColor;
+
+}
+
+}
+
+.ms-card { flex:1;padding:12px 16px;border:1px solid
+
+rgba(255,255,255,.07);background:rgba(255,255,255,.02);transition:all .15s; }
+
+.ms-year { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-
+
+spacing:.08em;opacity:.55; }
+
+.ms-title { font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;letter-
+
+spacing:.03em;line-height:1.3;color:#e5e7eb; }
+
+.ms-badge {
+
+display:inline-block;padding:1px 7px;font-size:8px;letter-spacing:.15em;
+
+text-transform:uppercase;border:1px solid;font-family:'Space Mono',monospace;
+
+}
+
+.ms-avail { font-size:8px;letter-spacing:.1em;font-family:'Space
+
+Mono',monospace;color:rgba(0,224,184,.45); }
+
+.ms-desc { font-size:11px;color:#64748b;line-height:1.65;margin-top:6px;letter-
+
+spacing:.02em; }
+
+.ms-read-btn {
+
+display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+
+padding:5px 14px;font-family:'Space Mono',monospace;font-size:9px;
+
+letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .15s;
+
+border:1px solid rgba(0,224,184,.35);color:#00e0b8;background:rgba(0,224,184,.05);
+
+}
+
+.ms-read-btn:hover { background:rgba(0,224,184,.1);border-color:rgba(0,224,184,.6); }
+
+.ms-milestone {
+
+background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.22);
+
+padding:5px 16px;margin:14px 0 6px 58px;
+
+font-size:9px;letter-spacing:.2em;color:#fbbf24;
+
+text-transform:uppercase;font-family:'Space Mono',monospace;
+
+display:flex;align-items:center;gap:8px;
+
+}
+
+.ms-milestone::before { content:'▶ ';font-size:7px; }
+
+.ms-tags-row { display:flex;gap:6px;flex-wrap:wrap;margin-top:8px; }
+
+.ms-tag-mini { font-size:8px;color:#334155;letter-spacing:.1em;text-transform:uppercase; }/* Grid */
+
+.ms-grid-wrap { padding-top:28px;display:grid;grid-template-columns:repeat(auto-
+
+fill,minmax(260px,1fr));gap:1px; }
+
+.ms-grid-card {
+
+border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);
+
+padding:16px;cursor:pointer;transition:all .15s;position:relative;
+
+border-left:2px solid transparent;
+
+}
+
+.ms-grid-card:hover { background:rgba(255,255,255,.04); }
+
+.ms-grid-card.active { background:rgba(0,224,184,.03); }
+
+.ms-grid-year { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px; }
+
+.ms-grid-title { font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-
+
+spacing:.03em;line-height:1.3;color:#e5e7eb;margin:6px 0 8px; }
+
+/* HUD Panel */
+
+.ms-hud-backdrop {
+
+position:fixed;inset:0;background:rgba(2,8,14,.97);
+
+z-index:3000;display:flex;align-items:center;justify-content:center;
+
+animation:hudFadeIn .2s ease;
+
+}
+
+.ms-hud-panel {
+
+position:relative;width:min(800px,94vw);max-height:90vh;
+
+background:#040c14;border:1px solid rgba(0,224,184,.18);
+
+animation:hudSlideUp .28s ease;display:flex;flex-direction:column;overflow:hidden;
+
+}
+
+.ms-hud-scan {
+
+position:absolute;left:0;right:0;height:1px;
+
+background:linear-gradient(90deg,transparent,rgba(0,224,184,.45),transparent);
+
+animation:scanH 5s linear infinite;pointer-events:none;z-index:10;
+
+}
+
+.ms-hud-corner {
+
+position:absolute;width:26px;height:26px;z-index:20;
+
+animation:cornerPulse 3s ease-in-out infinite;
+
+}
+
+.ms-corner-tl { top:0;left:0;border-top:1px solid;border-left:1px solid; }
+
+.ms-corner-tr { top:0;right:0;border-top:1px solid;border-right:1px solid; }
+
+.ms-corner-bl { bottom:0;left:0;border-bottom:1px solid;border-left:1px solid; }
+
+.ms-corner-br { bottom:0;right:0;border-bottom:1px solid;border-right:1px solid; }
+
+.ms-hud-dot { position:absolute;width:5px;height:5px;border-radius:50%;z-
+
+index:20;opacity:.65; }
+
+.ms-dot-border-h {
+
+height:1px;
+
+background-image:repeating-linear-gradient(90deg,rgba(0,224,184,.2) 0,rgba(0,224,184,.2)
+
+4px,transparent 4px,transparent 10px);
+
+}
+
+.ms-dot-border-v {
+
+position:absolute;width:1px;top:88px;bottom:68px;
+
+background-image:repeating-linear-gradient(180deg,rgba(0,224,184,.12)
+
+0,rgba(0,224,184,.12) 4px,transparent 4px,transparent 10px);
+
+}.ms-hud-header { padding:26px 36px 18px;border-bottom:1px solid rgba(255,255,255,.06); }
+
+.ms-hud-meta { display:flex;align-items:center;gap:12px;margin-bottom:12px; }
+
+.ms-hud-year { font-family:'Rajdhani',sans-serif;font-weight:700;font-size:30px;letter-
+
+spacing:.05em; }
+
+.ms-hud-divider{ width:1px;height:28px;background:rgba(255,255,255,.1); }
+
+.ms-hud-entry-title { font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;letter-
+
+spacing:.03em;color:#e5e7eb;line-height:1.2; }
+
+.ms-hud-sub { font-size:8px;color:#334155;letter-spacing:.18em;text-
+
+transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:4px; }
+
+.ms-esc-btn {
+
+background:none;border:1px solid rgba(255,255,255,.1);
+
+color:#475569;cursor:pointer;font-size:10px;
+
+letter-spacing:.1em;font-family:'Space Mono',monospace;
+
+padding:6px 14px;transition:all .15s;
+
+}
+
+.ms-esc-btn:hover { border-color:rgba(255,255,255,.28);color:#94a3b8; }
+
+.ms-hud-body {
+
+flex:1;overflow-y:auto;padding:26px 48px;
+
+font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:400;
+
+color:#a8b3c2;line-height:1.85;
+
+scrollbar-width:thin;scrollbar-color:#1a3a2a #0a0e13;
+
+}
+
+.ms-hud-body p { margin-bottom:1.4em; }
+
+.ms-hud-body ul { list-style:none;margin:0 0 1.4em; }
+
+.ms-hud-body ul li { padding:3px 0 3px 16px;position:relative;font-size:13px;color:#a8b3c2; }
+
+.ms-hud-body ul li::before { content:'—';position:absolute;left:0;color:#1a4a3a; }
+
+.ms-list-label { font-family:'Space Mono',monospace;font-size:10px;color:#00e0b8;letter-
+
+spacing:.1em;margin-bottom:7px;text-transform:uppercase; }
+
+.ms-hud-footer { padding:12px 36px 20px;border-top:1px solid rgba(255,255,255,.06); }
+
+.ms-hud-footer-inner { display:flex;align-items:center;justify-content:space-between; }
+
+.ms-nav-btn {
+
+padding:7px 22px;font-family:'Space Mono',monospace;font-size:10px;
+
+letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .15s;
+
+border:1px solid rgba(0,224,184,.28);background:transparent;color:#00e0b8;
+
+}
+
+.ms-nav-btn:hover { background:rgba(0,224,184,.08);border-color:#00e0b8; }
+
+.ms-nav-btn:disabled { opacity:.2;cursor:default; }
+
+.ms-nav-btn:disabled:hover { background:transparent; }
+
+.ms-page-pip {
+
+height:6px;border-radius:3px;cursor:pointer;transition:all
+
+.2s;background:rgba(255,255,255,.1);
+
+}
+
+.ms-pg-label { font-size:9px;color:#334155;letter-spacing:.12em;font-family:'Space
+
+Mono',monospace;margin-left:10px; }
+
+@media(max-width:700px){
+
+.ms-hud-body { padding:20px 24px; }
+
+.ms-hud-header { padding:20px 24px 14px; }.ms-hud-footer { padding:10px 24px 16px; }
+
+}
+
+`;
+
+// Inject styles
+
+const styleEl = document.createElement('style');
+
+styleEl.textContent = STYLES;
+
+document.head.appendChild(styleEl);
+
+// Data
+
+
+
+
+
+const SUMMARIES = {
+
+"1965-J. Alan Robinson — Resolution Principle": {
+
+pages: [
+
+{
+
+paragraphs: [
+
+"J. Alan Robinson's 1965 paper introducing the Resolution Principle fundamentally
+
+changed the direction of automated reasoning. While earlier work in artificial intelligence
+
+focused on symbolic manipulation and formal logic, Robinson provided something far more
+
+operational: a unified procedure for machine-based deduction. His work became one of the
+
+foundational pillars of automated theorem proving and symbolic AI.",
+
+"At its core, the Resolution Principle addressed a difficult problem: how can a machine
+
+systematically determine whether a logical statement is true? Prior approaches often relied on
+
+large collections of handcrafted inference rules, which quickly became inefficient as problems
+
+grew more complex. Robinson's insight was that logical reasoning could be reduced to a
+
+simpler and more generalized process of contradiction elimination.",
+
+"The method works by converting logical statements into a standardized form and then
+
+repeatedly resolving pairs of clauses until either:",
+
+],
+
+list: { label: null, items: ["A contradiction is found, proving the theorem, or", "No further
+
+resolution is possible."] },
+
+closingParagraphs: [
+
+"What made this revolutionary was not merely the mathematical elegance, but the
+
+unification. Robinson demonstrated that a single inference rule could replace many fragmented
+
+logical procedures. This dramatically improved the efficiency and scalability of automated
+
+reasoning systems.",
+
+],
+
+},
+
+{
+
+paragraphs: [
+
+"Equally important was the introduction of unification — a mechanism allowing symbolic
+
+variables to be matched dynamically during reasoning. Unification gave machines a way to
+
+manipulate abstract symbolic relationships with greater flexibility. In many ways, this became
+
+one of the defining mechanisms of symbolic AI systems throughout the 1970s and 1980s.",
+
+"The Resolution Principle emerged during a period of extraordinary optimism in artificial
+
+intelligence. Researchers increasingly believed that intelligence itself might be representable
+
+through formal symbolic structures. Robinson's work reinforced that belief by showing that
+
+machines could perform forms of rigorous logical deduction previously associated only with
+
+mathematicians and philosophers.",
+
+"The broader philosophical implication was profound: reasoning appeared mechanizable.
+
+Logic was no longer solely a human intellectual activity but something potentially executable
+
+by machines through formal procedures.","However, the work also foreshadowed limitations that would later contribute to the AI
+
+Winter. While symbolic reasoning systems performed impressively in constrained domains,
+
+they struggled with ambiguity, uncertainty, sensory interpretation, and the messy contextual
+
+nature of the real world.",
+
+],
+
+list: null,
+
+closingParagraphs: [],
+
+},
+
+],
+
+},
+
+"1956-Dartmouth Workshop": {
+
+pages: [
+
+{
+
+paragraphs: [
+
+"The 1956 Dartmouth Workshop was less a conference, and more a declaration of intent.
+
+It marked the moment when intelligence became framed not as a mystical property of life, but
+
+as a problem of engineering, computation, and formal description. The proposal itself
+
+introduced the term \"Artificial Intelligence\" and advanced a radical conjecture: that every
+
+aspect of learning or intelligence could, in principle, be described precisely enough for a
+
+machine to simulate it.",
+
+"What makes Dartmouth historically significant is not that it solved intelligence, but that it
+
+unified disparate lines of inquiry into a coherent research program. Prior to this, work on
+
+cognition, cybernetics, logic, automata, information theory, and neural systems existed in
+
+fragments. Dartmouth attempted to consolidate them under a single conceptual banner.",
+
+],
+
+list: {
+
+label: "The proposal outlined ambitions that still define AI today:",
+
+items: ["Language Understanding", "Abstraction Formation", "Self-Improvement",
+
+"Reasoning", "Creativity", "Neural Networks", "Efficient Computation"],
+
+},
+
+closingParagraphs: [
+
+"Remarkably, many of the unresolved tensions in modern AI were already visible in
+
+embryonic form. Claude Shannon discussed adaptation and information flow through
+
+environments. Marvin Minsky explored internal world models and imaginative simulation.",
+
+],
+
+},
+
+{
+
+paragraphs: [
+
+"Nathan Rochester speculated on randomness, intuition, and originality in machine
+
+behavior. John McCarthy focused on language, self-reference, and conjecture.",
+
+"The workshop also revealed an early philosophical divide that would echo through
+
+decades of AI history:",
+
+],
+
+list: { label: null, items: ["Symbolic reasoning versus learning systems.", "Handcrafted
+
+logic versus adaptive behavior.", "Formal language versus probabilistic emergence."] },
+
+closingParagraphs: [
+
+"Dartmouth emerged during an era of postwar scientific optimism. Computers were new,
+
+symbolic logic appeared powerful, and many researchers believed human-level intelligence
+
+might be achievable within decades. That optimism would later contribute to overpromising,
+
+eventually feeding the AI Winter.",
+
+"From a broader intellectual perspective, Dartmouth represented a shift in how humanity
+
+viewed cognition itself. Intelligence was re-framed as something potentially mechanizable, not
+
+divine, not uniquely biological, but procedural. This was an extraordinary cultural transition. Theworkshop effectively transformed thought into something researchers believed could be
+
+encoded, modeled, and eventually replicated.",
+
+"In retrospect, Dartmouth was not the birth of intelligent machines. It was the birth of the
+
+belief that intelligence could become an engineering discipline.",
+
+],
+
+},
+
+],
+
+},
+
+};
+
+const ERA_CONFIG = {
+
+origin: { label: "Origin", color: "#60a5fa", years: "1956–1972" },
+
+collapse: { label: "Collapse", color: "#f87171", years: "1973–1981" },
+
+learning: { label: "Learning", color: "#34d399", years: "1982–2011" },
+
+breakthrough: { label: "Breakthrough", color: "#a78bfa", years: "2012–2016" },
+
+scale: { label: "Scale", color: "#00e0b8", years: "2017–2024" },
+
+future: { label: "Future", color: "#00f5d4", years: "2025–" },
+
+};
+
+const TYPE_COLORS = {
+
+Paper:"#818cf8",Book:"#fb923c",System:"#34d399",Report:"#f472b6",
+
+Dataset:"#facc15",Competition:"#facc15",Project:"#00e0b8",
+
+Event:"#a78bfa",Systems:"#34d399",
+
+};
+
+function typeColor(t) { return TYPE_COLORS[t.split("/")[0].trim()] || "#94a3b8"; }
+
+const TIMELINE = [
+
+{year:1956,era:"origin",label:"Dartmouth Workshop",type:"Report",description:"Birth of
+
+Artificial Intelligence — the founding moment where the field was named and its ambitions
+
+declared.",tags:["founding","symbolic"]},
+
+{year:1965,era:"origin",label:"J. Alan Robinson — Resolution
+
+Principle",type:"Paper",description:"Established the logical foundation for automated theorem
+
+proving, enabling machines to reason from formal rules.",tags:["logic","reasoning"]},
+
+{year:1965,era:"origin",label:"Leonid Levin et al. — Universal
+
+Search",type:"Paper",description:"Theoretical framework for optimal universal search
+
+algorithms; foundational to computational complexity theory.",tags:["theory","search"]},
+
+{year:1966,era:"origin",label:"ELIZA — Joseph Weizenbaum",type:"System",description:"The
+
+first chatbot. Simulated conversation through pattern matching, exposing how easily humans
+
+project understanding onto machines.",tags:["nlp","system"]},
+
+{year:1969,era:"origin",label:"Marvin Minsky & Seymour Papert —
+
+Perceptrons",type:"Book",description:"Demonstrated fundamental limitations of single-layer
+
+neural networks. Triggered the first collapse of neural network research.",tags:
+
+["neural","critique"]},
+
+{year:1969,era:"origin",label:"M. Ross Quillian — Semantic
+
+Memory",type:"Paper",description:"Introduced semantic network representations of human
+
+knowledge — a blueprint for knowledge graphs.",tags:["knowledge","representation"]},
+
+{year:1969,era:"origin",label:"Allen Newell & George W. Ernst — GPS
+
+Analysis",type:"Paper",description:"Analysis of the General Problem Solver, formalizing means-
+
+ends analysis as a general AI strategy.",tags:["reasoning","planning"]},
+
+{year:1971,era:"origin",label:"Terry Winograd —
+
+SHRDLU",type:"System",description:"Language understanding system operating in a blocks
+
+world. Showed the power and limits of domain-constrained NLP.",tags:["nlp","system"]},{year:1972,era:"origin",label:"Carl Hewitt — PLANNER",type:"Paper/
+
+System",description:"Programming language for automated planning and theorem proving;
+
+influenced Prolog and logic programming.",tags:["logic","planning"]},
+
+{year:1972,era:"origin",label:"Sussman & McDermott — CONNIVER",type:"Paper/
+
+System",description:"Extended PLANNER with backtracking and pattern-directed invocation,
+
+advancing symbolic AI architectures.",tags:["symbolic","system"]},
+
+{year:1972,era:"origin",label:"Eugene Charniak — Story
+
+Comprehension",type:"Paper",description:"Early work on computational understanding of
+
+narrative — machines reasoning about causality and intent.",tags:["nlp","reasoning"]},
+
+{year:1972,era:"origin",label:"Hubert Dreyfus — What Computers Can't
+
+Do",type:"Book",description:"Philosophical critique of symbolic AI. Argued machines lack
+
+embodied understanding. Proved prescient decades later.",tags:["critique","philosophy"]},
+
+{year:1973,era:"collapse",label:"James Lighthill — Lighthill
+
+Report",type:"Report",description:"UK government report condemning AI research as failing its
+
+promises. Triggered funding cuts across Europe.",tags:
+
+["policy","critique"],milestone:true,milestoneLabel:"START OF FIRST AI WINTER"},
+
+{year:1975,era:"collapse",label:"Anthony Sunguroff — Concept
+
+Formation",type:"Paper",description:"Computational approaches to learning concepts from
+
+examples — early work on inductive machine learning.",tags:["learning"]},
+
+{year:1975,era:"collapse",label:"Scott Fahlman — Semantic Network
+
+Extensions",type:"Paper",description:"Advances in structured knowledge representation,
+
+influencing later ontology and knowledge base design.",tags:["knowledge"]},
+
+{year:1976,era:"collapse",label:"Joseph Weizenbaum — Computer Power and Human
+
+Reason",type:"Book",description:"ELIZA's creator warns against delegating human judgment
+
+to machines — one of AI's earliest ethical reckonings.",tags:["ethics","critique"]},
+
+{year:1976,era:"collapse",label:"Drew McDermott — AI Meets Natural
+
+Stupidity",type:"Paper",description:"Scathing self-critique of symbolic AI's naming conventions
+
+and wishful thinking. A field examining its own failures.",tags:["critique","satire"]},
+
+{year:1970,era:"collapse",label:"Edward Feigenbaum — DENDRAL &
+
+MYCIN",type:"Systems",description:"Expert systems for chemistry and medicine.
+
+Demonstrated practical AI applications, ending the first AI winter.",tags:["expert
+
+systems","applied"]},
+
+{year:1980,era:"collapse",label:"Expert Systems Boom
+
+(XCON)",type:"Systems",description:"Rule-based systems deployed in industry. XCON saved
+
+DEC millions. Expert systems became AI's first commercial success.",tags:["expert
+
+systems","commercial"],milestone:true,milestoneLabel:"END OF FIRST AI WINTER"},
+
+{year:1981,era:"collapse",label:"John Haugeland — Mind
+
+Design",type:"Book",description:"Anthology shaping the philosophy of cognitive science and
+
+AI. Defined debates around representation and intentionality.",tags:["philosophy"]},
+
+{year:1986,era:"learning",label:"Rumelhart, Hinton, Williams —
+
+Backpropagation",type:"Paper",description:"Demonstrated backpropagation for training multi-
+
+layer networks. Revived connectionism and laid the groundwork for deep learning.",tags:
+
+["neural","learning"],milestone:true,milestoneLabel:"LEARNING ERA BEGINS"},
+
+{year:1989,era:"learning",label:"Lawrence Rabiner — Hidden Markov
+
+Models",type:"Paper",description:"Comprehensive tutorial on HMMs for speech recognition.
+
+Statistical methods begin displacing symbolic AI in NLP.",tags:["statistical","speech"]},
+
+{year:1995,era:"learning",label:"Support Vector Machines — Cortes &
+
+Vapnik",type:"Paper",description:"Introduced SVMs with soft margins. State-of-the-art
+
+classification for a decade.",tags:["statistical","classification"]},
+
+{year:1997,era:"learning",label:"IBM Deep Blue defeats Garry Kasparov",type:"System/
+
+Event",description:"First computer to defeat a reigning world chess champion. Symbolic
+
+milestone for AI in adversarial reasoning.",tags:["game","milestone"]},{year:1998,era:"learning",label:"LeNet-5 — Yann LeCun",type:"System/
+
+Paper",description:"Convolutional neural network for handwritten digit recognition. Prototype
+
+of the architectures that would revolutionize vision.",tags:["neural","vision"]},
+
+{year:2002,era:"learning",label:"Roomba — iRobot",type:"System",description:"First mass-
+
+market autonomous robot. Brought embodied AI into homes.",tags:["robotics","applied"]},
+
+{year:2006,era:"learning",label:"Geoffrey Hinton et al. — Deep Belief
+
+Networks",type:"Paper",description:"Showed deep networks could be pre-trained layer by
+
+layer. Reignited interest in deep learning.",tags:["deep learning","neural"]},
+
+{year:2006,era:"learning",label:"Netflix Prize",type:"Competition/Dataset",description:"Million-
+
+dollar challenge for recommendation systems. Catalyzed collaborative filtering research.",tags:
+
+["data","competition"]},
+
+{year:2009,era:"learning",label:"Fei-Fei Li — ImageNet",type:"Dataset/Project",description:"14
+
+million labeled images across 20,000 categories. The dataset that made the 2012 deep
+
+learning revolution possible.",tags:["data","vision"]},
+
+{year:2011,era:"learning",label:"IBM Watson wins
+
+Jeopardy!",type:"System",description:"Watson's open-domain question answering defeat of
+
+Jeopardy champions demonstrated large-scale NLP at human level.",tags:["nlp","milestone"]},
+
+{year:2012,era:"breakthrough",label:"AlexNet — Krizhevsky, Sutskever, Hinton",type:"Paper/
+
+System",description:"Won ImageNet by a massive margin using deep CNNs on GPUs. The
+
+moment deep learning became the dominant paradigm.",tags:["vision","deep
+
+learning"],milestone:true,milestoneLabel:"THE BREAKTHROUGH"},
+
+{year:2014,era:"breakthrough",label:"Ian Goodfellow et al. —
+
+GANs",type:"Paper",description:"Generative Adversarial Networks unlocked generative
+
+AI.",tags:["generative","neural"]},
+
+{year:2014,era:"breakthrough",label:"Seq2Seq Learning — Sutskever et
+
+al.",type:"Paper",description:"Sequence-to-sequence models with LSTMs transformed
+
+machine translation.",tags:["nlp","translation"]},
+
+{year:2016,era:"breakthrough",label:"AlphaGo defeats Lee Sedol",type:"System/
+
+Event",description:"DeepMind's system defeated the world Go champion. A landmark in game
+
+AI.",tags:["game","reinforcement learning"]},
+
+{year:2017,era:"scale",label:"Vaswani et al. — Attention Is All You
+
+Need",type:"Paper",description:"Introduced the Transformer architecture. The foundation of
+
+every modern LLM.",tags:["transformer","nlp"],milestone:true,milestoneLabel:"THE
+
+TRANSFORMER ERA"},
+
+{year:2018,era:"scale",label:"BERT — Devlin et al.",type:"Paper/
+
+System",description:"Bidirectional pre-trained language understanding; set new NLP
+
+benchmarks.",tags:["nlp","pre-training"]},
+
+{year:2020,era:"scale",label:"GPT-3 — Brown et al.",type:"Paper/System",description:"175
+
+billion parameter language model demonstrating emergent few-shot learning.",tags:
+
+["llm","scale"]},
+
+{year:2021,era:"scale",label:"CLIP — OpenAI",type:"Paper/System",description:"Connected
+
+vision and language through contrastive learning on 400M image-text pairs.",tags:
+
+["multimodal","vision"]},
+
+{year:2021,era:"scale",label:"DALL·E — OpenAI",type:"System",description:"Text-to-image
+
+generation using a transformer on image tokens.",tags:["generative","vision"]},
+
+{year:2022,era:"scale",label:"Stable Diffusion",type:"System",description:"Open-source latent
+
+diffusion model. Democratized generative AI.",tags:["generative","open source"]},
+
+{year:2022,era:"scale",label:"ChatGPT — OpenAI",type:"System",description:"RLHF-trained
+
+conversational model. Reached 100M users in two months.",tags:["llm","rlhf"]},
+
+{year:2023,era:"scale",label:"GPT-4 — OpenAI",type:"System",description:"Multimodal large
+
+language model with advanced reasoning.",tags:["llm","multimodal"]},
+
+{year:2023,era:"scale",label:"Claude 2 — Anthropic",type:"System",description:"Long-context
+
+constitutional AI model with 100K token context window.",tags:["llm","safety"]},{year:2023,era:"scale",label:"Gemini — Google
+
+DeepMind",type:"System",description:"Natively multimodal model trained across text, code,
+
+audio, image, and video.",tags:["llm","multimodal"]},
+
+{year:2024,era:"scale",label:"Sora — OpenAI",type:"System",description:"Text-to-video
+
+generation model. New frontier in generative media.",tags:["generative","video"]},
+
+{year:2024,era:"scale",label:"Multi-agent AI systems emerge",type:"Systems
+
+Trend",description:"AI agents delegating to other agents, using tools, completing multi-step
+
+tasks autonomously.",tags:["agents","agentic"]},
+
+{year:2026,era:"future",label:"Claude Mythos — Anthropic",type:"System",description:"Next-
+
+generation model with extended reasoning, deeper world modeling, and enhanced
+
+alignment.",tags:["llm","future"]},
+
+{year:2026,era:"future",label:"Project Glasswing —
+
+Anthropic",type:"Project",description:"Research initiative exploring transparent, interpretable AI
+
+with verifiable reasoning chains.",tags:["interpretability","future"]},
+
+];
+
+const ALL_TAGS = [...new Set(TIMELINE.flatMap(e => e.tags))].sort();
+
+const ALL_ERAS = Object.keys(ERA_CONFIG);
+
+const summaryKey = e => `${e.year}-${e.label}`;
+
+const hasSummary = e => !!SUMMARIES[summaryKey(e)];
+
+// HUD Panel
+
+
+
+
+
+function HUDPanel({ entry, onClose }) {
+
+const ec = ERA_CONFIG[entry.era] || {};
+
+const color = ec.color || "#00e0b8";
+
+const key = summaryKey(entry);
+
+const summary = SUMMARIES[key];
+
+const [page, setPage] = useState(0);
+
+useEffect(() => setPage(0), [key]);
+
+if (!summary) return null;
+
+const cur = summary.pages[page];
+
+const total = summary.pages.length;
+
+return (
+
+<div className="ms-hud-backdrop" onClick={onClose}>
+
+<div className="ms-hud-panel" onClick={e => e.stopPropagation()}>
+
+<div className="ms-hud-scan" />
+
+{/* Corners */}
+
+{["ms-corner-tl","ms-corner-tr","ms-corner-bl","ms-corner-br"].map(cls => (
+
+<div key={cls} className={`ms-hud-corner ${cls}`} style={{ borderColor: color }} />
+
+))}
+
+{/* Corner dots */}
+
+{[[12,12,"auto","auto"],[12,"auto",12,"auto"],["auto",12,12,"auto"],
+
+["auto",12,"auto",12]].map(([t,b,l,r],i)=>(
+
+<div key={i} className="ms-hud-dot"
+
+style={{ top:t,bottom:b,left:l,right:r,background:color }} />
+
+))}
+
+<div className="ms-dot-border-v" style={{ left:0 }} />
+
+<div className="ms-dot-border-v" style={{ right:0 }} /><div
+
+style={{ position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:1,height:10,ba
+
+ckground:`linear-gradient(to bottom,${color},transparent)` }} />
+
+{/* Header */}
+
+<div className="ms-hud-header">
+
+<div className="ms-hud-meta">
+
+<span className="ms-hud-year" style={{ color }}>{entry.year}</span>
+
+<div className="ms-hud-divider" />
+
+<div style={{ flex:1 }}>
+
+<div className="ms-hud-sub">{ec.label} Era · {entry.type}</div>
+
+<div className="ms-hud-entry-title">{entry.label}</div>
+
+</div>
+
+<button className="ms-esc-btn" onClick={onClose}>ESC</button>
+
+</div>
+
+<div className="ms-dot-border-h" />
+
+</div>
+
+{/* Body */}
+
+<div className="ms-hud-body">
+
+{cur.paragraphs.map((p,i) => <p key={i}>{p}</p>)}
+
+{cur.list && (
+
+<div style={{ marginBottom:"1.4em" }}>
+
+{cur.list.label && <div className="ms-list-label">{cur.list.label}</div>}
+
+<ul>{cur.list.items.map((item,i)=><li key={i}>{item}</li>)}</ul>
+
+</div>
+
+)}
+
+</div>
+
+{cur.closingParagraphs?.map((p,i) => <p key={i}>{p}</p>)}
+
+{/* Footer */}
+
+<div className="ms-hud-footer">
+
+<div className="ms-hud-footer-inner">
+
+<button className="ms-nav-btn" onClick={()=>setPage(p=>p-1)}
+
+disabled={page===0}>← Prev</button>
+
+<div style={{ display:"flex",gap:8,alignItems:"center" }}>
+
+{Array.from({length:total}).map((_,i)=>(
+
+<div key={i} className="ms-page-pip" onClick={()=>setPage(i)}
+
+style={{ width:i===page?20:6, background:i===page?color:undefined }} />
+
+))}
+
+<span className="ms-pg-label">{page+1} / {total}</span>
+
+</div>
+
+<button className="ms-nav-btn" onClick={()=>setPage(p=>p+1)}
+
+disabled={page===total-1}>Next →</button>
+
+</div>
+
+</div>
+
+<div
+
+style={{ position:"absolute",bottom:0,left:"50%",transform:"translateX(-50%)",width:1,height:10
+
+,background:`linear-gradient(to top,${color},transparent)` }} />
+
+</div>
+
+</div>
+
+);}
+
+// Main App
+
+
+
+
+
+function Timeline() {
+
+const [eras, setEras] = useState(new Set(ALL_ERAS));
+
+const [tags, setTags] = useState(new Set());
+
+const [query, setQuery] = useState("");
+
+const [active, setActive] = useState(null);
+
+const [reading, setReading] = useState(null);
+
+const [view, setView] = useState("timeline");
+
+const toggleEra = era => setEras(prev => {
+
+const n = new Set(prev);
+
+if (n.has(era)) { if (n.size > 1) n.delete(era); }
+
+else n.add(era);
+
+return n;
+
+});
+
+});
+
+const toggleTag = tag => setTags(prev => {
+
+const n = new Set(prev); n.has(tag) ? n.delete(tag) : n.add(tag); return n;
+
+const filtered = TIMELINE.filter(e => {
+
+if (!eras.has(e.era)) return false;
+
+if (tags.size > 0 && !e.tags.some(t => tags.has(t))) return false;
+
+if (query) {
+
+const q = query.toLowerCase();
+
+return e.label.toLowerCase().includes(q) || e.description.toLowerCase().includes(q) ||
+
+e.tags.some(t=>t.includes(q));
+
+}
+
+return true;
+
+}).sort((a,b)=>a.year-b.year);
+
+// Update count in static HTML
+
+useEffect(() => {
+
+const el = document.getElementById('entry-count-display');
+
+if (el) el.innerHTML = `ENTRIES<strong>${filtered.length}</strong>`;
+
+}, [filtered.length]);
+
+const EntryCard = ({ entry }) => {
+
+const ec = ERA_CONFIG[entry.era] || {};
+
+const col = ec.color || "#00e0b8";
+
+const tc = typeColor(entry.type);
+
+const isA = active?.label === entry.label && active?.year === entry.year;
+
+const hasF = hasSummary(entry);
+
+return (
+
+<div>
+
+{entry.milestone && <div className="ms-milestone">{entry.milestoneLabel}</div>}
+
+<div className={`ms-entry-row ${isA?"active":""}`} onClick={()=>setActive(isA?null:entry)}
+
+>
+
+<div className="ms-dot" style={{ borderColor:col, color:col }} />
+
+<div className="ms-card"><div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:5 }}>
+
+<span className="ms-year" style={{ color:col }}>{entry.year}</span>
+
+<span className="ms-badge" style={{ borderColor:`${tc}55`,color:tc }}>{entry.type}</
+
+span>
+
+{hasF && <span className="ms-avail">◉ SUMMARY</span>}
+
+</div>
+
+<div className="ms-title">{entry.label}</div>
+
+{isA && <>
+
+<p className="ms-desc">{entry.description}</p>
+
+<div className="ms-tags-row">{entry.tags.map(t=><span key={t} className="ms-
+
+tag-mini">#{t}</span>)}</div>
+
+{hasF && <button className="ms-read-btn"
+
+onClick={e=>{e.stopPropagation();setReading(entry);}}>▶ Read Full Entry</button>}
+
+</>}
+
+</div>
+
+</div>
+
+</div>
+
+);
+
+};
+
+const GridCard = ({ entry }) => {
+
+const ec = ERA_CONFIG[entry.era] || {};
+
+const col = ec.color || "#00e0b8";
+
+const tc = typeColor(entry.type);
+
+const isA = active?.label === entry.label && active?.year === entry.year;
+
+const hasF= hasSummary(entry);
+
+return (
+
+<div className={`ms-grid-card ${isA?"active":""}`}
+
+style={{ borderLeftColor: isA ? col : "transparent" }}
+
+onClick={()=>setActive(isA?null:entry)}>
+
+<div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start" }}>
+
+<span className="ms-grid-year" style={{ color:col }}>{entry.year}</span>
+
+<span className="ms-badge" style={{ borderColor:`${tc}55`,color:tc,marginTop:3 }}
+
+>{entry.type}</span>
+
+</div>
+
+<div className="ms-grid-title">{entry.label}</div>
+
+{hasF && <div className="ms-avail" style={{ marginBottom:6 }}>◉ SUMMARY</div>}
+
+{isA && <>
+
+<p className="ms-desc" style={{ marginBottom:8 }}>{entry.description}</p>
+
+{hasF && <button className="ms-read-btn"
+
+onClick={e=>{e.stopPropagation();setReading(entry);}}>▶ Read Full Entry</button>}
+
+</>}
+
+</div>
+
+);
+
+};
+
+return (
+
+<>
+
+<div className="ms-scan-page" />
+
+{reading && <HUDPanel entry={reading} onClose={()=>setReading(null)} />}{/* Controls */}
+
+<div className="ms-controls">
+
+<div className="ms-row">
+
+<div className="ms-search-wrap">
+
+<svg className="ms-search-icon" width="13" height="13" viewBox="0 0 24 24"
+
+fill="none" stroke="currentColor" strokeWidth="2">
+
+<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+
+</svg>
+
+<input className="ms-search" placeholder="Search entries, tags, descriptions…"
+
+value={query} onChange={e=>setQuery(e.target.value)} />
+
+</div>
+
+<div style={{ display:"flex",gap:4 }}>
+
+<button className={`ms-view-btn ${view==="timeline"?"active":""}`}
+
+onClick={()=>setView("timeline")}>Timeline</button>
+
+<button className={`ms-view-btn ${view==="grid"?"active":""}`}
+
+onClick={()=>setView("grid")}>Grid</button>
+
+</div>
+
+</div>
+
+<div className="ms-row" style={{ marginBottom:10 }}>
+
+{ALL_ERAS.map(era=>{
+
+const cfg = ERA_CONFIG[era];
+
+const on = eras.has(era);
+
+return (
+
+<button key={era} className="ms-era-btn"
+
+style={{ borderColor:on?cfg.color:"rgba(255,255,255,.08)", color:on?
+
+cfg.color:"#475569",
+
+background:on?`${cfg.color}11`:"transparent", opacity:on?1:.6 }}
+
+onClick={()=>toggleEra(era)}>
+
+{cfg.label} <span style={{ opacity:.55,fontSize:9 }}>{cfg.years}</span>
+
+</button>
+
+);
+
+})}
+
+</div>
+
+<div style={{ display:"flex",flexWrap:"wrap",gap:6 }}>
+
+{ALL_TAGS.map(tag=>(
+
+<button key={tag} className={`ms-tag ${tags.has(tag)?"active":""}`}
+
+onClick={()=>toggleTag(tag)}>{tag}</button>
+
+))}
+
+{tags.size > 0 && <button className="ms-tag clear" onClick={()=>setTags(new Set())}
+
+>clear ×</button>}
+
+</div>
+
+</div>
+
+{/* Timeline view */}
+
+{view === "timeline" && (
+
+<div className="ms-tl-wrap">
+
+<div className="ms-tl-line" />
+
+{filtered.map(e => <EntryCard key={`${e.year}-${e.label}`} entry={e} />)}
+
+</div>
+
+)}
+
+{/* Grid view */}{view === "grid" && (
+
+<div className="ms-grid-wrap">
+
+{filtered.map(e => <GridCard key={`${e.year}-${e.label}`} entry={e} />)}
+
+</div>
+
+)}
+
+</>
+
+);
+
+}
+
+ReactDOM.createRoot(document.getElementById('timeline-root')).render(<Timeline />);
+
+</script>
+
+</body>
+
+</html>
