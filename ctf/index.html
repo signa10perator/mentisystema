@@ -22,7 +22,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #ffffff; color: #000000; font-family: 'Courier New', monospace; overflow: hidden; }
+    body { background: #000000; color: #000000; font-family: 'Courier New', monospace; overflow: hidden; }
     .ctf-container { width: 100vw; height: 100vh; background: #000000; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .diagonal { position: absolute; background: #CC0000; z-index: 0; }
     .diagonal-top { width: 400px; height: 400px; top: -100px; left: -100px; transform: rotate(45deg); opacity: 0.08; }
@@ -39,7 +39,7 @@
     .title-red { color: #CC0000; }
     .subtitle { font-size: 13px; letter-spacing: 2px; color: #CC0000; margin-bottom: 48px; font-weight: 600; }
     .access-form { margin-bottom: 32px; }
-    .form-group { position: relative; margin-bottom: 32px; }
+    .form-group { position: relative; margin-bottom: 32px; border: 1px solid rgba(255,255,255,0.5); padding: 12px 20px; }
     .code-input { width: 100%; border: none; background: transparent; font-size: 16px; letter-spacing: 3px; padding: 12px 0; text-align: center; font-family: 'Courier New', monospace; color: #000000; text-transform: uppercase; transition: all 0.3s ease; }
     .code-input:focus { outline: none; letter-spacing: 4px; }
     .code-input::placeholder { color: #cccccc; }
@@ -104,7 +104,7 @@
             <div className="logo-area">
               <img src="./red_logo.png" alt="MentiSystema Logo" className="logo-image" />
             </div>
-            <h1 className="title">M<span className="title-red">≡</span>NTISYST<span className="title-red">≡</span>MA</h1>
+            <h1 className="title">MENTISYSTEMA</h1>
             <p className="subtitle">SIGNAL RECEIVED</p>
             <form onSubmit={handleSubmit} className="access-form">
               <div className="form-group">
@@ -114,7 +114,6 @@
               {error && (<div className="error-message"><span className="error-dot">●</span> {error}</div>)}
               <button type="submit" className="access-button">ACCESS TERMINAL</button>
             </form>
-            <p className="hint">Caesar Shift by III reveals path</p>
           </div>
         </div>
       );
