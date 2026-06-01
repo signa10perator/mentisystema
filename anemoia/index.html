@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>anemoia</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Space+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── CSS VARIABLES — shift with depth ─────────────────────────── */
+:root {
+  --bg: #f2ece0;
+  --ink: #0e0c0a;
+  --mid: rgba(14,12,10,0.38);
+  --border: rgba(14,12,10,0.1);
+  --accent: #7a3a1e;
+  --surface: rgba(14,12,10,0.04);
+  --pale: #f2ece0;
+}
+/* depth levels applied to body */
+body.d1 { --bg:#f2ece0; --ink:#0e0c0a; --mid:rgba(14,12,10,0.38); --border:rgba(14,12,10,0.1); --accent:#7a3a1e; --surface:rgba(14,12,10,0.04); }
+body.d2 { --bg:#e0ddd4; --ink:#0e0c0a; --mid:rgba(14,12,10,0.42); --border:rgba(14,12,10,0.13); --accent:#5a3020; --surface:rgba(14,12,10,0.06); }
+body.d3 { --bg:#1a1a20; --ink:#c8c4bc; --mid:rgba(200,196,188,0.35); --border:rgba(200,196,188,0.1); --accent:#8a7a6a; --surface:rgba(255,255,255,0.04); }
+body.d4 { --bg:#060608; --ink:#909090; --mid:rgba(144,144,144,0.3); --border:rgba(144,144,144,0.08); --accent:#505050; --surface:rgba(255,255,255,0.03); }
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+  transition: background 1.8s cubic-bezier(0.4,0,0.2,1), color 1.8s;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.04; pointer-events: none; z-index: 9000;
+}
+
+/* screens */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ── INTRO ──────────────────────────────────────────── */
+#intro {
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 5rem 2rem; gap: 0;
+}
+.intro-title {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(4.5rem, 14vw, 10rem); font-weight: 400;
+  line-height: 0.88; color: var(--ink); margin-bottom: 1.2rem;
+  opacity: 0; animation: riseIn 1.4s 0.2s forwards;
+}
+.intro-def {
+  font-size: 9px; letter-spacing: 0.35em; color: var(--mid);
+  margin-bottom: 2.8rem; opacity: 0; animation: riseIn 1s 0.9s forwards;
+}
+.intro-rule {
+  width: 24px; height: 1px; background: var(--mid);
+  margin: 0 auto 2.8rem; opacity: 0; animation: riseIn 1s 1.4s forwards;
+}
+.btn-begin {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.4em;
+  text-transform: uppercase; color: var(--mid); background: transparent;
+  border: none; padding: 0.5rem 0; cursor: crosshair;
+  transition: color 0.3s; opacity: 0; animation: riseIn 1s 1.8s forwards;
+}
+.btn-begin:hover { color: var(--ink); }
+
+/* ── QUESTIONS ──────────────────────────────────────── */
+#questions { flex-direction: column; }
+.q-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.6rem 2.5rem; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 100;
+  transition: background 1.8s, border-color 1.8s;
+}
+.q-logo {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: 1rem; color: var(--mid); transition: color 1.8s;
+}
+.q-prog-wrap { flex: 1; max-width: 200px; margin: 0 2rem; }
+.q-prog-bar { height: 1px; background: var(--border); position: relative; transition: background 1.8s; }
+.q-prog-fill {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--ink); transition: width 0.8s cubic-bezier(0.4,0,0.2,1), background 1.8s;
+}
+.q-num { font-size: 9px; letter-spacing: 0.3em; color: var(--mid); transition: color 1.8s; }
+
+.q-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 3rem 1.5rem;
+  max-width: 820px; margin: 0 auto; width: 100%;
+}
+
+/* image */
+.q-img-wrap { width: 100%; position: relative; margin-bottom: 2.5rem; overflow: hidden; }
+.q-img-wrap svg, .q-img-wrap img { display: block; width: 100%; height: 240px; object-fit: cover; }
+.q-img-caption {
+  position: absolute; bottom: 0.8rem; right: 1rem;
+  font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); transition: color 1.8s;
+}
+body.d1 .q-img-caption, body.d2 .q-img-caption { color: rgba(14,12,10,0.3); }
+.q-img-wrap::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+}
+
+/* depth filter on images — increases with depth */
+body.d1 .q-img-wrap svg { filter: sepia(0.6) contrast(0.88) brightness(0.88); }
+body.d2 .q-img-wrap svg { filter: sepia(0.4) contrast(0.9) brightness(0.78) saturate(0.6); }
+body.d3 .q-img-wrap svg { filter: sepia(0.1) contrast(1.0) brightness(0.6) saturate(0.2); }
+body.d4 .q-img-wrap svg { filter: brightness(0.45) contrast(1.1) saturate(0); }
+
+.q-prompt {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.55;
+  text-align: center; color: var(--ink); margin-bottom: 0.6rem;
+  transition: color 1.8s;
+}
+.q-hint { font-size: 9px; letter-spacing: 0.2em; color: var(--mid); text-align: center; margin-bottom: 2.5rem; transition: color 1.8s; }
+
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; width: 100%; background: var(--border); transition: background 1.8s; }
+.choice {
+  background: var(--bg); border: none; padding: 1.4rem 1.5rem;
+  cursor: crosshair; text-align: left; position: relative; overflow: hidden;
+  transition: background 1.8s;
+}
+.choice::before {
+  content: ''; position: absolute; inset: 0; background: var(--ink);
+  transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), background 1.8s;
+}
+.choice:hover::before { transform: translateX(0); }
+.choice-key {
+  font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.5rem;
+  position: relative; z-index: 1; transition: color 0.25s;
+}
+.choice-body {
+  font-family: 'EB Garamond', serif; font-size: 1rem; line-height: 1.6;
+  color: var(--ink); position: relative; z-index: 1; transition: color 0.25s;
+}
+.choice:hover .choice-key { color: rgba(255,255,255,0.4); }
+.choice:hover .choice-body { color: rgba(255,255,255,0.92); }
+.choice.selected { background: var(--ink) !important; }
+.choice.selected::before { transform: translateX(0); }
+.choice.selected .choice-key { color: rgba(255,255,255,0.4); }
+.choice.selected .choice-body { color: rgba(255,255,255,0.92); }
+/* the wrong choice — only in d4 */
+.choice.wrong .choice-body { color: rgba(160,80,60,0.55); font-style: italic; }
+.choice.wrong:hover::before { transform: none; }
+.choice.wrong:hover .choice-body { color: rgba(180,90,65,0.8); }
+
+.q-nav { display: flex; justify-content: flex-end; width: 100%; margin-top: 2rem; }
+.btn-next {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.35em;
+  text-transform: uppercase; color: var(--bg); background: var(--ink);
+  border: none; padding: 0.9rem 2rem; cursor: crosshair;
+  opacity: 0; transition: opacity 0.4s, background 1.8s, color 1.8s; pointer-events: none;
+}
+.btn-next.visible { opacity: 1; pointer-events: all; }
+
+/* ── INTERSTITIAL ───────────────────────────────────── */
+#interstitial {
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem; background: var(--bg);
+  transition: background 1.8s;
+}
+.inter-line {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(1.3rem, 3.5vw, 2rem); color: var(--ink);
+  line-height: 1.6; max-width: 480px; margin-bottom: 1rem;
+  opacity: 0; animation: riseIn 2s 0.5s forwards;
+  transition: color 1.8s;
+}
+.inter-sub {
+  font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
+  color: var(--mid); margin-top: 2.5rem;
+  opacity: 0; animation: riseIn 1s 2.5s forwards;
+  transition: color 1.8s;
+}
+.btn-continue {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.35em;
+  text-transform: uppercase; color: var(--mid); background: transparent;
+  border: 1px solid var(--border); padding: 0.9rem 2rem; cursor: crosshair;
+  margin-top: 3rem; transition: color 0.3s, border-color 0.3s, background 1.8s;
+  opacity: 0; animation: riseIn 1s 3.2s forwards;
+}
+.btn-continue:hover { color: var(--ink); border-color: var(--ink); }
+
+/* ── RESULT ─────────────────────────────────────────── */
+#result {
+  flex-direction: column; align-items: center;
+  padding: 5rem 2rem 4rem; background: var(--bg);
+  transition: background 1.8s;
+}
+.result-pre {
+  font-size: 9px; letter-spacing: 0.5em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.8rem; transition: color 1.8s;
+}
+.result-name {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(3rem, 10vw, 6.5rem); font-weight: 400; line-height: 0.95;
+  color: var(--ink); text-align: center; margin-bottom: 0.6rem; transition: color 1.8s;
+}
+.result-tag {
+  font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 3rem; transition: color 1.8s;
+}
+.result-rule { width: 40px; height: 1px; background: var(--border); margin: 0 auto 3rem; transition: background 1.8s; }
+.result-reflection {
+  max-width: 560px; font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(1.05rem, 2.3vw, 1.25rem); line-height: 1.95;
+  color: var(--ink); text-align: center; margin-bottom: 1.5rem; transition: color 1.8s;
+}
+.result-footnote {
+  font-size: 10px; letter-spacing: 0.12em; color: var(--mid);
+  max-width: 560px; text-align: center; margin-bottom: 3rem;
+  line-height: 1.8; transition: color 1.8s;
+}
+.result-axes {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  max-width: 560px; width: 100%; background: var(--border);
+  margin-bottom: 3rem; transition: background 1.8s;
+}
+.axis-card { background: var(--bg); padding: 1.4rem; transition: background 1.8s; }
+.axis-lbl { font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; transition: color 1.8s; }
+.axis-val { font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--ink); margin-bottom: 0.4rem; transition: color 1.8s; }
+.axis-desc { font-size: 11px; color: var(--mid); line-height: 1.7; transition: color 1.8s; }
+.loading-wrap { max-width: 560px; text-align: center; padding: 2.5rem 0; }
+.loading-line { font-size: 10px; letter-spacing: 0.28em; color: var(--mid); transition: color 1.8s; }
+.loading-dots span { animation: blink 1.4s infinite; opacity: 0; }
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+.btn-again {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.35em;
+  text-transform: uppercase; color: var(--mid); background: transparent;
+  border: 1px solid var(--border); padding: 0.8rem 2rem; cursor: crosshair;
+  transition: color 0.3s, border-color 0.3s, background 1.8s;
+}
+.btn-again:hover { color: var(--ink); border-color: var(--ink); }
+
+/* ── DEPTH INDICATOR — subtle ───────────────────────── */
+#depth-indicator {
+  position: fixed; right: 2rem; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px; z-index: 200;
+  opacity: 0; transition: opacity 0.6s;
+}
+#depth-indicator.visible { opacity: 1; }
+.depth-pip {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--border); transition: background 0.6s, transform 0.3s;
+}
+.depth-pip.active { background: var(--accent); transform: scale(1.5); }
+
+/* ── ANIMATIONS ─────────────────────────────────────── */
+@keyframes riseIn { 0%{opacity:0;transform:translateY(14px)} 100%{opacity:1;transform:translateY(0)} }
+@keyframes glitch {
+  0%,94%,100%{clip-path:none;transform:none}
+  95%{clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);transform:translateX(-4px)}
+  97%{clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);transform:translateX(3px)}
+  99%{clip-path:none;transform:translateX(1px)}
+}
+.glitch { animation: glitch 10s infinite; }
+
+/* static flash */
+@keyframes staticPop { 0%,100%{opacity:0} 50%{opacity:1} }
+.static-layer {
+  position: fixed; inset: 0; z-index: 9500; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E");
+  opacity: 0; mix-blend-mode: overlay;
+}
+.static-layer.pop { animation: staticPop 0.15s forwards; }
+
+#overlay {
+  position: fixed; inset: 0; background: #060608;
+  z-index: 10000; pointer-events: none; opacity: 0; transition: opacity 0.5s;
+}
+#overlay.on { opacity: 1; }
+
+@media(max-width:600px){
+  .choices{grid-template-columns:1fr}
+  .result-axes{grid-template-columns:1fr}
+  .q-header{padding:1.2rem}
+  .q-prog-wrap{margin:0 1rem}
+  #depth-indicator{display:none}
+}
+</style>
+</head>
+<body class="d1">
+
+<div id="overlay"></div>
+<div class="static-layer" id="static"></div>
+
+<div id="depth-indicator">
+  <div class="depth-pip active" id="pip0"></div>
+  <div class="depth-pip" id="pip1"></div>
+  <div class="depth-pip" id="pip2"></div>
+  <div class="depth-pip" id="pip3"></div>
+</div>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="intro-title">anemoia</div>
+  <div class="intro-def">n. &nbsp;&middot;&nbsp; nostalgia for a time you've never known</div>
+  <div class="intro-rule"></div>
+  <button class="btn-begin" onclick="startTest()">enter</button>
+</div>
+
+<!-- QUESTIONS -->
+<div id="questions" class="screen">
+  <div class="q-header">
+    <div class="q-logo">anemoia</div>
+    <div class="q-prog-wrap"><div class="q-prog-bar"><div class="q-prog-fill" id="prog"></div></div></div>
+    <div class="q-num" id="qnum">1 / 8</div>
+  </div>
+  <div class="q-body">
+    <div class="q-img-wrap" id="qimg"></div>
+    <div class="q-prompt" id="qprompt"></div>
+    <div class="q-hint" id="qhint"></div>
+    <div class="choices" id="choices"></div>
+    <div class="q-nav"><button class="btn-next" id="btn-next" onclick="advance()">continue &rarr;</button></div>
+  </div>
+</div>
+
+<!-- INTERSTITIAL -->
+<div id="interstitial" class="screen">
+  <div class="inter-line" id="inter-line"></div>
+  <div class="inter-sub" id="inter-sub"></div>
+  <button class="btn-continue" onclick="resumeTest()">continue</button>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-pre" id="result-pre">your type</div>
+  <div class="result-name" id="rname"></div>
+  <div class="result-tag" id="rtag"></div>
+  <div class="result-rule"></div>
+  <div id="reflect-wrap">
+    <div class="loading-wrap">
+      <div class="loading-line">composing your reflection<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+  </div>
+  <div class="result-footnote" id="rfootnote"></div>
+  <div class="result-axes" id="raxes"></div>
+  <button class="btn-again" onclick="restart()">begin again</button>
+</div>
+
+<script>
+// ── DEPTH LEVELS ─────────────────────────────────────────────────────
+// d1: warm sepia (Q1-2) | d2: cooling (Q3-4) | d3: dark (Q5-6) | d4: void (Q7-8)
+const depthClasses = ['d1','d2','d3','d4'];
+const depthForQuestion = [0,0, 1,1, 2,2, 3,3]; // index = question index
+
+// interstitials — one between each depth shift
+const interstitials = [
+  // between Q2->Q3 (d1->d2)
+  { line: 'The easy questions are finished.', sub: 'the instrument continues' },
+  // between Q4->Q5 (d2->d3)
+  { line: 'Something has shifted.\n\nThe next questions are different.', sub: '' },
+  // between Q6->Q7 (d3->d4)
+  { line: 'The instrument has been noting your hesitations.\n\nWhat you paused on before answering.', sub: '// final depth' },
+];
+const interstitialAfter = [1, 3, 5]; // after question indices 1, 3, 5
+
+// ── SVGs ─────────────────────────────────────────────────────────────
+
+const svgs = {
+
+// D1 — WARM ───────────────────────────────────────────────────────────
+
+picnic: `<svg viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sky1" cx="50%" cy="0%" r="80%"><stop offset="0%" stop-color="#d4c090"/><stop offset="100%" stop-color="#a08860"/></radialGradient>
+    <radialGradient id="sun1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#e8d898" stop-opacity="0.9"/><stop offset="100%" stop-color="#e8d898" stop-opacity="0"/></radialGradient>
+    <filter id="blur1"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="820" height="240" fill="url(#sky1)"/>
+  <ellipse cx="680" cy="40" rx="80" ry="80" fill="url(#sun1)"/>
+  <ellipse cx="410" cy="220" rx="480" ry="60" fill="#6b5030" opacity="0.5"/>
+  <rect x="0" y="175" width="820" height="65" fill="#7a6040" opacity="0.7"/>
+  <rect x="0" y="190" width="820" height="50" fill="#5c4828"/>
+  <line x1="80" y1="175" x2="85" y2="162" stroke="#8a7040" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="175" x2="197" y2="160" stroke="#8a7040" stroke-width="1.5" opacity="0.6"/>
+  <line x1="560" y1="176" x2="563" y2="162" stroke="#8a7040" stroke-width="1.5" opacity="0.5"/>
+  <line x1="650" y1="175" x2="655" y2="161" stroke="#8a7040" stroke-width="1.5" opacity="0.5"/>
+  <rect x="170" y="80" width="18" height="120" fill="#3a2810"/>
+  <ellipse cx="195" cy="90" rx="80" ry="70" fill="#4a3820" opacity="0.9"/>
+  <ellipse cx="170" cy="75" rx="65" ry="55" fill="#5a4830" opacity="0.85"/>
+  <ellipse cx="220" cy="85" rx="55" ry="48" fill="#4e4028" opacity="0.8"/>
+  <ellipse cx="280" cy="178" rx="18" ry="8" fill="#c0a060" opacity="0.3" filter="url(#blur1)"/>
+  <ellipse cx="310" cy="182" rx="10" ry="5" fill="#c0a060" opacity="0.25" filter="url(#blur1)"/>
+  <ellipse cx="240" cy="180" rx="14" ry="6" fill="#c0a060" opacity="0.2" filter="url(#blur1)"/>
+  <ellipse cx="340" cy="183" rx="18" ry="8" fill="#3a2810" opacity="0.4"/>
+  <rect x="330" y="158" width="20" height="28" fill="#6a5040" rx="3"/>
+  <circle cx="340" cy="152" r="9" fill="#c0907a"/>
+  <ellipse cx="340" cy="148" rx="11" ry="7" fill="#3a2810"/>
+  <ellipse cx="390" cy="184" rx="16" ry="7" fill="#3a2810" opacity="0.4"/>
+  <rect x="380" y="160" width="20" height="26" fill="#4a4030" rx="2"/>
+  <circle cx="390" cy="154" r="8" fill="#b08870"/>
+  <ellipse cx="391" cy="150" rx="10" ry="6" fill="#2a2010"/>
+  <rect x="450" y="168" width="10" height="18" fill="#8a7060" rx="2"/>
+  <circle cx="455" cy="163" r="7" fill="#c09880"/>
+  <line x1="445" y1="178" x2="438" y2="188" stroke="#6a5040" stroke-width="2"/>
+  <line x1="460" y1="178" x2="466" y2="188" stroke="#6a5040" stroke-width="2"/>
+  <circle cx="365" cy="174" r="6" fill="#b08870"/>
+  <rect x="359" y="178" width="12" height="14" fill="#7a6050" rx="2"/>
+  <ellipse cx="365" cy="188" rx="45" ry="10" fill="#9a8060" opacity="0.6"/>
+  <ellipse cx="375" cy="186" rx="12" ry="6" fill="#6a5030" opacity="0.8"/>
+  <rect x="640" y="120" width="10" height="90" fill="#3a2810"/>
+  <ellipse cx="645" cy="118" rx="35" ry="42" fill="#4a3820" opacity="0.85"/>
+  <ellipse cx="200" cy="180" rx="300" ry="40" fill="#8a7050" opacity="0.3" filter="url(#blur1)"/>
+  <rect width="820" height="240" fill="#1a1008" opacity="0.28"/>
+  <rect width="820" height="240" fill="#8a6830" opacity="0.1"/>
+</svg>`,
+
+thrift: `<svg viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a08860"/><stop offset="100%" stop-color="#3a2a18"/></linearGradient>
+    <radialGradient id="winlight" cx="72%" cy="20%" r="40%"><stop offset="0%" stop-color="#e8d898" stop-opacity="0.8"/><stop offset="100%" stop-color="#e8d898" stop-opacity="0"/></radialGradient>
+    <filter id="blur2"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <rect width="820" height="240" fill="url(#room)"/>
+  <rect x="0" y="0" width="820" height="180" fill="#4a3820" opacity="0.7"/>
+  <rect x="20" y="30" width="160" height="180" fill="#2e2010" opacity="0.8"/>
+  <rect x="20" y="70" width="160" height="4" fill="#1a1008"/>
+  <rect x="20" y="110" width="160" height="4" fill="#1a1008"/>
+  <rect x="20" y="150" width="160" height="4" fill="#1a1008"/>
+  <rect x="30" y="40" width="18" height="28" fill="#6a5038" rx="1"/>
+  <rect x="52" y="44" width="14" height="24" fill="#7a6048" rx="1"/>
+  <rect x="70" y="38" width="20" height="30" fill="#5a4030" rx="1"/>
+  <rect x="95" y="42" width="16" height="26" fill="#8a7050" rx="1"/>
+  <circle cx="135" cy="52" r="12" fill="#4a3828" stroke="#3a2818" stroke-width="1"/>
+  <rect x="30" y="80" width="20" height="26" fill="#5a4838" rx="1"/>
+  <rect x="55" y="78" width="16" height="28" fill="#7a6040" rx="1"/>
+  <circle cx="100" cy="92" r="10" fill="#3a2a18" stroke="#2a1e10" stroke-width="1"/>
+  <circle cx="120" cy="90" r="11" fill="#4a3820" stroke="#2a1e10" stroke-width="1"/>
+  <rect x="640" y="20" width="160" height="190" fill="#2e2010" opacity="0.8"/>
+  <rect x="640" y="65" width="160" height="4" fill="#1a1008"/>
+  <rect x="640" y="110" width="160" height="4" fill="#1a1008"/>
+  <rect x="640" y="155" width="160" height="4" fill="#1a1008"/>
+  <rect x="650" y="35" width="22" height="27" fill="#7a6040" rx="1"/>
+  <rect x="678" y="32" width="18" height="30" fill="#5a4030" rx="1"/>
+  <circle cx="720" cy="48" r="13" fill="#3a2a18" stroke="#2a1e10" stroke-width="1"/>
+  <rect x="320" y="10" width="180" height="150" fill="#c8b070" opacity="0.15" rx="2"/>
+  <rect width="820" height="240" fill="url(#winlight)"/>
+  <rect x="320" y="10" width="4" height="150" fill="#2a1e10"/>
+  <rect x="496" y="10" width="4" height="150" fill="#2a1e10"/>
+  <rect x="320" y="10" width="180" height="4" fill="#2a1e10"/>
+  <rect x="320" y="157" width="180" height="4" fill="#2a1e10"/>
+  <rect x="407" y="10" width="4" height="150" fill="#2a1e10" opacity="0.6"/>
+  <rect x="320" y="82" width="180" height="4" fill="#2a1e10" opacity="0.6"/>
+  <circle cx="400" cy="60" r="1.5" fill="#e8d898" opacity="0.6"/>
+  <circle cx="420" cy="90" r="1" fill="#e8d898" opacity="0.5"/>
+  <circle cx="380" cy="110" r="1.2" fill="#e8d898" opacity="0.4"/>
+  <rect x="0" y="185" width="820" height="55" fill="#2a1e10"/>
+  <rect x="490" y="130" width="22" height="55" fill="#4a3828" rx="3"/>
+  <circle cx="501" cy="124" r="11" fill="#b08870"/>
+  <line x1="513" y1="148" x2="535" y2="138" stroke="#4a3828" stroke-width="7" stroke-linecap="round"/>
+  <rect width="820" height="240" fill="#1a1008" opacity="0.35"/>
+</svg>`,
+
+// D2 — COOLING ────────────────────────────────────────────────────────
+
+fog: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fogsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a4a52"/><stop offset="50%" stop-color="#5a5a62"/><stop offset="100%" stop-color="#3a3a42"/>
+    </linearGradient>
+    <radialGradient id="fogcenter" cx="45%" cy="55%" r="55%">
+      <stop offset="0%" stop-color="#c8c8c0" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#c8c8c0" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fogblur"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="fogblur2"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="fogblur3"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <rect width="820" height="250" fill="url(#fogsky)"/>
+  <rect x="0" y="168" width="820" height="82" fill="#2a2a32"/>
+  <ellipse cx="410" cy="170" rx="700" ry="55" fill="#c0c0b8" opacity="0.08" filter="url(#fogblur2)"/>
+  <ellipse cx="300" cy="175" rx="500" ry="42" fill="#c8c8c0" opacity="0.07" filter="url(#fogblur2)"/>
+  <rect width="820" height="250" fill="url(#fogcenter)"/>
+  <ellipse cx="90" cy="160" rx="50" ry="30" fill="#1e1e26" opacity="0.7" filter="url(#fogblur3)"/>
+  <ellipse cx="150" cy="152" rx="40" ry="35" fill="#1c1c24" opacity="0.6" filter="url(#fogblur3)"/>
+  <rect x="160" y="128" width="8" height="48" fill="#1d1d25" opacity="0.5"/>
+  <ellipse cx="700" cy="158" rx="45" ry="28" fill="#1e1e26" opacity="0.65" filter="url(#fogblur3)"/>
+  <ellipse cx="760" cy="152" rx="35" ry="30" fill="#1c1c24" opacity="0.6" filter="url(#fogblur3)"/>
+  <line x1="200" y1="172" x2="202" y2="160" stroke="#3a3a42" stroke-width="1" opacity="0.6"/>
+  <line x1="350" y1="170" x2="352" y2="158" stroke="#3a3a42" stroke-width="1" opacity="0.5"/>
+  <line x1="470" y1="173" x2="468" y2="161" stroke="#3a3a42" stroke-width="1" opacity="0.5"/>
+  <line x1="560" y1="170" x2="562" y2="159" stroke="#3a3a42" stroke-width="1" opacity="0.5"/>
+  <ellipse cx="370" cy="150" rx="4" ry="18" fill="#2a2a32" opacity="0.55" filter="url(#fogblur3)"/>
+  <circle cx="370" cy="130" r="5" fill="#2a2a32" opacity="0.45" filter="url(#fogblur3)"/>
+  <ellipse cx="366" cy="150" rx="9" ry="20" fill="#c0c0b8" opacity="0.04" filter="url(#fogblur)"/>
+  <rect width="820" height="250" fill="#1a1a20" opacity="0.4"/>
+</svg>`,
+
+motel: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="motelwin" cx="62%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#b0a888" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#b0a888" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mb"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="820" height="250" fill="#181820"/>
+  <rect x="0" y="0" width="820" height="210" fill="#1e1e28" opacity="0.9"/>
+  <line x1="0" y1="40" x2="820" y2="40" stroke="#242430" stroke-width="0.5"/>
+  <line x1="0" y1="80" x2="820" y2="80" stroke="#242430" stroke-width="0.5"/>
+  <line x1="0" y1="120" x2="820" y2="120" stroke="#242430" stroke-width="0.5"/>
+  <line x1="0" y1="160" x2="820" y2="160" stroke="#242430" stroke-width="0.5"/>
+  <rect x="0" y="200" width="820" height="50" fill="#141418"/>
+  <line x1="0" y1="212" x2="820" y2="212" stroke="#1e1e24" stroke-width="1"/>
+  <rect x="480" y="30" width="200" height="160" fill="#242430" rx="2"/>
+  <rect width="820" height="250" fill="url(#motelwin)"/>
+  <rect x="480" y="30" width="4" height="160" fill="#181820"/>
+  <rect x="676" y="30" width="4" height="160" fill="#181820"/>
+  <rect x="480" y="30" width="200" height="4" fill="#181820"/>
+  <rect x="480" y="186" width="200" height="4" fill="#181820"/>
+  <rect x="578" y="30" width="4" height="160" fill="#181820" opacity="0.7"/>
+  <rect x="480" y="108" width="200" height="3" fill="#181820" opacity="0.7"/>
+  <rect x="455" y="25" width="40" height="170" fill="#1a1a22"/>
+  <rect x="675" y="25" width="40" height="170" fill="#1a1a22"/>
+  <rect x="484" y="34" width="192" height="150" fill="#1e1e28" opacity="0.85"/>
+  <rect x="150" y="155" width="55" height="8" fill="#242430" rx="1"/>
+  <rect x="152" y="163" width="10" height="38" fill="#1e1e28"/>
+  <rect x="193" y="163" width="10" height="38" fill="#1e1e28"/>
+  <rect x="150" y="115" width="55" height="8" fill="#242430" rx="1"/>
+  <rect x="152" y="123" width="8" height="32" fill="#1e1e28"/>
+  <rect x="195" y="123" width="8" height="32" fill="#1e1e28"/>
+  <rect x="580" y="155" width="55" height="8" fill="#242430" rx="1"/>
+  <rect x="582" y="163" width="10" height="38" fill="#1e1e28"/>
+  <rect x="623" y="163" width="10" height="38" fill="#1e1e28"/>
+  <rect x="580" y="115" width="55" height="8" fill="#242430" rx="1"/>
+  <rect x="582" y="123" width="8" height="32" fill="#1e1e28"/>
+  <rect x="625" y="123" width="8" height="32" fill="#1e1e28"/>
+  <rect x="360" y="165" width="60" height="6" fill="#222228" rx="1"/>
+  <rect x="370" y="171" width="6" height="30" fill="#1c1c22"/>
+  <rect x="404" y="171" width="6" height="30" fill="#1c1c22"/>
+  <ellipse cx="390" cy="164" rx="10" ry="4" fill="#1c1c22"/>
+  <rect x="60" y="55" width="100" height="80" fill="#1a1a22" stroke="#252530" stroke-width="2"/>
+  <rect x="65" y="60" width="90" height="70" fill="#161620"/>
+  <ellipse cx="178" cy="202" rx="30" ry="6" fill="#101014" opacity="0.7" filter="url(#mb)"/>
+  <ellipse cx="608" cy="202" rx="30" ry="6" fill="#101014" opacity="0.7" filter="url(#mb)"/>
+  <rect width="820" height="250" fill="#0e0e14" opacity="0.35"/>
+</svg>`,
+
+// D3 — DARK ───────────────────────────────────────────────────────────
+
+hallway: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="hlight" cx="50%" cy="15%" r="30%"><stop offset="0%" stop-color="#c8d0b0" stop-opacity="0.25"/><stop offset="100%" stop-color="#c8d0b0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hvanish" cx="50%" cy="50%" r="30%"><stop offset="0%" stop-color="#101018" stop-opacity="0"/><stop offset="100%" stop-color="#060608" stop-opacity="1"/></radialGradient>
+    <filter id="hb"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="820" height="250" fill="#0d0d14"/>
+  <polygon points="0,250 820,250 580,140 240,140" fill="#0f0f18"/>
+  <polygon points="0,0 820,0 580,110 240,110" fill="#0a0a12"/>
+  <polygon points="0,0 240,110 240,140 0,250" fill="#0f0f18"/>
+  <polygon points="820,0 580,110 580,140 820,250" fill="#0d0d16"/>
+  <line x1="410" y1="140" x2="0" y2="250" stroke="#151520" stroke-width="1" opacity="0.5"/>
+  <line x1="410" y1="140" x2="820" y2="250" stroke="#151520" stroke-width="1" opacity="0.5"/>
+  <line x1="410" y1="140" x2="160" y2="250" stroke="#151520" stroke-width="1" opacity="0.4"/>
+  <line x1="410" y1="140" x2="660" y2="250" stroke="#151520" stroke-width="1" opacity="0.4"/>
+  <line x1="310" y1="175" x2="510" y2="175" stroke="#151520" stroke-width="1" opacity="0.4"/>
+  <line x1="200" y1="200" x2="620" y2="200" stroke="#151520" stroke-width="1" opacity="0.35"/>
+  <rect x="365" y="112" width="90" height="6" fill="#c8d4b0" opacity="0.6" rx="1"/>
+  <rect width="820" height="250" fill="url(#hlight)"/>
+  <rect x="355" y="108" width="110" height="16" fill="#a0b090" opacity="0.08" filter="url(#hb)"/>
+  <rect x="390" y="118" width="40" height="3" fill="#a0a890" opacity="0.3" rx="1"/>
+  <rect x="40" y="130" width="55" height="88" fill="#0a0a12" stroke="#1a1a22" stroke-width="1"/>
+  <rect x="125" y="136" width="42" height="78" fill="#0a0a12" stroke="#181820" stroke-width="1"/>
+  <rect x="725" y="130" width="55" height="88" fill="#0a0a12" stroke="#1a1a22" stroke-width="1"/>
+  <rect x="653" y="136" width="42" height="78" fill="#0a0a12" stroke="#181820" stroke-width="1"/>
+  <rect x="42" y="131" width="52" height="86" fill="#121218" stroke="#1a1a22" stroke-width="1" transform="skewY(-2)"/>
+  <rect x="40" y="131" width="8" height="86" fill="#1e2828" opacity="0.7"/>
+  <circle cx="410" cy="125" r="60" fill="#060608" filter="url(#hb)" opacity="0.9"/>
+  <rect width="820" height="250" fill="url(#hvanish)" opacity="0.5"/>
+  <rect width="820" height="250" fill="#060608" opacity="0.25"/>
+</svg>`,
+
+waiting: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wfloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0f0f14"/><stop offset="100%" stop-color="#0a0a0e"/></linearGradient>
+    <radialGradient id="wlight" cx="75%" cy="30%" r="35%"><stop offset="0%" stop-color="#b0c0a0" stop-opacity="0.2"/><stop offset="100%" stop-color="#b0c0a0" stop-opacity="0"/></radialGradient>
+    <filter id="wb"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="820" height="250" fill="#0d0d12"/>
+  <rect x="0" y="0" width="820" height="195" fill="#111116" opacity="0.9"/>
+  <rect x="0" y="195" width="820" height="55" fill="url(#wfloor)"/>
+  <line x1="0" y1="210" x2="820" y2="210" stroke="#141418" stroke-width="1"/>
+  <line x1="100" y1="195" x2="100" y2="250" stroke="#141418" stroke-width="1"/>
+  <line x1="300" y1="195" x2="300" y2="250" stroke="#141418" stroke-width="1"/>
+  <line x1="500" y1="195" x2="500" y2="250" stroke="#141418" stroke-width="1"/>
+  <line x1="700" y1="195" x2="700" y2="250" stroke="#141418" stroke-width="1"/>
+  <rect x="200" y="0" width="420" height="8" fill="#b0b8a0" opacity="0.35" rx="1"/>
+  <rect x="180" y="0" width="460" height="20" fill="#909890" opacity="0.08" filter="url(#wb)"/>
+  <rect width="820" height="250" fill="url(#wlight)"/>
+  <rect x="60" y="148" width="52" height="8" fill="#141418" rx="1"/>
+  <rect x="60" y="156" width="52" height="38" fill="#141418" rx="1"/>
+  <rect x="62" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="96" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="58" y="148" width="6" height="50" fill="#111114" rx="1"/>
+  <rect x="125" y="148" width="52" height="8" fill="#141418" rx="1"/>
+  <rect x="125" y="156" width="52" height="38" fill="#141418" rx="1"/>
+  <rect x="127" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="161" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="123" y="148" width="6" height="50" fill="#111114" rx="1"/>
+  <rect x="190" y="148" width="52" height="8" fill="#141418" rx="1"/>
+  <rect x="190" y="156" width="52" height="38" fill="#141418" rx="1"/>
+  <rect x="192" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="226" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="188" y="148" width="6" height="50" fill="#111114" rx="1"/>
+  <rect x="255" y="148" width="52" height="8" fill="#141418" rx="1"/>
+  <rect x="255" y="156" width="52" height="38" fill="#141418" rx="1"/>
+  <rect x="257" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="291" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="253" y="148" width="6" height="50" fill="#111114" rx="1"/>
+  <rect x="320" y="148" width="52" height="8" fill="#141418" rx="1"/>
+  <rect x="320" y="156" width="52" height="38" fill="#141418" rx="1"/>
+  <rect x="322" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="356" y="194" width="8" height="18" fill="#111114"/>
+  <rect x="318" y="148" width="6" height="50" fill="#111114" rx="1"/>
+  <rect x="327" y="150" width="36" height="5" fill="#0e0e14" rx="0.5" transform="rotate(-3,345,152)"/>
+  <rect x="650" y="40" width="130" height="130" fill="#0f0f18" stroke="#1a1a22" stroke-width="2"/>
+  <rect x="654" y="44" width="122" height="122" fill="#0d0d14" opacity="0.9"/>
+  <line x1="715" y1="44" x2="715" y2="166" stroke="#1a1a22" stroke-width="1.5"/>
+  <line x1="654" y1="105" x2="776" y2="105" stroke="#1a1a22" stroke-width="1.5"/>
+  <circle cx="130" cy="60" r="28" fill="#0e0e14" stroke="#1a1a22" stroke-width="1.5"/>
+  <circle cx="130" cy="60" r="22" fill="#0b0b12"/>
+  <line x1="130" y1="60" x2="144" y2="60" stroke="#2a2a30" stroke-width="1.5"/>
+  <line x1="130" y1="60" x2="130" y2="42" stroke="#2a2a30" stroke-width="1.5"/>
+  <circle cx="130" cy="60" r="2" fill="#2a2a30"/>
+  <rect width="820" height="250" fill="#060608" opacity="0.38"/>
+</svg>`,
+
+// D4 — VOID ───────────────────────────────────────────────────────────
+
+stairs: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="stairlight" cx="50%" cy="0%" r="50%"><stop offset="0%" stop-color="#c0b898" stop-opacity="0.5"/><stop offset="100%" stop-color="#c0b898" stop-opacity="0"/></radialGradient>
+    <filter id="stb"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <rect width="820" height="250" fill="#080810"/>
+  <polygon points="240,0 580,0 620,250 200,250" fill="#0d0d16"/>
+  <polygon points="0,0 240,0 200,250 0,250" fill="#0a0a12"/>
+  <polygon points="820,0 580,0 620,250 820,250" fill="#090912"/>
+  <polygon points="250,250 570,250 555,220 265,220" fill="#111118"/>
+  <polygon points="265,220 555,220 538,188 282,188" fill="#0f0f16"/>
+  <polygon points="282,188 538,188 520,155 300,155" fill="#0d0d14"/>
+  <polygon points="300,155 520,155 500,120 320,120" fill="#0b0b12"/>
+  <polygon points="320,120 500,120 478,85 342,85" fill="#0a0a10"/>
+  <polygon points="342,85 478,85 455,50 365,50" fill="#09090e"/>
+  <polygon points="365,50 455,50 435,15 385,15" fill="#08080c"/>
+  <line x1="250" y1="250" x2="570" y2="250" stroke="#1a1a24" stroke-width="1.5"/>
+  <line x1="265" y1="220" x2="555" y2="220" stroke="#181820" stroke-width="1.5"/>
+  <line x1="282" y1="188" x2="538" y2="188" stroke="#161620" stroke-width="1.5"/>
+  <line x1="300" y1="155" x2="520" y2="155" stroke="#14141e" stroke-width="1.5"/>
+  <line x1="320" y1="120" x2="500" y2="120" stroke="#12121c" stroke-width="1.5"/>
+  <line x1="342" y1="85" x2="478" y2="85" stroke="#10101a" stroke-width="1.5"/>
+  <line x1="265" y1="220" x2="365" y2="50" stroke="#1a1a26" stroke-width="2"/>
+  <line x1="555" y1="220" x2="455" y2="50" stroke="#1a1a26" stroke-width="2"/>
+  <rect x="340" y="0" width="140" height="20" fill="#c0b888" opacity="0.4" filter="url(#stb)"/>
+  <rect width="820" height="250" fill="url(#stairlight)"/>
+  <rect x="425" y="116" width="18" height="12" fill="#0e0e16" rx="1" opacity="0.9"/>
+  <rect x="0" y="190" width="820" height="60" fill="#060608" opacity="0.7" filter="url(#stb)"/>
+  <rect width="820" height="250" fill="#060608" opacity="0.3"/>
+</svg>`,
+
+static_tv: `<svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="tvb"><feGaussianBlur stdDeviation="1.5"/></filter>
+    <filter id="tvnoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72 0.15" numOctaves="4" seed="12" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.58  0 0 0 0 0.62  0 0 0 1 0" in="noise"/>
+    </filter>
+    <filter id="tvnoise2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.05" numOctaves="2" seed="7" result="noise2"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.4  0 0 0 0 0.42  0 0 0 0 0.45  0 0 0 1 0" in="noise2"/>
+    </filter>
+    <radialGradient id="tvglow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8090a8" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#506070" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#304050" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tvvig" cx="50%" cy="50%" r="50%">
+      <stop offset="40%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#060608" stop-opacity="0.85"/>
+    </radialGradient>
+  </defs>
+  <rect width="820" height="250" fill="#080810"/>
+  <rect x="0" y="0" width="820" height="200" fill="#0c0c14" opacity="0.9"/>
+  <rect x="0" y="200" width="820" height="50" fill="#090910"/>
+  <rect x="195" y="28" width="430" height="205" fill="#0d0d14" rx="6" stroke="#181824" stroke-width="2"/>
+  <rect x="212" y="42" width="396" height="180" fill="#080810" rx="3"/>
+  <rect x="218" y="48" width="384" height="168" fill="#1a1e28"/>
+  <rect x="218" y="48" width="384" height="168" filter="url(#tvnoise)" opacity="0.9"/>
+  <rect x="218" y="48" width="384" height="168" filter="url(#tvnoise2)" opacity="0.5"/>
+  <rect x="260" y="55" width="80" height="12" fill="#b0bac8" opacity="0.18"/>
+  <rect x="380" y="80" width="60" height="8" fill="#a8b4c0" opacity="0.22"/>
+  <rect x="290" y="140" width="100" height="10" fill="#c0c8d4" opacity="0.16"/>
+  <rect x="450" y="110" width="70" height="6" fill="#b8c0cc" opacity="0.2"/>
+  <rect x="240" y="175" width="50" height="8" fill="#a0acb8" opacity="0.18"/>
+  <rect x="500" y="160" width="80" height="7" fill="#b0b8c4" opacity="0.16"/>
+  <rect x="218" y="56" width="384" height="1" fill="#d0d8e8" opacity="0.28"/>
+  <rect x="218" y="64" width="384" height="1" fill="#c8d0e0" opacity="0.22"/>
+  <rect x="218" y="72" width="384" height="1" fill="#d0d8e8" opacity="0.25"/>
+  <rect x="218" y="80" width="384" height="1" fill="#c0c8d8" opacity="0.2"/>
+  <rect x="218" y="88" width="384" height="1" fill="#d0d8e8" opacity="0.28"/>
+  <rect x="218" y="96" width="384" height="1" fill="#c8d0e0" opacity="0.22"/>
+  <rect x="218" y="104" width="384" height="1" fill="#d0d8e8" opacity="0.26"/>
+  <rect x="218" y="112" width="384" height="1" fill="#c0c8d8" opacity="0.2"/>
+  <rect x="218" y="120" width="384" height="1" fill="#d0d8e8" opacity="0.28"/>
+  <rect x="218" y="128" width="384" height="1" fill="#c8d0e0" opacity="0.24"/>
+  <rect x="218" y="136" width="384" height="1" fill="#d0d8e8" opacity="0.26"/>
+  <rect x="218" y="144" width="384" height="1" fill="#c0c8d8" opacity="0.2"/>
+  <rect x="218" y="152" width="384" height="1" fill="#d0d8e8" opacity="0.28"/>
+  <rect x="218" y="160" width="384" height="1" fill="#c8d0e0" opacity="0.22"/>
+  <rect x="218" y="168" width="384" height="1" fill="#d0d8e8" opacity="0.26"/>
+  <rect x="218" y="176" width="384" height="1" fill="#c0c8d8" opacity="0.2"/>
+  <rect x="218" y="184" width="384" height="1" fill="#d0d8e8" opacity="0.28"/>
+  <rect x="218" y="192" width="384" height="1" fill="#c8d0e0" opacity="0.22"/>
+  <rect x="218" y="200" width="384" height="1" fill="#d0d8e8" opacity="0.24"/>
+  <rect x="218" y="208" width="384" height="1" fill="#c0c8d8" opacity="0.2"/>
+  <rect x="218" y="98" width="384" height="18" fill="#c8d4e4" opacity="0.12"/>
+  <rect x="218" y="99" width="384" height="8" fill="#d8e0f0" opacity="0.14"/>
+  <ellipse cx="410" cy="118" rx="22" ry="28" fill="#505868" opacity="0.28" filter="url(#tvb)"/>
+  <rect x="388" y="128" width="44" height="32" fill="#484e5e" opacity="0.22" filter="url(#tvb)"/>
+  <rect x="218" y="48" width="384" height="168" fill="url(#tvglow)"/>
+  <rect x="218" y="48" width="384" height="168" fill="url(#tvvig)"/>
+  <rect x="180" y="38" width="460" height="195" fill="#6070a0" opacity="0.05" filter="url(#tvb)" rx="8"/>
+  <ellipse cx="410" cy="228" rx="130" ry="14" fill="#4050a0" opacity="0.1" filter="url(#tvb)"/>
+  <circle cx="565" cy="198" r="6" fill="#0f0f18" stroke="#1c1c26" stroke-width="1"/>
+  <circle cx="582" cy="198" r="6" fill="#0f0f18" stroke="#1c1c26" stroke-width="1"/>
+  <rect x="218" y="198" width="55" height="3" fill="#0f0f18" rx="1"/>
+  <line x1="375" y1="28" x2="332" y2="0" stroke="#181824" stroke-width="2"/>
+  <line x1="425" y1="28" x2="468" y2="2" stroke="#181824" stroke-width="2"/>
+  <rect x="140" y="198" width="540" height="52" fill="#0c0c12" rx="2"/>
+  <rect x="140" y="188" width="540" height="14" fill="#101018" rx="2"/>
+  <rect width="820" height="250" fill="#060608" opacity="0.22"/>
+</svg>`
+};
+
+// ── QUESTIONS ────────────────────────────────────────────────────────
+const questions = [
+
+  // D1 — WARM ── Q1
+  {
+    depth: 0, svgKey: 'picnic', caption: 'strangers at a picnic, c. 1955',
+    prompt: 'A photograph falls from an old book — strangers at a summer picnic. What stops you?',
+    hint: 'choose the response that feels most true',
+    choices: [
+      { label:'A', text:'The particular light of that decade — colours that only existed then.', a1:+1, a2:-1 },
+      { label:'B', text:'The faces. Who were they to each other? What did they say after the shutter clicked?', a1:+1, a2:+1 },
+      { label:'C', text:'The field behind them — somewhere rural, unreachable, vanished.', a1:-1, a2:-1 },
+      { label:'D', text:'The ritual of it. People still dressed for picnics. A whole etiquette now gone.', a1:0, a2:-1 },
+    ]
+  },
+
+  // D1 — WARM ── Q2
+  {
+    depth: 0, svgKey: 'thrift', caption: 'thrift store interior, undated',
+    prompt: 'You find a box of unlabelled Super 8 reels. Which one do you reach for?',
+    hint: 'trust your instinct',
+    choices: [
+      { label:'A', text:'The one that feels oldest — footage most unlike anything alive today.', a1:+1, a2:-1 },
+      { label:'B', text:"The one with a face on the box — someone's daughter, someone's wedding.", a1:+1, a2:+1 },
+      { label:'C', text:'The one labelled with a place name you do not recognise but want to visit.', a1:-1, a2:-1 },
+      { label:'D', text:'The one that might show how people lived — ordinary Tuesday afternoons.', a1:-1, a2:+1 },
+    ]
+  },
+
+  // D2 — COOLING ── Q3
+  {
+    depth: 1, svgKey: 'fog', caption: 'field, early morning, no location recorded',
+    prompt: 'There is a shape in the fog. It may be a person. What do you hope it is?',
+    hint: 'the instrument is listening',
+    choices: [
+      { label:'A', text:'A figure from a specific time — someone who walked this field in another century.', a1:+1, a2:+1 },
+      { label:'B', text:'Nothing. The shape itself is enough. Presence without its weight.', a1:0, a2:0 },
+      { label:'C', text:'Something that belongs to this place entirely — indigenous to this specific fog.', a1:-1, a2:-1 },
+      { label:'D', text:'You hope it stays unclear. You prefer the longing to the answer.', a1:0, a2:0 },
+    ]
+  },
+
+  // D2 — COOLING ── Q4
+  {
+    depth: 1, svgKey: 'motel', caption: 'room 14, highway motel, date unknown',
+    prompt: 'Two chairs face each other in an empty room. Someone sat in both of them. Which one were you in?',
+    hint: 'you do not need to have been here',
+    choices: [
+      { label:'A', text:'The one facing the window. You were the one who kept looking out.', a1:-1, a2:+1 },
+      { label:'B', text:'The one facing the door. You were waiting for something to arrive.', a1:+1, a2:+1 },
+      { label:'C', text:'Neither. You were the one who left before this image was taken.', a1:0, a2:0 },
+      { label:'D', text:'You were not here. You are certain of this and uncertain why you are certain.', a1:0, a2:0 },
+    ]
+  },
+
+  // D3 — DARK ── Q5
+  {
+    depth: 2, svgKey: 'hallway', caption: 'institutional building, location unknown',
+    prompt: 'A hallway you have never walked. You recognise it anyway. Where does the recognition live?',
+    hint: 'be precise',
+    choices: [
+      { label:'A', text:'In the decade of it — the materials, the light, the way things were built then.', a1:+1, a2:-1 },
+      { label:'B', text:'In the people who walked it. They are gone but still somehow present here.', a1:+1, a2:+1 },
+      { label:'C', text:'In the somewhere of it — a region, a country, a climate you have imagined.', a1:-1, a2:-1 },
+      { label:'D', text:'In the institution itself. A kind of life that organised itself this way.', a1:0, a2:-1 },
+    ]
+  },
+
+  // D3 — DARK ── Q6
+  {
+    depth: 2, svgKey: 'waiting', caption: 'waiting room, no record of facility',
+    prompt: 'You are told everyone who has ever sat in this room experienced the same thing upon leaving. What was it?',
+    hint: 'the instrument already knows your answer',
+    choices: [
+      { label:'A', text:'The specific year they most wanted to return to. They could not explain why.', a1:+1, a2:-1 },
+      { label:'B', text:'The face of someone they had never met but would have recognised anywhere.', a1:+1, a2:+1 },
+      { label:'C', text:'The name of a place they had never been but knew was real.', a1:-1, a2:-1 },
+      { label:'D', text:'Nothing. They left and forgot they had ever been in a room like this.', a1:0, a2:0 },
+    ]
+  },
+
+  // D4 — VOID ── Q7
+  {
+    depth: 3, svgKey: 'stairs', caption: 'staircase, basement level',
+    prompt: 'The instrument has been noting your hesitations. Select what is true.',
+    hint: 'one of these cannot be selected',
+    choices: [
+      { label:'A', text:'I have felt anemoia my entire life, before I had a name for it.', a1:+1, a2:0, wrong:false },
+      { label:'B', text:'I recognised something in question three that I did not expect to recognise.', a1:0, a2:+1, wrong:false },
+      { label:'C', text:'I am not certain I am the one taking this.', a1:0, a2:0, wrong:true },
+      { label:'D', text:'The longing I feel is for something I cannot name and have stopped trying to.', a1:0, a2:-1, wrong:false },
+    ]
+  },
+
+  // D4 — VOID ── Q8
+  {
+    depth: 3, svgKey: 'static_tv', caption: 'broadcast signal, channel unknown, 03:14',
+    prompt: 'The broadcast contains something. You have been watching for some time. What is the instrument showing you?',
+    hint: 'final question',
+    choices: [
+      { label:'A', text:'A time. The image beneath the static is always from a specific era you can feel but not see.', a1:+1, a2:-1 },
+      { label:'B', text:'A person. Someone is in the static. They are trying to be visible.', a1:+1, a2:+1 },
+      { label:'C', text:'A place. The signal is coming from somewhere specific. You know this.', a1:-1, a2:-1 },
+      { label:'D', text:'Yourself. Thirty years ago. Or thirty years from now. The direction is unclear.', a1:0, a2:0 },
+    ]
+  }
+];
+
+// ── TYPES ─────────────────────────────────────────────────────────────
+function getType(a1,a2) {
+  if (Math.abs(a1)<=1 && Math.abs(a2)<=1) return {
+    name:'The Drifter', tag:'belonging to the sensation, not its object',
+    pre:'your type', footnote:'The instrument notes this type is the rarest. Or the most defended.',
+    a1l:'Unanchored', a1d:'Your longing does not land. No era or place claims it. The feeling is the only fixed point.',
+    a2l:'Diffuse', a2d:'Neither the individual life nor the collective loss. It slips between categories.',
+    prompt:`The person is "The Drifter." Their anemoia is pure and unanchored. They experience the sensation of longing itself as the primary phenomenon — directionless, arriving without cause or object. Write a 3-4 sentence second-person reflection that feels like it was written before they took the test. Quiet, slightly cold, precise. No comfort. No generic phrases. Begin directly.`
+  };
+  const era=a1>=0, soc=a2>=0;
+  if (era&&soc) return {
+    name:'The Archivist', tag:'haunted by strangers in specific times',
+    pre:'your type', footnote:'The instrument has encountered this type before. Many times. They tend not to believe that.',
+    a1l:'Era-drawn', a1d:'Particular decades exert a gravitational pull. Their light, textures, the exact way people moved.',
+    a2l:'Socially-oriented', a2d:'What aches is the people within those eras — specific faces, the unknowable interiority of strangers.',
+    prompt:`The person is "The Archivist." They experience anemoia through longing for specific people in specific historical eras — strangers in photographs, the intimate texture of lives in the 1940s or 1960s. Write a 3-4 sentence second-person reflection that feels like it was written before they began. Quiet, slightly cold, precise. No comfort. No generic phrases. Begin directly.`
+  };
+  if (era&&!soc) return {
+    name:'The Elegist', tag:'mourning the texture of time itself',
+    pre:'your type', footnote:'The instrument finds this type most common in people who feel they were born in the wrong century. They are usually partially correct.',
+    a1l:'Era-drawn', a1d:'The feel of a specific decade — its light, its materials, the particular way humans moved through it.',
+    a2l:'Culturally-oriented', a2d:'What aches is the collective — rituals, ways of living, knowledge that was carried and then dropped.',
+    prompt:`The person is "The Elegist." They experience anemoia as grief for entire eras and cultures — not individuals, but the accumulated weight of how humans organised their lives differently then. Write a 3-4 sentence second-person reflection that feels like it was written before they began. Quiet, slightly cold, precise. No comfort. No generic phrases. Begin directly.`
+  };
+  if (!era&&soc) return {
+    name:'The Wanderer', tag:'pulled toward lives in unreachable landscapes',
+    pre:'your type', footnote:'The instrument notes this type rarely stays anywhere long enough. They call this freedom.',
+    a1l:'Place-drawn', a1d:'Geography is where the longing begins. Distant landscapes, foreign places, the world beyond your coordinates.',
+    a2l:'Socially-oriented', a2d:'Within those places: the people. Their specific lives, their ordinary Tuesdays.',
+    prompt:`The person is "The Wanderer." They experience anemoia as longing for people in places they will never reach — geographic and intimate at once. Write a 3-4 sentence second-person reflection that feels like it was written before they began. Quiet, slightly cold, precise. No comfort. No generic phrases. Begin directly.`
+  };
+  return {
+    name:'The Exile', tag:'longing for vanished geographies and their ways',
+    pre:'your type', footnote:'The instrument finds this type often believes they arrived too late. The instrument does not have an opinion on whether this is true.',
+    a1l:'Place-drawn', a1d:'Your longing is geographic before it is temporal. Landscapes that called to you before you arrived.',
+    a2l:'Culturally-oriented', a2d:'Within those places: the way of life. Traditions, crafts, the collective knowledge now gone.',
+    prompt:`The person is "The Exile." They experience anemoia as longing for entire ways of life rooted in specific places — vanished geographies, lost cultures. Write a 3-4 sentence second-person reflection that feels like it was written before they began. Quiet, slightly cold, precise. No comfort. No generic phrases. Begin directly.`
+  };
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let current=0, scores={a1:0,a2:0}, selected=null;
+
+// ── DEPTH ──────────────────────────────────────────────────────────────
+function setDepth(d) {
+  const body=document.body;
+  depthClasses.forEach(c=>body.classList.remove(c));
+  body.classList.add(depthClasses[d]);
+  for(let i=0;i<4;i++){
+    const pip=document.getElementById('pip'+i);
+    pip.classList.toggle('active', i===d);
+  }
+  document.getElementById('depth-indicator').classList.add('visible');
+}
+
+// ── TRANSITION ─────────────────────────────────────────────────────────
+function transition(fn) {
+  const ov=document.getElementById('overlay');
+  ov.classList.add('on');
+  setTimeout(()=>{ fn(); ov.classList.remove('on'); }, 550);
+}
+function staticFlash() {
+  const s=document.getElementById('static');
+  s.classList.add('pop');
+  setTimeout(()=>s.classList.remove('pop'),200);
+}
+function show(id) {
+  transition(()=>{
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  });
+}
+
+// ── FLOW ───────────────────────────────────────────────────────────────
+function startTest() {
+  current=0; scores={a1:0,a2:0}; selected=null;
+  setDepth(0);
+  renderQuestion();
+  show('questions');
+}
+
+function renderQuestion() {
+  const q=questions[current];
+  selected=null;
+  setDepth(q.depth);
+  document.getElementById('prog').style.width=(current/questions.length*100)+'%';
+  document.getElementById('qnum').textContent=(current+1)+' / '+questions.length;
+  document.getElementById('qimg').innerHTML=svgs[q.svgKey]+'<div class="q-img-caption">'+q.caption+'</div>';
+  const prompt=document.getElementById('qprompt');
+  prompt.textContent=q.prompt;
+  prompt.classList.toggle('glitch', q.depth>=3);
+  document.getElementById('qhint').textContent=q.hint;
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  q.choices.forEach(function(c,i){
+    const btn=document.createElement('button');
+    btn.className='choice'+(c.wrong?' wrong':'');
+    btn.innerHTML='<div class="choice-key">'+c.label+'</div><div class="choice-body">'+c.text+'</div>';
+    if(c.wrong){
+      btn.onclick=function(){ staticFlash(); btn.style.opacity='0.25'; setTimeout(function(){btn.style.opacity='';},700); };
+    } else {
+      btn.onclick=function(){ selectChoice(i); };
+    }
+    container.appendChild(btn);
+  });
+  const next=document.getElementById('btn-next');
+  next.classList.remove('visible');
+  next.textContent=current===questions.length-1?'submit →':'continue →';
+}
+
+function selectChoice(idx) {
+  selected=idx;
+  document.querySelectorAll('.choice').forEach(function(el,i){
+    if(!questions[current].choices[i].wrong) el.classList.remove('selected');
+  });
+  document.querySelectorAll('.choice')[idx].classList.add('selected');
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function advance() {
+  if(selected===null) return;
+  const c=questions[current].choices[selected];
+  scores.a1+=c.a1; scores.a2+=c.a2;
+  current++;
+
+  const interIdx=interstitialAfter.indexOf(current-1);
+  if(interIdx!==-1 && current<questions.length) {
+    const inter=interstitials[interIdx];
+    const nextDepth=questions[current].depth;
+    setDepth(nextDepth);
+    document.getElementById('inter-line').innerHTML=inter.line.replace(/\n/g,'<br>');
+    document.getElementById('inter-sub').textContent=inter.sub;
+    show('interstitial');
+    return;
+  }
+
+  if(current>=questions.length) showResult();
+  else { selected=null; renderQuestion(); }
+}
+
+function resumeTest() {
+  selected=null;
+  renderQuestion();
+  show('questions');
+}
+
+// ── RESULT ─────────────────────────────────────────────────────────────
+async function showResult() {
+  const type=getType(scores.a1,scores.a2);
+  document.getElementById('result-pre').textContent=type.pre;
+  document.getElementById('rname').textContent=type.name;
+  document.getElementById('rtag').textContent=type.tag;
+  document.getElementById('rfootnote').textContent=type.footnote;
+  document.getElementById('raxes').innerHTML=
+    '<div class="axis-card"><div class="axis-lbl">First axis</div><div class="axis-val">'+type.a1l+'</div><div class="axis-desc">'+type.a1d+'</div></div>'+
+    '<div class="axis-card"><div class="axis-lbl">Second axis</div><div class="axis-val">'+type.a2l+'</div><div class="axis-desc">'+type.a2d+'</div></div>';
+  show('result');
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{role:'user',content:type.prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';
+    document.getElementById('reflect-wrap').innerHTML='<p class="result-reflection">'+text.trim()+'</p>';
+  } catch(e) {
+    const fb={
+      'The Archivist':"You have always found other people's photographs more affecting than your own memories. You tell yourself this is empathy. It may be something else — a hunger for interiority that your own life does not fully satisfy. The strangers in the photographs are not a substitute. They are the original longing.",
+      'The Elegist':'You do not mourn people. You mourn the texture of time itself — the particular way light fell in a decade that ended before you arrived. This is a colder grief than most. It has no face to attach to. It does not go away when the objects of it are named.',
+      'The Wanderer':'The longing you carry is geographic before it is anything else. It lives in distance. You have mistaken it for wanderlust. It is not. Wanderlust ends when you arrive. This does not end when you arrive. You have tested this.',
+      'The Exile':'You believe you were made for a world that no longer exists. The instrument does not know if this is true. It notes only that you have believed it for longer than you have admitted, and that you have organised your life around the absence of something you cannot name.',
+      'The Drifter':'You do not long for a time or a place or a person. You long for the longing. You have learned to mistake the sensation for nostalgia, for depth of feeling. It may be simpler than that. You are most yourself when you are reaching for something that cannot be reached. You have made this a home.'
+    };
+    document.getElementById('reflect-wrap').innerHTML='<p class="result-reflection">'+(fb[type.name]||fb['The Drifter'])+'</p>';
+  }
+}
+
+function restart() {
+  current=0; scores={a1:0,a2:0}; selected=null;
+  setDepth(0);
+  show('intro');
+}
+</script>
+</body>
+</html>
