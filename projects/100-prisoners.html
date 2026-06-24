@@ -31,7 +31,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js" crossorigin="anonymous"></script>
 <style>
 :root {
   --bg: #070b0f;
@@ -330,27 +329,70 @@ footer { border-top: 1px solid var(--line); padding: 32px 0 48px; }
   </div>
 </footer>
 
-<script type="text/babel">
-/** @jsxRuntime classic */
-const { useState, useEffect, useRef } = React;
-
+<script>const {
+  useState,
+  useEffect,
+  useRef
+} = React;
 const CONFIGS = {
-  20:  { N: 20,  HALF: 10, COLS: 5,  BOXH: 58, MAXW: 420, AUTO: 400, DOT: 11, GAP: 5,  label: "TRAINING BLOCK",  sub: "Learn the ropes"      },
-  50:  { N: 50,  HALF: 25, COLS: 10, BOXH: 50, MAXW: 620, AUTO: 260, DOT: 8,  GAP: 3,  label: "DEATH ROW",       sub: "Stakes are real"      },
-  100: { N: 100, HALF: 50, COLS: 10, BOXH: 44, MAXW: 620, AUTO: 160, DOT: 6,  GAP: 3,  label: "THE FULL YARD",   sub: "The original problem" },
+  20: {
+    N: 20,
+    HALF: 10,
+    COLS: 5,
+    BOXH: 58,
+    MAXW: 420,
+    AUTO: 400,
+    DOT: 11,
+    GAP: 5,
+    label: "TRAINING BLOCK",
+    sub: "Learn the ropes"
+  },
+  50: {
+    N: 50,
+    HALF: 25,
+    COLS: 10,
+    BOXH: 50,
+    MAXW: 620,
+    AUTO: 260,
+    DOT: 8,
+    GAP: 3,
+    label: "DEATH ROW",
+    sub: "Stakes are real"
+  },
+  100: {
+    N: 100,
+    HALF: 50,
+    COLS: 10,
+    BOXH: 44,
+    MAXW: 620,
+    AUTO: 160,
+    DOT: 6,
+    GAP: 3,
+    label: "THE FULL YARD",
+    sub: "The original problem"
+  }
 };
-
 const C = {
-  bg: '#070b12', surface: '#0e1420', surfaceHi: '#141c2e',
-  border: '#1c2640', borderBright: '#2d3f6b',
-  amber: '#f0a832', green: '#22c55e', greenDk: '#14532d',
-  red: '#f43f5e', redDk: '#4c0519', chain: '#818cf8',
-  text: '#e2e8f0', dim: '#8892a4', muted: '#2d3f6b',
+  bg: '#070b12',
+  surface: '#0e1420',
+  surfaceHi: '#141c2e',
+  border: '#1c2640',
+  borderBright: '#2d3f6b',
+  amber: '#f0a832',
+  green: '#22c55e',
+  greenDk: '#14532d',
+  red: '#f43f5e',
+  redDk: '#4c0519',
+  chain: '#818cf8',
+  text: '#e2e8f0',
+  dim: '#8892a4',
+  muted: '#2d3f6b'
 };
-const M = { fontFamily: '"Courier New", Courier, monospace' };
-const CYCLE_CLRS = ['#818cf8','#34d399','#fb923c','#f472b6','#38bdf8','#fbbf24','#4ade80','#e879f9','#67e8f9','#a3e635'];
+const M = {
+  fontFamily: '"Courier New", Courier, monospace'
+};
+const CYCLE_CLRS = ['#818cf8', '#34d399', '#fb923c', '#f472b6', '#38bdf8', '#fbbf24', '#4ade80', '#e879f9', '#67e8f9', '#a3e635'];
 const FLASH_MS = 680;
-
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -359,151 +401,316 @@ function shuffle(arr) {
   }
   return a;
 }
-
 function getCycles(room, N) {
-  const visited = new Array(N).fill(false), cycles = [];
+  const visited = new Array(N).fill(false),
+    cycles = [];
   for (let s = 0; s < N; s++) {
     if (!visited[s]) {
-      const cyc = []; let c = s;
-      while (!visited[c]) { visited[c] = true; cyc.push(c); c = room[c] - 1; }
+      const cyc = [];
+      let c = s;
+      while (!visited[c]) {
+        visited[c] = true;
+        cyc.push(c);
+        c = room[c] - 1;
+      }
       cycles.push(cyc);
     }
   }
   return cycles;
 }
-
-function Box({ num, slip, isOpen, flashType, isTarget, canClick, onClick, boxH }) {
+function Box({
+  num,
+  slip,
+  isOpen,
+  flashType,
+  isTarget,
+  canClick,
+  onClick,
+  boxH
+}) {
   const [hov, setHov] = useState(false);
-  let bg = C.surface, bdr = C.border, slipColor = C.text;
+  let bg = C.surface,
+    bdr = C.border,
+    slipColor = C.text;
   if (!isOpen && hov && canClick) bdr = C.amber + "88";
-  if (isOpen) { bg = C.surfaceHi; bdr = C.borderBright; }
-  if (isOpen && isTarget) slipColor = C.amber;
-  if (flashType === 'win')  { bg = C.greenDk; bdr = C.green;  slipColor = C.green; }
-  if (flashType === 'lose') { bg = C.redDk;   bdr = C.red;    slipColor = C.red; }
-  const small = boxH < 50;
-
-  return (
-    <div onClick={canClick && !isOpen ? onClick : undefined}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{
-        height: boxH, borderRadius: 6, border: "2px solid " + bdr, background: bg,
-        transition: 'all 0.18s', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        cursor: canClick && !isOpen ? 'pointer' : 'default', userSelect: 'none',
-        transform: hov && canClick && !isOpen ? 'scale(1.07)' : 'scale(1)',
-      }}>
-      {isOpen ? (
-        <>
-          {!small && <span style={{ ...M, fontSize: 7, color: C.dim, letterSpacing: '0.1em' }}>#{num}</span>}
-          <span style={{ ...M, fontSize: small ? 13 : 18, fontWeight: 700, color: slipColor, lineHeight: 1.1 }}>{slip}</span>
-        </>
-      ) : (
-        <>
-          {!small && <span style={{ fontSize: 6, color: C.muted, letterSpacing: '0.08em' }}>BOX</span>}
-          <span style={{ ...M, fontSize: small ? 11 : 14, color: C.dim }}>{num}</span>
-        </>
-      )}
-    </div>
-  );
-}
-
-function DiffTab({ d, active, onClick }) {
-  const cfg = CONFIGS[d];
-  return (
-    <button onClick={onClick} style={{
-      flex: 1, background: active ? C.amber + "18" : C.surface,
-      border: "2px solid " + (active ? C.amber : C.border),
-      borderRadius: 10, padding: '10px 8px', cursor: 'pointer', transition: 'all 0.2s',
-    }}>
-      <div style={{ ...M, fontSize: 20, fontWeight: 900, color: active ? C.amber : C.dim, lineHeight: 1 }}>{d}</div>
-      <div style={{ ...M, fontSize: 8, color: active ? C.amber : C.muted, letterSpacing: '0.1em', marginTop: 3 }}>{cfg.label}</div>
-    </button>
-  );
-}
-
-function ModeBtn({ label, sub, color, onClick }) {
-  const [h, setH] = useState(false);
-  return (
-    <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{
-        background: h ? color + "18" : C.surface, border: "2px solid " + (h ? color : C.border),
-        borderRadius: 10, padding: '13px 16px', cursor: 'pointer', transition: 'all 0.2s',
-        textAlign: 'left', width: '100%',
-      }}>
-      <div style={{ ...M, fontSize: 11, fontWeight: 700, color, letterSpacing: '0.08em', marginBottom: 3 }}>&#9658; {label}</div>
-      <div style={{ fontSize: 12, color: C.dim }}>{sub}</div>
-    </button>
-  );
-}
-
-function App() {
-  const [screen,  setScreen]  = useState('menu');
-  const [diff,    setDiff]    = useState(20);
-  const [room,    setRoom]    = useState(null);
-  const [cycles,  setCycles]  = useState([]);
-  const [pIdx,    setPIdx]    = useState(0);
-  const [opened,  setOpened]  = useState([]);
-  const [opensLeft, setLeft]  = useState(0);
-  const [results, setResults] = useState([]);
-  const [mode,    setMode]    = useState('manual');
-  const [flash,   setFlash]   = useState(null);
-  const [flashing,setFlashing]= useState(false);
-  const [gameResult,setGR]    = useState(null);
-  const [stats,   setStats]   = useState({ wins: 0, total: 0 });
-  const ref = useRef({});
-  ref.current = { room, pIdx, opened, opensLeft, results, mode, flashing, diff };
-
-  const cfg = CONFIGS[diff];
-
-  function startGame(m, d) {
-    const { N, HALF } = CONFIGS[d || diff];
-    const r = shuffle(Array.from({ length: N }, (_, i) => i + 1));
-    setRoom(r); setCycles(getCycles(r, N)); setPIdx(0); setOpened([]);
-    setLeft(HALF); setResults(Array(N).fill('pending')); setMode(m);
-    setFlash(null); setFlashing(false); setGR(null); setScreen('game');
+  if (isOpen) {
+    bg = C.surfaceHi;
+    bdr = C.borderBright;
   }
-
+  if (isOpen && isTarget) slipColor = C.amber;
+  if (flashType === 'win') {
+    bg = C.greenDk;
+    bdr = C.green;
+    slipColor = C.green;
+  }
+  if (flashType === 'lose') {
+    bg = C.redDk;
+    bdr = C.red;
+    slipColor = C.red;
+  }
+  const small = boxH < 50;
+  return /*#__PURE__*/React.createElement("div", {
+    onClick: canClick && !isOpen ? onClick : undefined,
+    onMouseEnter: () => setHov(true),
+    onMouseLeave: () => setHov(false),
+    style: {
+      height: boxH,
+      borderRadius: 6,
+      border: "2px solid " + bdr,
+      background: bg,
+      transition: 'all 0.18s',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: canClick && !isOpen ? 'pointer' : 'default',
+      userSelect: 'none',
+      transform: hov && canClick && !isOpen ? 'scale(1.07)' : 'scale(1)'
+    }
+  }, isOpen ? /*#__PURE__*/React.createElement(React.Fragment, null, !small && /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...M,
+      fontSize: 7,
+      color: C.dim,
+      letterSpacing: '0.1em'
+    }
+  }, "#", num), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...M,
+      fontSize: small ? 13 : 18,
+      fontWeight: 700,
+      color: slipColor,
+      lineHeight: 1.1
+    }
+  }, slip)) : /*#__PURE__*/React.createElement(React.Fragment, null, !small && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 6,
+      color: C.muted,
+      letterSpacing: '0.08em'
+    }
+  }, "BOX"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...M,
+      fontSize: small ? 11 : 14,
+      color: C.dim
+    }
+  }, num)));
+}
+function DiffTab({
+  d,
+  active,
+  onClick
+}) {
+  const cfg = CONFIGS[d];
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: onClick,
+    style: {
+      flex: 1,
+      background: active ? C.amber + "18" : C.surface,
+      border: "2px solid " + (active ? C.amber : C.border),
+      borderRadius: 10,
+      padding: '10px 8px',
+      cursor: 'pointer',
+      transition: 'all 0.2s'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...M,
+      fontSize: 20,
+      fontWeight: 900,
+      color: active ? C.amber : C.dim,
+      lineHeight: 1
+    }
+  }, d), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...M,
+      fontSize: 8,
+      color: active ? C.amber : C.muted,
+      letterSpacing: '0.1em',
+      marginTop: 3
+    }
+  }, cfg.label));
+}
+function ModeBtn({
+  label,
+  sub,
+  color,
+  onClick
+}) {
+  const [h, setH] = useState(false);
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: onClick,
+    onMouseEnter: () => setH(true),
+    onMouseLeave: () => setH(false),
+    style: {
+      background: h ? color + "18" : C.surface,
+      border: "2px solid " + (h ? color : C.border),
+      borderRadius: 10,
+      padding: '13px 16px',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      textAlign: 'left',
+      width: '100%'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...M,
+      fontSize: 11,
+      fontWeight: 700,
+      color,
+      letterSpacing: '0.08em',
+      marginBottom: 3
+    }
+  }, "► ", label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.dim
+    }
+  }, sub));
+}
+function App() {
+  const [screen, setScreen] = useState('menu');
+  const [diff, setDiff] = useState(20);
+  const [room, setRoom] = useState(null);
+  const [cycles, setCycles] = useState([]);
+  const [pIdx, setPIdx] = useState(0);
+  const [opened, setOpened] = useState([]);
+  const [opensLeft, setLeft] = useState(0);
+  const [results, setResults] = useState([]);
+  const [mode, setMode] = useState('manual');
+  const [flash, setFlash] = useState(null);
+  const [flashing, setFlashing] = useState(false);
+  const [gameResult, setGR] = useState(null);
+  const [stats, setStats] = useState({
+    wins: 0,
+    total: 0
+  });
+  const ref = useRef({});
+  ref.current = {
+    room,
+    pIdx,
+    opened,
+    opensLeft,
+    results,
+    mode,
+    flashing,
+    diff
+  };
+  const cfg = CONFIGS[diff];
+  function startGame(m, d) {
+    const {
+      N,
+      HALF
+    } = CONFIGS[d || diff];
+    const r = shuffle(Array.from({
+      length: N
+    }, (_, i) => i + 1));
+    setRoom(r);
+    setCycles(getCycles(r, N));
+    setPIdx(0);
+    setOpened([]);
+    setLeft(HALF);
+    setResults(Array(N).fill('pending'));
+    setMode(m);
+    setFlash(null);
+    setFlashing(false);
+    setGR(null);
+    setScreen('game');
+  }
   function processOpen(boxIdx) {
-    const { room, pIdx, opened, opensLeft, results, flashing, diff } = ref.current;
-    const { HALF, N } = CONFIGS[diff];
+    const {
+      room,
+      pIdx,
+      opened,
+      opensLeft,
+      results,
+      flashing,
+      diff
+    } = ref.current;
+    const {
+      HALF,
+      N
+    } = CONFIGS[diff];
     if (!room || flashing || opened.includes(boxIdx)) return;
-    const newOpened = [...opened, boxIdx], newLeft = opensLeft - 1;
-    setOpened(newOpened); setLeft(newLeft);
-    const slip = room[boxIdx], target = pIdx + 1;
-
+    const newOpened = [...opened, boxIdx],
+      newLeft = opensLeft - 1;
+    setOpened(newOpened);
+    setLeft(newLeft);
+    const slip = room[boxIdx],
+      target = pIdx + 1;
     if (slip === target) {
-      const nr = [...results]; nr[pIdx] = 'win'; setResults(nr);
-      setFlash({ boxIdx, outcome: 'win' }); setFlashing(true);
+      const nr = [...results];
+      nr[pIdx] = 'win';
+      setResults(nr);
+      setFlash({
+        boxIdx,
+        outcome: 'win'
+      });
+      setFlashing(true);
       setTimeout(() => {
-        setFlash(null); setFlashing(false);
+        setFlash(null);
+        setFlashing(false);
         const next = nr.findIndex(r => r === 'pending');
-        if (next === -1) { setGR('win'); setStats(s => ({ wins: s.wins + 1, total: s.total + 1 })); setScreen('end'); }
-        else { setPIdx(next); setOpened([]); setLeft(HALF); }
+        if (next === -1) {
+          setGR('win');
+          setStats(s => ({
+            wins: s.wins + 1,
+            total: s.total + 1
+          }));
+          setScreen('end');
+        } else {
+          setPIdx(next);
+          setOpened([]);
+          setLeft(HALF);
+        }
       }, FLASH_MS);
     } else if (newLeft === 0) {
-      const nr = [...results]; nr[pIdx] = 'lose'; setResults(nr);
-      setFlash({ boxIdx, outcome: 'lose' }); setFlashing(true);
+      const nr = [...results];
+      nr[pIdx] = 'lose';
+      setResults(nr);
+      setFlash({
+        boxIdx,
+        outcome: 'lose'
+      });
+      setFlashing(true);
       setTimeout(() => {
-        setFlash(null); setFlashing(false);
-        setGR('lose'); setStats(s => ({ ...s, total: s.total + 1 })); setScreen('end');
+        setFlash(null);
+        setFlashing(false);
+        setGR('lose');
+        setStats(s => ({
+          ...s,
+          total: s.total + 1
+        }));
+        setScreen('end');
       }, FLASH_MS);
     }
   }
-
   useEffect(() => {
     if (screen !== 'game' || mode === 'manual') return;
-    const { N, HALF, AUTO } = cfg;
+    const {
+      N,
+      HALF,
+      AUTO
+    } = cfg;
     let cancelled = false;
-
     function getNext() {
-      const { room, pIdx, opened, opensLeft, flashing, diff } = ref.current;
+      const {
+        room,
+        pIdx,
+        opened,
+        opensLeft,
+        flashing,
+        diff
+      } = ref.current;
       if (cancelled || !room || flashing || screen !== 'game') return;
       const target = pIdx + 1;
       let nextBox;
       if (mode === 'smart') {
         nextBox = opened.length === 0 ? pIdx : room[opened[opened.length - 1]] - 1;
       } else {
-        const avail = Array.from({ length: N }, (_, i) => i).filter(i => !opened.includes(i));
+        const avail = Array.from({
+          length: N
+        }, (_, i) => i).filter(i => !opened.includes(i));
         if (avail.length === 0) return;
         nextBox = avail[Math.floor(Math.random() * avail.length)];
       }
@@ -511,208 +718,505 @@ function App() {
       if (!cancelled) setTimeout(getNext, AUTO);
     }
     const t = setTimeout(getNext, AUTO);
-    return () => { cancelled = true; clearTimeout(t); };
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, [screen, mode, pIdx]);
-
   if (screen === 'menu') {
-    return (
-      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 20px' }}>
-        <div style={{ maxWidth: 480, width: '100%' }}>
-          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.3em', textAlign: 'center', marginBottom: 16 }}>PROBABILITY SIMULATION</div>
-          <div style={{ textAlign: 'center', marginBottom: 4 }}>
-            <span style={{ fontSize: 52, fontWeight: 900, color: C.text, lineHeight: 1 }}>100 </span>
-            <span style={{ fontSize: 52, fontWeight: 900, color: C.amber, lineHeight: 1 }}>PRISONERS</span>
-          </div>
-          <div style={{ textAlign: 'center', color: C.dim, fontSize: 12, marginBottom: 28 }}>
-            Based on the 2003 puzzle by Gal &amp; Miltersen &middot; Smart strategy wins ~31%
-          </div>
-
-          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.2em', textAlign: 'center', marginBottom: 10 }}>SELECT DIFFICULTY</div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 6 }}>
-            {[20, 50, 100].map(d => <DiffTab key={d} d={d} active={diff === d} onClick={() => setDiff(d)} />)}
-          </div>
-          <div style={{ ...M, fontSize: 10, color: C.dim, textAlign: 'center', marginBottom: 22 }}>
-            {diff} prisoners &middot; {diff/2} opens each &middot; {CONFIGS[diff].sub}
-          </div>
-
-          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 10, padding: '14px 18px', marginBottom: 20 }}>
-            <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.12em', marginBottom: 10 }}>THE RULES</div>
-            {[
-              diff + " prisoners numbered 1-" + diff,
-              diff + " boxes each hide one random slip",
-              "Each prisoner may open " + diff/2 + " boxes",
-              "ALL must find their own number — or everyone dies"
-            ].map((r, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: C.dim }}>
-                <span style={{ color: C.amber }}>&#9658;</span> {r}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <ModeBtn label="PLAY YOURSELF" sub="Open boxes manually — learn the strategy" color={C.amber} onClick={() => startGame('manual')} />
-            <ModeBtn label="SMART STRATEGY" sub="Follow the cycle algorithm — wins ~31%" color="#22c55e" onClick={() => startGame('smart')} />
-            <ModeBtn label="RANDOM STRATEGY" sub="Open at random — watch it almost always fail" color="#f43f5e" onClick={() => startGame('random')} />
-          </div>
-
-          {stats.total > 0 && (
-            <div style={{ ...M, fontSize: 10, color: C.dim, textAlign: 'center', marginTop: 16, letterSpacing: '0.08em' }}>
-              {stats.wins}/{stats.total} GAMES WON &middot; {Math.round(100 * stats.wins / stats.total)}% WIN RATE
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: 500,
+        background: C.bg,
+        color: C.text,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '32px 20px'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: 480,
+        width: '100%'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        color: C.dim,
+        letterSpacing: '0.3em',
+        textAlign: 'center',
+        marginBottom: 16
+      }
+    }, "PROBABILITY SIMULATION"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 52,
+        fontWeight: 900,
+        color: C.text,
+        lineHeight: 1
+      }
+    }, "100 "), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 52,
+        fontWeight: 900,
+        color: C.amber,
+        lineHeight: 1
+      }
+    }, "PRISONERS")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        color: C.dim,
+        fontSize: 12,
+        marginBottom: 28
+      }
+    }, "Based on the 2003 puzzle by Gal & Miltersen · Smart strategy wins ~31%"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        color: C.dim,
+        letterSpacing: '0.2em',
+        textAlign: 'center',
+        marginBottom: 10
+      }
+    }, "SELECT DIFFICULTY"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 10,
+        marginBottom: 6
+      }
+    }, [20, 50, 100].map(d => /*#__PURE__*/React.createElement(DiffTab, {
+      key: d,
+      d: d,
+      active: diff === d,
+      onClick: () => setDiff(d)
+    }))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 10,
+        color: C.dim,
+        textAlign: 'center',
+        marginBottom: 22
+      }
+    }, diff, " prisoners · ", diff / 2, " opens each · ", CONFIGS[diff].sub), /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: C.surface,
+        border: "1px solid " + C.border,
+        borderRadius: 10,
+        padding: '14px 18px',
+        marginBottom: 20
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        color: C.dim,
+        letterSpacing: '0.12em',
+        marginBottom: 10
+      }
+    }, "THE RULES"), [diff + " prisoners numbered 1-" + diff, diff + " boxes each hide one random slip", "Each prisoner may open " + diff / 2 + " boxes", "ALL must find their own number — or everyone dies"].map((r, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        display: 'flex',
+        gap: 8,
+        marginBottom: 6,
+        fontSize: 12,
+        color: C.dim
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.amber
+      }
+    }, "►"), " ", r))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement(ModeBtn, {
+      label: "PLAY YOURSELF",
+      sub: "Open boxes manually — learn the strategy",
+      color: C.amber,
+      onClick: () => startGame('manual')
+    }), /*#__PURE__*/React.createElement(ModeBtn, {
+      label: "SMART STRATEGY",
+      sub: "Follow the cycle algorithm — wins ~31%",
+      color: "#22c55e",
+      onClick: () => startGame('smart')
+    }), /*#__PURE__*/React.createElement(ModeBtn, {
+      label: "RANDOM STRATEGY",
+      sub: "Open at random — watch it almost always fail",
+      color: "#f43f5e",
+      onClick: () => startGame('random')
+    })), stats.total > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 10,
+        color: C.dim,
+        textAlign: 'center',
+        marginTop: 16,
+        letterSpacing: '0.08em'
+      }
+    }, stats.wins, "/", stats.total, " GAMES WON · ", Math.round(100 * stats.wins / stats.total), "% WIN RATE")));
   }
-
   if (screen === 'game') {
-    const { N, HALF, COLS, BOXH, MAXW, DOT, GAP } = cfg;
+    const {
+      N,
+      HALF,
+      COLS,
+      BOXH,
+      MAXW,
+      DOT,
+      GAP
+    } = cfg;
     const target = pIdx + 1;
     const won = results.filter(r => r === 'win').length;
-
-    return (
-      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '14px 16px', overflowY: 'auto' }}>
-        <div style={{ maxWidth: MAXW, width: '100%' }}>
-          <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.2em', textAlign: 'center', marginBottom: 10 }}>
-            {diff} PRISONERS &middot; {mode === 'manual' ? 'MANUAL' : mode === 'smart' ? 'SMART STRATEGY' : 'RANDOM'}
-          </div>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: GAP, marginBottom: 12, justifyContent: 'center' }}>
-            {results.map((r, i) => (
-              <div key={i} style={{
-                width: DOT, height: DOT, borderRadius: '50%', transition: 'all 0.25s',
-                background: r === 'win' ? C.green : r === 'lose' ? C.red : i === pIdx ? C.amber : C.border,
-                boxShadow: i === pIdx ? "0 0 7px " + C.amber : 'none',
-                flexShrink: 0,
-              }} />
-            ))}
-          </div>
-
-          <div style={{ background: C.surface, border: "1px solid " + C.borderBright, borderRadius: 10, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>PRISONER</div>
-              <div style={{ ...M, fontSize: 32, fontWeight: 900, color: C.amber, lineHeight: 1 }}>
-                #{String(target).padStart(diff === 100 ? 3 : 2, '0')}
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>SAFE</div>
-              <div style={{ ...M, fontSize: 20, fontWeight: 700, color: C.green }}>{won}/{N}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 1 }}>OPENS LEFT</div>
-              <div style={{ ...M, fontSize: 32, fontWeight: 900, lineHeight: 1, color: opensLeft <= Math.floor(HALF * 0.2) ? C.red : opensLeft <= Math.floor(HALF * 0.4) ? C.amber : C.text }}>
-                {opensLeft}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: "repeat(" + COLS + ", 1fr)", gap: 5, marginBottom: 12 }}>
-            {Array.from({ length: N }, (_, i) => {
-              const isOpen = opened.includes(i);
-              const slip = isOpen ? room[i] : null;
-              return (
-                <Box key={i} num={i + 1} slip={slip} isOpen={isOpen}
-                  flashType={flash && flash.boxIdx === i ? flash.outcome : null}
-                  isTarget={slip === target} boxH={BOXH}
-                  canClick={mode === 'manual' && !flashing}
-                  onClick={() => processOpen(i)} />
-              );
-            })}
-          </div>
-
-          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 8, padding: '9px 14px', fontSize: 11, color: C.dim, textAlign: 'center' }}>
-            {mode === 'manual' && opened.length === 0 && "Start at Box " + target + " — read the slip — open that box — repeat"}
-            {mode === 'manual' && opened.length > 0 && opened.length + " of " + HALF + " opens used"}
-            {mode === 'smart' && "Following cycle: Box " + target + " to slip to next box..."}
-            {mode === 'random' && "Opening at random..."}
-          </div>
-        </div>
-      </div>
-    );
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: 500,
+        background: C.bg,
+        color: C.text,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '14px 16px',
+        overflowY: 'auto'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: MAXW,
+        width: '100%'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        color: C.dim,
+        letterSpacing: '0.2em',
+        textAlign: 'center',
+        marginBottom: 10
+      }
+    }, diff, " PRISONERS · ", mode === 'manual' ? 'MANUAL' : mode === 'smart' ? 'SMART STRATEGY' : 'RANDOM'), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: GAP,
+        marginBottom: 12,
+        justifyContent: 'center'
+      }
+    }, results.map((r, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        width: DOT,
+        height: DOT,
+        borderRadius: '50%',
+        transition: 'all 0.25s',
+        background: r === 'win' ? C.green : r === 'lose' ? C.red : i === pIdx ? C.amber : C.border,
+        boxShadow: i === pIdx ? "0 0 7px " + C.amber : 'none',
+        flexShrink: 0
+      }
+    }))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: C.surface,
+        border: "1px solid " + C.borderBright,
+        borderRadius: 10,
+        padding: '10px 16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: C.dim,
+        letterSpacing: '0.1em',
+        marginBottom: 1
+      }
+    }, "PRISONER"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 32,
+        fontWeight: 900,
+        color: C.amber,
+        lineHeight: 1
+      }
+    }, "#", String(target).padStart(diff === 100 ? 3 : 2, '0'))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: C.dim,
+        letterSpacing: '0.1em',
+        marginBottom: 1
+      }
+    }, "SAFE"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 20,
+        fontWeight: 700,
+        color: C.green
+      }
+    }, won, "/", N)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'right'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: C.dim,
+        letterSpacing: '0.1em',
+        marginBottom: 1
+      }
+    }, "OPENS LEFT"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 32,
+        fontWeight: 900,
+        lineHeight: 1,
+        color: opensLeft <= Math.floor(HALF * 0.2) ? C.red : opensLeft <= Math.floor(HALF * 0.4) ? C.amber : C.text
+      }
+    }, opensLeft))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: "repeat(" + COLS + ", 1fr)",
+        gap: 5,
+        marginBottom: 12
+      }
+    }, Array.from({
+      length: N
+    }, (_, i) => {
+      const isOpen = opened.includes(i);
+      const slip = isOpen ? room[i] : null;
+      return /*#__PURE__*/React.createElement(Box, {
+        key: i,
+        num: i + 1,
+        slip: slip,
+        isOpen: isOpen,
+        flashType: flash && flash.boxIdx === i ? flash.outcome : null,
+        isTarget: slip === target,
+        boxH: BOXH,
+        canClick: mode === 'manual' && !flashing,
+        onClick: () => processOpen(i)
+      });
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: C.surface,
+        border: "1px solid " + C.border,
+        borderRadius: 8,
+        padding: '9px 14px',
+        fontSize: 11,
+        color: C.dim,
+        textAlign: 'center'
+      }
+    }, mode === 'manual' && opened.length === 0 && "Start at Box " + target + " — read the slip — open that box — repeat", mode === 'manual' && opened.length > 0 && opened.length + " of " + HALF + " opens used", mode === 'smart' && "Following cycle: Box " + target + " to slip to next box...", mode === 'random' && "Opening at random...")));
   }
-
   if (screen === 'end') {
-    const { N, HALF, MAXW } = cfg;
+    const {
+      N,
+      HALF,
+      MAXW
+    } = cfg;
     const sorted = [...cycles].sort((a, b) => b.length - a.length);
     const maxLen = sorted[0] ? sorted[0].length : 0;
-
-    return (
-      <div style={{ minHeight: 500, background: C.bg, color: C.text, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px', overflowY: 'auto' }}>
-        <div style={{ maxWidth: MAXW, width: '100%' }}>
-
-          <div style={{ textAlign: 'center', marginBottom: 22 }}>
-            <div style={{ ...M, fontSize: 9, letterSpacing: '0.3em', color: gameResult === 'win' ? C.green : C.red, marginBottom: 6 }}>
-              &#9658; {gameResult === 'win' ? 'MISSION COMPLETE' : 'MISSION FAILED'} &middot; {diff} PRISONERS
-            </div>
-            <div style={{ fontSize: 56, fontWeight: 900, lineHeight: 1, color: gameResult === 'win' ? C.green : C.red }}>
-              {gameResult === 'win' ? 'ESCAPED' : 'EXECUTED'}
-            </div>
-            <div style={{ color: C.dim, fontSize: 12, marginTop: 8 }}>
-              {gameResult === 'win'
-                ? "All " + N + " prisoners found their slip — ~31% probability"
-                : "Cycle of " + maxLen + " was fatal — limit was " + HALF}
-            </div>
-          </div>
-
-          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 10, padding: '12px', marginBottom: 14, display: 'flex', justifyContent: 'space-around' }}>
-            {[['GAMES', stats.total, C.text], ['WINS', stats.wins, C.green],
-              ['WIN RATE', (stats.total ? Math.round(100 * stats.wins / stats.total) : 0) + "%", C.amber]].map(([l, v, c]) => (
-              <div key={l} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 8, color: C.dim, letterSpacing: '0.1em', marginBottom: 2 }}>{l}</div>
-                <div style={{ ...M, fontSize: 26, fontWeight: 700, color: c }}>{v}</div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ background: C.surface, border: "1px solid " + C.border, borderRadius: 12, padding: '14px', marginBottom: 18 }}>
-            <div style={{ ...M, fontSize: 9, color: C.dim, letterSpacing: '0.15em', marginBottom: 14 }}>
-              PERMUTATION CYCLES &middot; {sorted.length} FOUND
-            </div>
-            {sorted.map((cyc, ci) => {
-              const col = CYCLE_CLRS[ci % CYCLE_CLRS.length];
-              const lethal = cyc.length > HALF;
-              const SHOW = 14;
-              const overflow = cyc.length > SHOW;
-              const shown = overflow ? cyc.slice(0, SHOW) : cyc;
-              return (
-                <div key={ci} style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-                    <span style={{ ...M, fontSize: 9, color: col, letterSpacing: '0.08em' }}>CYCLE {ci + 1}</span>
-                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4, color: lethal ? C.red : C.green, background: lethal ? C.red + "22" : C.green + "22", border: "1px solid " + (lethal ? C.red : C.green) + "44" }}>
-                      {cyc.length} {lethal ? 'LETHAL' : 'SAFE'}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
-                    {shown.map((b, bi) => (
-                      <span key={bi} style={{ ...M, fontSize: 10, fontWeight: 700, color: col, background: col + "1a", border: "1px solid " + col + "44", borderRadius: 4, padding: '2px 5px' }}>
-                        {b + 1}
-                      </span>
-                    ))}
-                    {overflow && <span style={{ ...M, fontSize: 10, color: C.dim }}>+{cyc.length - SHOW} more</span>}
-                    <span style={{ ...M, fontSize: 12, color: C.muted }}>&#8629;</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setScreen('menu')} style={{ flex: 1, background: 'transparent', border: "2px solid " + C.border, borderRadius: 10, padding: '13px', color: C.dim, ...M, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', cursor: 'pointer' }}>
-              &#9658; MENU
-            </button>
-            <button onClick={() => startGame(mode, diff)} style={{ flex: 2, background: C.amber + "14", border: "2px solid " + C.amber, borderRadius: 10, padding: '13px', color: C.amber, ...M, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', cursor: 'pointer' }}>
-              &#9658; PLAY AGAIN
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: 500,
+        background: C.bg,
+        color: C.text,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '24px 20px',
+        overflowY: 'auto'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: MAXW,
+        width: '100%'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        marginBottom: 22
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        letterSpacing: '0.3em',
+        color: gameResult === 'win' ? C.green : C.red,
+        marginBottom: 6
+      }
+    }, "► ", gameResult === 'win' ? 'MISSION COMPLETE' : 'MISSION FAILED', " · ", diff, " PRISONERS"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 56,
+        fontWeight: 900,
+        lineHeight: 1,
+        color: gameResult === 'win' ? C.green : C.red
+      }
+    }, gameResult === 'win' ? 'ESCAPED' : 'EXECUTED'), /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: C.dim,
+        fontSize: 12,
+        marginTop: 8
+      }
+    }, gameResult === 'win' ? "All " + N + " prisoners found their slip — ~31% probability" : "Cycle of " + maxLen + " was fatal — limit was " + HALF)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: C.surface,
+        border: "1px solid " + C.border,
+        borderRadius: 10,
+        padding: '12px',
+        marginBottom: 14,
+        display: 'flex',
+        justifyContent: 'space-around'
+      }
+    }, [['GAMES', stats.total, C.text], ['WINS', stats.wins, C.green], ['WIN RATE', (stats.total ? Math.round(100 * stats.wins / stats.total) : 0) + "%", C.amber]].map(([l, v, c]) => /*#__PURE__*/React.createElement("div", {
+      key: l,
+      style: {
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8,
+        color: C.dim,
+        letterSpacing: '0.1em',
+        marginBottom: 2
+      }
+    }, l), /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 26,
+        fontWeight: 700,
+        color: c
+      }
+    }, v)))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: C.surface,
+        border: "1px solid " + C.border,
+        borderRadius: 12,
+        padding: '14px',
+        marginBottom: 18
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        ...M,
+        fontSize: 9,
+        color: C.dim,
+        letterSpacing: '0.15em',
+        marginBottom: 14
+      }
+    }, "PERMUTATION CYCLES · ", sorted.length, " FOUND"), sorted.map((cyc, ci) => {
+      const col = CYCLE_CLRS[ci % CYCLE_CLRS.length];
+      const lethal = cyc.length > HALF;
+      const SHOW = 14;
+      const overflow = cyc.length > SHOW;
+      const shown = overflow ? cyc.slice(0, SHOW) : cyc;
+      return /*#__PURE__*/React.createElement("div", {
+        key: ci,
+        style: {
+          marginBottom: 12
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          marginBottom: 5
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          ...M,
+          fontSize: 9,
+          color: col,
+          letterSpacing: '0.08em'
+        }
+      }, "CYCLE ", ci + 1), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 9,
+          padding: '1px 6px',
+          borderRadius: 4,
+          color: lethal ? C.red : C.green,
+          background: lethal ? C.red + "22" : C.green + "22",
+          border: "1px solid " + (lethal ? C.red : C.green) + "44"
+        }
+      }, cyc.length, " ", lethal ? 'LETHAL' : 'SAFE')), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 3,
+          alignItems: 'center'
+        }
+      }, shown.map((b, bi) => /*#__PURE__*/React.createElement("span", {
+        key: bi,
+        style: {
+          ...M,
+          fontSize: 10,
+          fontWeight: 700,
+          color: col,
+          background: col + "1a",
+          border: "1px solid " + col + "44",
+          borderRadius: 4,
+          padding: '2px 5px'
+        }
+      }, b + 1)), overflow && /*#__PURE__*/React.createElement("span", {
+        style: {
+          ...M,
+          fontSize: 10,
+          color: C.dim
+        }
+      }, "+", cyc.length - SHOW, " more"), /*#__PURE__*/React.createElement("span", {
+        style: {
+          ...M,
+          fontSize: 12,
+          color: C.muted
+        }
+      }, "↵")));
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => setScreen('menu'),
+      style: {
+        flex: 1,
+        background: 'transparent',
+        border: "2px solid " + C.border,
+        borderRadius: 10,
+        padding: '13px',
+        color: C.dim,
+        ...M,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        cursor: 'pointer'
+      }
+    }, "► MENU"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => startGame(mode, diff),
+      style: {
+        flex: 2,
+        background: C.amber + "14",
+        border: "2px solid " + C.amber,
+        borderRadius: 10,
+        padding: '13px',
+        color: C.amber,
+        ...M,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        cursor: 'pointer'
+      }
+    }, "► PLAY AGAIN"))));
   }
 }
-
-ReactDOM.createRoot(document.getElementById('sim-root')).render(<App />);
-</script>
+ReactDOM.createRoot(document.getElementById('sim-root')).render(/*#__PURE__*/React.createElement(App, null));</script>
 
 <script>
 const reveals = document.querySelectorAll('.reveal');

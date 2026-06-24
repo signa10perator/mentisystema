@@ -31,7 +31,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js" crossorigin="anonymous"></script>
 <style>
 :root {
   --bg: #070b0f;
@@ -514,14 +513,14 @@ footer p { margin: 0; color: var(--muted); letter-spacing: 0.18em; text-transfor
   <p>MentiSystema -- Behavioral AI / Signal Intelligence / Adversarial Research</p>
 </footer>
 
-<script type="text/babel">
-/** @jsxRuntime classic */
-const { useState, useEffect, useRef } = React;
-
+<script>const {
+  useState,
+  useEffect,
+  useRef
+} = React;
 const TOTAL_TRIALS = 5;
 const SCOPE_HEIGHT = 200;
 const NOISE_LEN = 512;
-
 function makeNoise() {
   const arr = [];
   for (let i = 0; i < NOISE_LEN; i++) {
@@ -529,7 +528,6 @@ function makeNoise() {
   }
   return arr;
 }
-
 function buildWaveform(width, coherence, phase, noise) {
   const pts = [];
   const cy = SCOPE_HEIGHT / 2;
@@ -543,25 +541,30 @@ function buildWaveform(width, coherence, phase, noise) {
   }
   return pts;
 }
-
 function paintScope(canvas, pts, coherence) {
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
   ctx.clearRect(0, 0, w, h);
-
   ctx.strokeStyle = 'rgba(167,139,250,0.06)';
   ctx.lineWidth = 1;
   for (let i = 1; i < 8; i++) {
-    ctx.beginPath(); ctx.moveTo(w / 8 * i, 0); ctx.lineTo(w / 8 * i, h); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w / 8 * i, 0);
+    ctx.lineTo(w / 8 * i, h);
+    ctx.stroke();
   }
   for (let i = 1; i < 4; i++) {
-    ctx.beginPath(); ctx.moveTo(0, h / 4 * i); ctx.lineTo(w, h / 4 * i); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, h / 4 * i);
+    ctx.lineTo(w, h / 4 * i);
+    ctx.stroke();
   }
-
   ctx.strokeStyle = 'rgba(167,139,250,0.09)';
-  ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
-
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
   ctx.shadowColor = '#a78bfa';
   ctx.shadowBlur = 3 + coherence * 14;
   ctx.strokeStyle = 'rgba(167,139,250,' + (0.45 + coherence * 0.55) + ')';
@@ -569,25 +572,27 @@ function paintScope(canvas, pts, coherence) {
   ctx.beginPath();
   const step = w / pts.length;
   for (let x = 0; x < pts.length; x++) {
-    if (x === 0) ctx.moveTo(0, pts[x]);
-    else ctx.lineTo(x * step, pts[x]);
+    if (x === 0) ctx.moveTo(0, pts[x]);else ctx.lineTo(x * step, pts[x]);
   }
   ctx.stroke();
   ctx.shadowBlur = 0;
 }
-
 function ScopeInstrument() {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
-  const liveRef = useRef({ running: false, phase: 0, coherence: 0, rate: 0, noise: [] });
-
+  const liveRef = useRef({
+    running: false,
+    phase: 0,
+    coherence: 0,
+    rate: 0,
+    noise: []
+  });
   const [width, setWidth] = useState(800);
   const [isRunning, setIsRunning] = useState(false);
   const [trial, setTrial] = useState(0);
   const [results, setResults] = useState([]);
   const [done, setDone] = useState(false);
   const [status, setStatus] = useState('AWAITING CALIBRATION');
-
   useEffect(() => {
     function measure() {
       if (canvasRef.current) {
@@ -599,7 +604,6 @@ function ScopeInstrument() {
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
   }, []);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -621,19 +625,17 @@ function ScopeInstrument() {
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
-
   function startTrial() {
     liveRef.current = {
       running: true,
       phase: Math.random() * Math.PI * 2,
       coherence: 0,
       rate: 0.035 + Math.random() * 0.065,
-      noise: makeNoise(),
+      noise: makeNoise()
     };
     setIsRunning(true);
     setStatus('SCANNING...');
   }
-
   function handleDetect() {
     const c = liveRef.current.coherence;
     liveRef.current.running = false;
@@ -645,13 +647,14 @@ function ScopeInstrument() {
       setDone(true);
       setStatus('CALIBRATION COMPLETE');
       const a = Math.round(next.reduce((x, y) => x + y, 0) / next.length);
-      try { localStorage.setItem('pareidolia_baseline_avg', String(a)); } catch(e) {}
+      try {
+        localStorage.setItem('pareidolia_baseline_avg', String(a));
+      } catch (e) {}
     } else {
       setTrial(t => t + 1);
       setStatus('THRESHOLD LOGGED -- READY');
     }
   }
-
   function handleReset() {
     liveRef.current.running = false;
     setIsRunning(false);
@@ -660,142 +663,215 @@ function ScopeInstrument() {
     setDone(false);
     setStatus('AWAITING CALIBRATION');
   }
-
-  const avg = results.length > 0
-    ? Math.round(results.reduce((a, b) => a + b, 0) / results.length)
-    : null;
-
-  const variance = results.length > 1
-    ? Math.round(Math.sqrt(results.reduce((a, v) => a + Math.pow(v - avg, 2), 0) / results.length))
-    : null;
-
+  const avg = results.length > 0 ? Math.round(results.reduce((a, b) => a + b, 0) / results.length) : null;
+  const variance = results.length > 1 ? Math.round(Math.sqrt(results.reduce((a, v) => a + Math.pow(v - avg, 2), 0) / results.length)) : null;
   function profileText(a) {
     if (a <= 28) return 'LOW THRESHOLD -- You commit early. High susceptibility to coherence injection under prior installation. A primed context would move this lower still.';
     if (a <= 52) return 'MODERATE THRESHOLD -- Within the primary attack band. Coherence at this level is hardest to consciously detect. The pattern feels found, not planted.';
     if (a <= 72) return 'ELEVATED THRESHOLD -- You resist early commitment. Effective attack requires stronger prior installation or increased cognitive load to shift criterion.';
     return 'HIGH THRESHOLD -- Robust against standard coherence injection. Attack requires domain-specific signal design or significant prior loading to achieve commitment.';
   }
-
   const wrapStyle = {
     border: '1px solid rgba(167,139,250,0.18)',
     background: 'rgba(167,139,250,0.02)',
-    padding: '40px',
+    padding: '40px'
   };
   const monoSm = {
     fontFamily: "'Space Mono', monospace",
     fontSize: '9px',
     letterSpacing: '0.18em',
     textTransform: 'uppercase',
-    color: '#4a5568',
+    color: '#4a5568'
   };
-
-  return (
-    <div style={wrapStyle}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.15rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            PAREIDOLIA / <span style={{ color: '#a78bfa' }}>Signal Instrument</span>
-          </div>
-          <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
-            {Array.from({ length: TOTAL_TRIALS }).map((_, i) => {
-              const isComplete = i < results.length;
-              const isCurrent = i === results.length && isRunning;
-              return (
-                <div key={i} style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  border: '1px solid ' + (isComplete ? '#a78bfa' : isCurrent ? '#a78bfa' : 'rgba(167,139,250,0.25)'),
-                  background: isComplete ? '#a78bfa' : 'transparent',
-                  boxShadow: isCurrent ? '0 0 0 3px rgba(167,139,250,0.15)' : 'none',
-                }} />
-              );
-            })}
-          </div>
-        </div>
-        <div style={{ ...monoSm, textAlign: 'right', lineHeight: 1.9 }}>
-          <div>TRIAL {Math.min(results.length + 1, TOTAL_TRIALS)} / {TOTAL_TRIALS}</div>
-          <div>COHERENCE INJECTION -- RANDOMIZED RATE</div>
-        </div>
-      </div>
-
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={SCOPE_HEIGHT}
-        style={{ display: 'block', width: '100%', background: '#020509', border: '1px solid rgba(167,139,250,0.12)' }}
-      />
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px', flexWrap: 'wrap', gap: '14px' }}>
-        <div style={{ ...monoSm, color: isRunning ? '#a78bfa' : '#4a5568', fontSize: '10px' }}>{status}</div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {!done && !isRunning && (
-            <button onClick={startTrial} style={{
-              padding: '12px 28px', border: '1px solid rgba(167,139,250,0.4)',
-              background: 'rgba(167,139,250,0.06)', color: '#a78bfa',
-              fontFamily: "'Space Mono', monospace", fontSize: '10px',
-              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
-            }}>
-              {results.length === 0 ? 'BEGIN CALIBRATION' : 'NEXT TRIAL'}
-            </button>
-          )}
-          {isRunning && (
-            <button onClick={handleDetect} style={{
-              padding: '12px 28px', border: '1px solid rgba(167,139,250,0.5)',
-              background: 'rgba(167,139,250,0.1)', color: '#a78bfa',
-              fontFamily: "'Space Mono', monospace", fontSize: '10px',
-              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
-            }}>
-              PATTERN DETECTED
-            </button>
-          )}
-          {results.length > 0 && (
-            <button onClick={handleReset} style={{
-              padding: '12px 28px', border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent', color: '#a8b3c2',
-              fontFamily: "'Space Mono', monospace", fontSize: '10px',
-              letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer',
-            }}>
-              RESET
-            </button>
-          )}
-        </div>
-      </div>
-
-      {results.length > 0 && (
-        <div style={{ marginTop: '28px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '24px' }}>
-          <div style={monoSm}>Threshold Distribution</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.08)', marginTop: '16px' }}>
-            {[
-              { label: 'Avg Threshold', value: avg !== null ? avg + '%' : '---', sub: 'Coherence at commitment' },
-              { label: 'Std Deviation', value: variance !== null ? variance + '%' : '---', sub: 'Spread across trials' },
-              { label: 'Readings', value: results.length + '/' + TOTAL_TRIALS, sub: results.map(r => r + '%').join('  ') },
-            ].map((c, i) => (
-              <div key={i} style={{ background: '#070b0f', padding: '20px' }}>
-                <div style={{ ...monoSm, marginBottom: '8px' }}>{c.label}</div>
-                <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '2rem', fontWeight: 700, color: '#a78bfa', lineHeight: 1 }}>{c.value}</div>
-                <div style={{ fontSize: '11px', color: '#a8b3c2', marginTop: '6px', letterSpacing: '0.02em' }}>{c.sub}</div>
-              </div>
-            ))}
-          </div>
-          {done && avg !== null && (
-            <div style={{
-              marginTop: '20px', padding: '16px 20px',
-              border: '1px solid rgba(167,139,250,0.14)',
-              background: 'rgba(167,139,250,0.03)',
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '11px', lineHeight: 1.75, color: '#a8b3c2',
-              letterSpacing: '0.03em',
-            }}>
-              {profileText(avg)}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  return /*#__PURE__*/React.createElement("div", {
+    style: wrapStyle
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: '24px',
+      flexWrap: 'wrap',
+      gap: '16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Rajdhani', sans-serif",
+      fontSize: '1.15rem',
+      fontWeight: 700,
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase'
+    }
+  }, "PAREIDOLIA / ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#a78bfa'
+    }
+  }, "Signal Instrument")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: '6px',
+      marginTop: '10px'
+    }
+  }, Array.from({
+    length: TOTAL_TRIALS
+  }).map((_, i) => {
+    const isComplete = i < results.length;
+    const isCurrent = i === results.length && isRunning;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        border: '1px solid ' + (isComplete ? '#a78bfa' : isCurrent ? '#a78bfa' : 'rgba(167,139,250,0.25)'),
+        background: isComplete ? '#a78bfa' : 'transparent',
+        boxShadow: isCurrent ? '0 0 0 3px rgba(167,139,250,0.15)' : 'none'
+      }
+    });
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...monoSm,
+      textAlign: 'right',
+      lineHeight: 1.9
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "TRIAL ", Math.min(results.length + 1, TOTAL_TRIALS), " / ", TOTAL_TRIALS), /*#__PURE__*/React.createElement("div", null, "COHERENCE INJECTION -- RANDOMIZED RATE"))), /*#__PURE__*/React.createElement("canvas", {
+    ref: canvasRef,
+    width: width,
+    height: SCOPE_HEIGHT,
+    style: {
+      display: 'block',
+      width: '100%',
+      background: '#020509',
+      border: '1px solid rgba(167,139,250,0.12)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: '20px',
+      flexWrap: 'wrap',
+      gap: '14px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...monoSm,
+      color: isRunning ? '#a78bfa' : '#4a5568',
+      fontSize: '10px'
+    }
+  }, status), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: '10px'
+    }
+  }, !done && !isRunning && /*#__PURE__*/React.createElement("button", {
+    onClick: startTrial,
+    style: {
+      padding: '12px 28px',
+      border: '1px solid rgba(167,139,250,0.4)',
+      background: 'rgba(167,139,250,0.06)',
+      color: '#a78bfa',
+      fontFamily: "'Space Mono', monospace",
+      fontSize: '10px',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      cursor: 'pointer'
+    }
+  }, results.length === 0 ? 'BEGIN CALIBRATION' : 'NEXT TRIAL'), isRunning && /*#__PURE__*/React.createElement("button", {
+    onClick: handleDetect,
+    style: {
+      padding: '12px 28px',
+      border: '1px solid rgba(167,139,250,0.5)',
+      background: 'rgba(167,139,250,0.1)',
+      color: '#a78bfa',
+      fontFamily: "'Space Mono', monospace",
+      fontSize: '10px',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      cursor: 'pointer'
+    }
+  }, "PATTERN DETECTED"), results.length > 0 && /*#__PURE__*/React.createElement("button", {
+    onClick: handleReset,
+    style: {
+      padding: '12px 28px',
+      border: '1px solid rgba(255,255,255,0.1)',
+      background: 'transparent',
+      color: '#a8b3c2',
+      fontFamily: "'Space Mono', monospace",
+      fontSize: '10px',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      cursor: 'pointer'
+    }
+  }, "RESET"))), results.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '28px',
+      borderTop: '1px solid rgba(255,255,255,0.08)',
+      paddingTop: '24px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: monoSm
+  }, "Threshold Distribution"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '1px',
+      background: 'rgba(255,255,255,0.08)',
+      marginTop: '16px'
+    }
+  }, [{
+    label: 'Avg Threshold',
+    value: avg !== null ? avg + '%' : '---',
+    sub: 'Coherence at commitment'
+  }, {
+    label: 'Std Deviation',
+    value: variance !== null ? variance + '%' : '---',
+    sub: 'Spread across trials'
+  }, {
+    label: 'Readings',
+    value: results.length + '/' + TOTAL_TRIALS,
+    sub: results.map(r => r + '%').join('  ')
+  }].map((c, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: '#070b0f',
+      padding: '20px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...monoSm,
+      marginBottom: '8px'
+    }
+  }, c.label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Rajdhani', sans-serif",
+      fontSize: '2rem',
+      fontWeight: 700,
+      color: '#a78bfa',
+      lineHeight: 1
+    }
+  }, c.value), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: '#a8b3c2',
+      marginTop: '6px',
+      letterSpacing: '0.02em'
+    }
+  }, c.sub)))), done && avg !== null && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '20px',
+      padding: '16px 20px',
+      border: '1px solid rgba(167,139,250,0.14)',
+      background: 'rgba(167,139,250,0.03)',
+      fontFamily: "'Space Mono', monospace",
+      fontSize: '11px',
+      lineHeight: 1.75,
+      color: '#a8b3c2',
+      letterSpacing: '0.03em'
+    }
+  }, profileText(avg))));
 }
-
 const root = ReactDOM.createRoot(document.getElementById('scope-root'));
-root.render(<ScopeInstrument />);
-</script>
+root.render(/*#__PURE__*/React.createElement(ScopeInstrument, null));</script>
 </body>
 </html>

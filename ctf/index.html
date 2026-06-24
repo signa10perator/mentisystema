@@ -18,8 +18,7 @@
   <title>CTRL-RUPTURE</title>
   <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.21.4/babel.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000000; color: #000000; font-family: 'Courier New', monospace; overflow: hidden; }
@@ -74,177 +73,304 @@
 </head>
 <body>
   <div id="root"></div>
-  <script type="text/babel">
-/** @jsxRuntime classic */
-    const { useState, useEffect } = React;
-    function CTFLanding() {
-      const [code, setCode] = useState('');
-      const [accessed, setAccessed] = useState(false);
-      const [error, setError] = useState('');
-      const [mounted, setMounted] = useState(false);
-      useEffect(() => { setMounted(true); }, []);
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        if (code.toUpperCase().trim() === 'CTRL-RUPTURE') {
-          setError('');
-          setAccessed(true);
-        } else {
-          setError('ACCESS DENIED');
-          setCode('');
-        }
-      };
-      if (accessed) return <TerminalView />;
-      return (
-        <div className="ctf-container">
-          <div className="diagonal diagonal-top"></div>
-          <div className="diagonal diagonal-bottom"></div>
-          <nav className="nav-top">
-            <a href="https://mentisystema.org" className="home-link">HOME</a>
-          </nav>
-          <div className={`content ${mounted ? 'fade-in' : ''}`}>
-            <div className="logo-area">
-              <img src="./red_logo.png" alt="MentiSystema Logo" className="logo-image" />
-            </div>
-            <h1 className="title">MENTISYSTEMA</h1>
-            <p className="subtitle">SIGNAL RECEIVED</p>
-            <form onSubmit={handleSubmit} className="access-form">
-              <div className="form-group">
-                <input type="text" value={code} onChange={(e) => { setCode(e.target.value); setError(''); }} placeholder="ENTER ACCESS CODE" className="code-input" autoComplete="off" spellCheck="false" />
-                <div className="input-underline"></div>
-              </div>
-              {error && (<div className="error-message"><span className="error-dot">●</span> {error}</div>)}
-              <button type="submit" className="access-button">ACCESS TERMINAL</button>
-            </form>
-          </div>
-        </div>
-      );
+  <script>const {
+  useState,
+  useEffect
+} = React;
+function CTFLanding() {
+  const [code, setCode] = useState('');
+  const [accessed, setAccessed] = useState(false);
+  const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (code.toUpperCase().trim() === 'CTRL-RUPTURE') {
+      setError('');
+      setAccessed(true);
+    } else {
+      setError('ACCESS DENIED');
+      setCode('');
     }
-    function TerminalView() {
-      const [lines, setLines] = useState([]);
-      const [input, setInput] = useState('');
-      const [flagRevealed, setFlagRevealed] = useState(false);
-      const [leaderboard, setLeaderboard] = useState([]);
-      const CONTACT_INFO = { name: 'Anthony Fornof', email: 'signa10perator@mentisystema.org' };
-      useEffect(() => {
-        const terminalLines = [
-          { type: 'system', text: '> CTRL-RUPTURE SYSTEM INITIALIZED' },
-          { type: 'system', text: '> SIGNAL ACQUISITION: COMPLETE' },
-          { type: 'system', text: '> ACCESS LEVEL: VERIFIED' },
-          { type: 'system', text: '' },
-          { type: 'prompt', text: '> AWAITING COMMAND...' },
-        ];
-        setLines(terminalLines);
-        const saved = localStorage.getItem('ctf_leaderboard');
-        if (saved) { try { setLeaderboard(JSON.parse(saved)); } catch(e) {} }
-      }, []);
-        const downloadCertificate = (handle) => {
-          if (!handle.trim()) return;
-
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 900;
-    const ctx = canvas.getContext('2d');
-    
-    ctx.drawImage(img, 0, 0, 1200, 900);
-    
-    ctx.font = 'bold 28px Arial';
-    ctx.fillStyle = '#000000';
-    ctx.textAlign = 'center';
-    ctx.fillText(handle.toUpperCase(), 600, 730);
-    
-    ctx.font = '20px Courier New';
-    ctx.fillStyle = '#000000';
-    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    ctx.fillText(dateStr, 600, 760);
-    
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = `CTRL-RUPTURE_${handle.toUpperCase()}_${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
   };
-  img.src = './flag-template.png';
-
-  const timestamp = new Date().toLocaleString();
-  const updatedLeaderboard = [...leaderboard, { handle, timestamp }];
-  setLeaderboard(updatedLeaderboard);
-  localStorage.setItem('ctf_leaderboard', JSON.stringify(updatedLeaderboard));
-
-  const newLines = [...lines];
-  newLines.pop();
-  newLines.push({ type: 'response', text: `CERTIFICATE DOWNLOADED: CTRL-RUPTURE_${handle.toUpperCase()}.png` });
-  newLines.push({ type: 'system', text: '' });
-  newLines.push({ type: 'response', text: '=== LEADERBOARD ===' });
-  updatedLeaderboard.forEach((entry, idx) => {
-    newLines.push({ type: 'response', text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}` });
-  });
-  newLines.push({ type: 'prompt', text: '> ' });
-  setLines(newLines);
-  setFlagRevealed(false);
-};
-      const handleCommand = (e) => {
-        if (e.key === 'Enter' && input.trim()) {
-          const newLines = [...lines];
-          newLines.pop();
-          newLines.push({ type: 'input', text: `> ${input}` });
-          const command = input.toLowerCase().trim();
-          if (command === 'flag' || command === 'get-contact') {
-            setFlagRevealed(true);
-            newLines.push({ type: 'response', text: '' });
-            newLines.push({ type: 'response', text: 'SIGNAL DECODED:' });
-            newLines.push({ type: 'response', text: `NAME: ${CONTACT_INFO.name}` });
-            newLines.push({ type: 'response', text: `EMAIL: ${CONTACT_INFO.email}` });
-            newLines.push({ type: 'system', text: '' });
-            newLines.push({ type: 'response', text: 'ENTER HANDLE TO CAPTURE FLAG:' });
-            newLines.push({ type: 'prompt', text: '> HANDLE: ' });
-          } else if (command === 'help') {
-            newLines.push({ type: 'response', text: 'AVAILABLE COMMANDS:' });
-            newLines.push({ type: 'response', text: '  FLAG          - RETRIEVE CONTACT INFORMATION' });
-            newLines.push({ type: 'response', text: '  LEADERBOARD   - VIEW CAPTURED FLAGS' });
-            newLines.push({ type: 'response', text: '  EXIT          - CLOSE CONNECTION' });
-            newLines.push({ type: 'prompt', text: '> ' });
-          } else if (command === 'leaderboard') {
-            if (leaderboard.length === 0) {
-              newLines.push({ type: 'response', text: 'NO FLAGS CAPTURED YET' });
-            } else {
-              newLines.push({ type: 'response', text: '=== LEADERBOARD ===' });
-              leaderboard.forEach((entry, idx) => {
-                newLines.push({ type: 'response', text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}` });
-              });
-            }
-            newLines.push({ type: 'prompt', text: '> ' });
-          } else if (command === 'exit' || command === 'quit') {
-            window.location.href = 'https://mentisystema.org';
-            return;
-          } else if (flagRevealed && input.trim()) {
-            downloadCertificate(input.trim());
-            return;
-          } else {
-            newLines.push({ type: 'response', text: 'COMMAND NOT RECOGNIZED. TYPE "HELP" FOR OPTIONS.' });
-            newLines.push({ type: 'prompt', text: '> ' });
-          }
-          setLines(newLines);
-          setInput('');
-        }
-      };
-      return (
-        <div className="terminal-container">
-          <div className="terminal-header">
-            <span className="terminal-title">CTRL-RUPTURE</span>
-            <a href="https://mentisystema.org" className="terminal-close">CLOSE</a>
-          </div>
-          <div className="terminal-content">
-            {lines.map((line, i) => (<div key={i} className={`terminal-line ${line.type}`}>{line.text}</div>))}
-            {lines.length > 0 && (<div className="terminal-input-line"><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} autoFocus spellCheck="false" /></div>)}
-          </div>
-        </div>
-      );
+  if (accessed) return /*#__PURE__*/React.createElement(TerminalView, null);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "ctf-container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "diagonal diagonal-top"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "diagonal diagonal-bottom"
+  }), /*#__PURE__*/React.createElement("nav", {
+    className: "nav-top"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://mentisystema.org",
+    className: "home-link"
+  }, "HOME")), /*#__PURE__*/React.createElement("div", {
+    className: `content ${mounted ? 'fade-in' : ''}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo-area"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "./red_logo.png",
+    alt: "MentiSystema Logo",
+    className: "logo-image"
+  })), /*#__PURE__*/React.createElement("h1", {
+    className: "title"
+  }, "MENTISYSTEMA"), /*#__PURE__*/React.createElement("p", {
+    className: "subtitle"
+  }, "SIGNAL RECEIVED"), /*#__PURE__*/React.createElement("form", {
+    onSubmit: handleSubmit,
+    className: "access-form"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: code,
+    onChange: e => {
+      setCode(e.target.value);
+      setError('');
+    },
+    placeholder: "ENTER ACCESS CODE",
+    className: "code-input",
+    autoComplete: "off",
+    spellCheck: "false"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "input-underline"
+  })), error && /*#__PURE__*/React.createElement("div", {
+    className: "error-message"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "error-dot"
+  }, "●"), " ", error), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "access-button"
+  }, "ACCESS TERMINAL"))));
+}
+function TerminalView() {
+  const [lines, setLines] = useState([]);
+  const [input, setInput] = useState('');
+  const [flagRevealed, setFlagRevealed] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const CONTACT_INFO = {
+    name: 'Anthony Fornof',
+    email: 'signa10perator@mentisystema.org'
+  };
+  useEffect(() => {
+    const terminalLines = [{
+      type: 'system',
+      text: '> CTRL-RUPTURE SYSTEM INITIALIZED'
+    }, {
+      type: 'system',
+      text: '> SIGNAL ACQUISITION: COMPLETE'
+    }, {
+      type: 'system',
+      text: '> ACCESS LEVEL: VERIFIED'
+    }, {
+      type: 'system',
+      text: ''
+    }, {
+      type: 'prompt',
+      text: '> AWAITING COMMAND...'
+    }];
+    setLines(terminalLines);
+    const saved = localStorage.getItem('ctf_leaderboard');
+    if (saved) {
+      try {
+        setLeaderboard(JSON.parse(saved));
+      } catch (e) {}
     }
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<CTFLanding />);
-  </script>
+  }, []);
+  const downloadCertificate = handle => {
+    if (!handle.trim()) return;
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 900;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, 1200, 900);
+      ctx.font = 'bold 28px Arial';
+      ctx.fillStyle = '#000000';
+      ctx.textAlign = 'center';
+      ctx.fillText(handle.toUpperCase(), 600, 730);
+      ctx.font = '20px Courier New';
+      ctx.fillStyle = '#000000';
+      const dateStr = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      ctx.fillText(dateStr, 600, 760);
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `CTRL-RUPTURE_${handle.toUpperCase()}_${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    };
+    img.src = './flag-template.png';
+    const timestamp = new Date().toLocaleString();
+    const updatedLeaderboard = [...leaderboard, {
+      handle,
+      timestamp
+    }];
+    setLeaderboard(updatedLeaderboard);
+    localStorage.setItem('ctf_leaderboard', JSON.stringify(updatedLeaderboard));
+    const newLines = [...lines];
+    newLines.pop();
+    newLines.push({
+      type: 'response',
+      text: `CERTIFICATE DOWNLOADED: CTRL-RUPTURE_${handle.toUpperCase()}.png`
+    });
+    newLines.push({
+      type: 'system',
+      text: ''
+    });
+    newLines.push({
+      type: 'response',
+      text: '=== LEADERBOARD ==='
+    });
+    updatedLeaderboard.forEach((entry, idx) => {
+      newLines.push({
+        type: 'response',
+        text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}`
+      });
+    });
+    newLines.push({
+      type: 'prompt',
+      text: '> '
+    });
+    setLines(newLines);
+    setFlagRevealed(false);
+  };
+  const handleCommand = e => {
+    if (e.key === 'Enter' && input.trim()) {
+      const newLines = [...lines];
+      newLines.pop();
+      newLines.push({
+        type: 'input',
+        text: `> ${input}`
+      });
+      const command = input.toLowerCase().trim();
+      if (command === 'flag' || command === 'get-contact') {
+        setFlagRevealed(true);
+        newLines.push({
+          type: 'response',
+          text: ''
+        });
+        newLines.push({
+          type: 'response',
+          text: 'SIGNAL DECODED:'
+        });
+        newLines.push({
+          type: 'response',
+          text: `NAME: ${CONTACT_INFO.name}`
+        });
+        newLines.push({
+          type: 'response',
+          text: `EMAIL: ${CONTACT_INFO.email}`
+        });
+        newLines.push({
+          type: 'system',
+          text: ''
+        });
+        newLines.push({
+          type: 'response',
+          text: 'ENTER HANDLE TO CAPTURE FLAG:'
+        });
+        newLines.push({
+          type: 'prompt',
+          text: '> HANDLE: '
+        });
+      } else if (command === 'help') {
+        newLines.push({
+          type: 'response',
+          text: 'AVAILABLE COMMANDS:'
+        });
+        newLines.push({
+          type: 'response',
+          text: '  FLAG          - RETRIEVE CONTACT INFORMATION'
+        });
+        newLines.push({
+          type: 'response',
+          text: '  LEADERBOARD   - VIEW CAPTURED FLAGS'
+        });
+        newLines.push({
+          type: 'response',
+          text: '  EXIT          - CLOSE CONNECTION'
+        });
+        newLines.push({
+          type: 'prompt',
+          text: '> '
+        });
+      } else if (command === 'leaderboard') {
+        if (leaderboard.length === 0) {
+          newLines.push({
+            type: 'response',
+            text: 'NO FLAGS CAPTURED YET'
+          });
+        } else {
+          newLines.push({
+            type: 'response',
+            text: '=== LEADERBOARD ==='
+          });
+          leaderboard.forEach((entry, idx) => {
+            newLines.push({
+              type: 'response',
+              text: `${idx + 1}. ${entry.handle.toUpperCase()} - ${entry.timestamp}`
+            });
+          });
+        }
+        newLines.push({
+          type: 'prompt',
+          text: '> '
+        });
+      } else if (command === 'exit' || command === 'quit') {
+        window.location.href = 'https://mentisystema.org';
+        return;
+      } else if (flagRevealed && input.trim()) {
+        downloadCertificate(input.trim());
+        return;
+      } else {
+        newLines.push({
+          type: 'response',
+          text: 'COMMAND NOT RECOGNIZED. TYPE "HELP" FOR OPTIONS.'
+        });
+        newLines.push({
+          type: 'prompt',
+          text: '> '
+        });
+      }
+      setLines(newLines);
+      setInput('');
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "terminal-container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "terminal-header"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "terminal-title"
+  }, "CTRL-RUPTURE"), /*#__PURE__*/React.createElement("a", {
+    href: "https://mentisystema.org",
+    className: "terminal-close"
+  }, "CLOSE")), /*#__PURE__*/React.createElement("div", {
+    className: "terminal-content"
+  }, lines.map((line, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `terminal-line ${line.type}`
+  }, line.text)), lines.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "terminal-input-line"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: input,
+    onChange: e => setInput(e.target.value),
+    onKeyDown: handleCommand,
+    autoFocus: true,
+    spellCheck: "false"
+  }))));
+}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(/*#__PURE__*/React.createElement(CTFLanding, null));</script>
 </body>
 </html>
