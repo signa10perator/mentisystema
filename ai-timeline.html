@@ -258,12 +258,47 @@ function typeColor(t) {
   return TYPE_COLORS[t.split("/")[0].trim()] || "#94a3b8";
 }
 const TIMELINE = [{
+  year: 1943,
+  era: "origin",
+  label: "McCulloch and Pitts - A Logical Calculus of Ideas Immanent in Nervous Activity",
+  type: "Paper",
+  description: "Proposed the first formal model of a neuron as a binary threshold unit, showing that networks of such units could compute any logical function. Laid the mathematical groundwork for every connectionist architecture that followed, from the Perceptron to backpropagation.",
+  tags: ["neural", "theory"]
+}, {
+  year: 1950,
+  era: "origin",
+  label: "Alan Turing - Computing Machinery and Intelligence",
+  type: "Paper",
+  description: "Reframed \"can machines think?\" as an operational question via the Imitation Game. Proposed that machine intelligence should be judged by behavior rather than internal mechanism, a stance that still underlies most AI evaluation today.",
+  tags: ["theory", "philosophy"]
+}, {
   year: 1956,
   era: "origin",
   label: "Dartmouth Workshop",
   type: "Report",
   description: "Birth of Artificial Intelligence. The founding moment where the field was named and its ambitions declared.",
   tags: ["founding", "symbolic"]
+}, {
+  year: 1956,
+  era: "origin",
+  label: "Newell and Simon - Logic Theorist",
+  type: "System",
+  description: "Presented at the Dartmouth Workshop, proved 38 of the first 52 theorems in Principia Mathematica using heuristic search rather than brute force. Often cited as the first working AI program.",
+  tags: ["reasoning", "system"]
+}, {
+  year: 1958,
+  era: "origin",
+  label: "Frank Rosenblatt - The Perceptron",
+  type: "Paper/System",
+  description: "Introduced a trainable single-layer neural network capable of learning linear classifications from data. Sparked early optimism about machine learning, later curbed by Minsky and Papert's 1969 critique of its limits.",
+  tags: ["neural", "learning"]
+}, {
+  year: 1958,
+  era: "origin",
+  label: "John McCarthy - LISP",
+  type: "System",
+  description: "Designed as a language for AI research built around symbolic list processing and recursion. Became the dominant implementation language for symbolic AI systems through the 1980s.",
+  tags: ["symbolic", "language"]
 }, {
   year: 1965,
   era: "origin",
@@ -337,6 +372,13 @@ const TIMELINE = [{
 }, {
   year: 1972,
   era: "origin",
+  label: "Alain Colmerauer - Prolog",
+  type: "System",
+  description: "Introduced logic programming, where programs are expressed as facts and rules and execution is automated theorem proving. Became the primary language of European AI research and expert systems built on formal logic.",
+  tags: ["logic", "language"]
+}, {
+  year: 1972,
+  era: "origin",
   label: "Hubert Dreyfus - What Computers Cannot Do",
   type: "Book",
   description: "Philosophical critique of symbolic AI. Argued machines lack embodied understanding. Proved prescient decades later.",
@@ -350,6 +392,13 @@ const TIMELINE = [{
   tags: ["policy", "critique"],
   milestone: true,
   milestoneLabel: "START OF FIRST AI WINTER"
+}, {
+  year: 1974,
+  era: "collapse",
+  label: "Marvin Minsky - A Framework for Representing Knowledge",
+  type: "Paper",
+  description: "Proposed \"frames,\" structured data templates for representing stereotyped situations and default expectations. Offered an alternative to pure semantic networks and influenced later object-oriented and schema-based knowledge representation.",
+  tags: ["knowledge", "representation"]
 }, {
   year: 1975,
   era: "collapse",
@@ -420,12 +469,26 @@ const TIMELINE = [{
   milestone: true,
   milestoneLabel: "START OF SECOND AI WINTER"
 }, {
+  year: 1988,
+  era: "learning",
+  label: "Judea Pearl - Probabilistic Reasoning in Intelligent Systems",
+  type: "Book/Paper",
+  description: "Formalized Bayesian networks as a framework for reasoning under uncertainty, replacing brittle rule-based logic with graphical probability models. Shifted a major branch of AI research from symbolic certainty to probabilistic inference.",
+  tags: ["probabilistic", "reasoning"]
+}, {
   year: 1989,
   era: "learning",
   label: "Lawrence Rabiner - Hidden Markov Models",
   type: "Paper",
   description: "Comprehensive tutorial on HMMs for speech recognition. Statistical methods begin displacing symbolic AI in NLP.",
   tags: ["statistical", "speech"]
+}, {
+  year: 1992,
+  era: "learning",
+  label: "Gerald Tesauro - TD-Gammon",
+  type: "System",
+  description: "Used temporal-difference learning and self-play to reach near-expert backgammon play without hand-coded strategy. Early proof that reinforcement learning could discover novel strategies through iterated self-competition, a direct ancestor of AlphaGo.",
+  tags: ["reinforcement learning", "game"]
 }, {
   year: 1993,
   era: "learning",
@@ -449,6 +512,13 @@ const TIMELINE = [{
   type: "System/Event",
   description: "First computer to defeat a reigning world chess champion. Symbolic milestone for AI in adversarial reasoning.",
   tags: ["game", "milestone"]
+}, {
+  year: 1997,
+  era: "learning",
+  label: "Hochreiter and Schmidhuber - Long Short-Term Memory",
+  type: "Paper",
+  description: "Introduced gated memory cells to solve the vanishing gradient problem in recurrent networks, enabling learning over long sequences. Became the dominant architecture for sequence modeling for two decades, the direct predecessor the Transformer was built to replace.",
+  tags: ["neural", "sequence"]
 }, {
   year: 1998,
   era: "learning",
@@ -501,6 +571,20 @@ const TIMELINE = [{
   milestone: true,
   milestoneLabel: "THE BREAKTHROUGH"
 }, {
+  year: 2013,
+  era: "breakthrough",
+  label: "Mikolov et al. - Word2Vec",
+  type: "Paper/System",
+  description: "Showed that words could be mapped to dense vector embeddings capturing semantic relationships through simple linear algebra. Bridged symbolic NLP and the embedding-based representations underlying every modern language model.",
+  tags: ["nlp", "embeddings"]
+}, {
+  year: 2013,
+  era: "breakthrough",
+  label: "Mnih et al. - Deep Q-Networks",
+  type: "Paper/System",
+  description: "Combined Q-learning with deep neural networks to learn Atari games directly from raw pixels, matching human performance across dozens of titles. Demonstrated that reinforcement learning could scale with deep learning the way supervised learning already had.",
+  tags: ["reinforcement learning", "deep learning"]
+}, {
   year: 2014,
   era: "breakthrough",
   label: "Ian Goodfellow et al. - GANs",
@@ -514,6 +598,13 @@ const TIMELINE = [{
   type: "Paper",
   description: "Sequence-to-sequence models with LSTMs transformed machine translation.",
   tags: ["nlp", "translation"]
+}, {
+  year: 2015,
+  era: "breakthrough",
+  label: "He et al. - Deep Residual Learning",
+  type: "Paper",
+  description: "Introduced residual connections that let gradients skip layers, solving the degradation problem that had capped how deep networks could effectively go. Made networks of 100+ layers trainable and became a default component of nearly every architecture after.",
+  tags: ["vision", "deep learning"]
 }, {
   year: 2016,
   era: "breakthrough",
@@ -545,6 +636,20 @@ const TIMELINE = [{
   description: "175 billion parameter language model demonstrating emergent few-shot learning.",
   tags: ["llm", "scale"]
 }, {
+  year: 2020,
+  era: "scale",
+  label: "Ho et al. - Denoising Diffusion Probabilistic Models",
+  type: "Paper",
+  description: "Formalized image generation as a learned reversal of a gradual noising process. Provided the theoretical basis for DALL-E and Stable Diffusion's generative capability.",
+  tags: ["generative", "theory"]
+}, {
+  year: 2020,
+  era: "scale",
+  label: "Jumper et al. - AlphaFold2",
+  type: "Paper/System",
+  description: "Predicted protein 3D structure from amino acid sequence at near-experimental accuracy, solving a 50-year-old grand challenge in biology. Widely regarded as AI's most consequential scientific contribution to date.",
+  tags: ["science", "milestone"]
+}, {
   year: 2021,
   era: "scale",
   label: "CLIP - OpenAI",
@@ -558,6 +663,13 @@ const TIMELINE = [{
   type: "System",
   description: "Text-to-image generation using a transformer on image tokens.",
   tags: ["generative", "vision"]
+}, {
+  year: 2022,
+  era: "scale",
+  label: "Ouyang et al. - InstructGPT",
+  type: "Paper/System",
+  description: "Introduced reinforcement learning from human feedback (RLHF) to align language model outputs with human intent rather than raw next-token prediction. The direct methodological ancestor of ChatGPT; the alignment technique mattered more than the underlying model's scale.",
+  tags: ["llm", "rlhf"]
 }, {
   year: 2022,
   era: "scale",
@@ -607,6 +719,20 @@ const TIMELINE = [{
   type: "Systems Trend",
   description: "AI agents delegating to other agents, using tools, completing multi-step tasks autonomously.",
   tags: ["agents", "agentic"]
+}, {
+  year: 2024,
+  era: "scale",
+  label: "OpenAI o1",
+  type: "System",
+  description: "Shifted from scaling pretraining to scaling inference-time computation, using extended chain-of-thought reasoning before producing an answer. Marked a paradigm shift in how model capability was pursued, from bigger models to models that think longer.",
+  tags: ["llm", "reasoning"]
+}, {
+  year: 2025,
+  era: "future",
+  label: "DeepSeek-R1",
+  type: "System",
+  description: "An open-weight reasoning model matching closed frontier models on math and coding benchmarks at a fraction of reported training cost. Triggered a market shock and intensified the debate over open versus closed model development.",
+  tags: ["llm", "open source"]
 }, {
   year: 2026,
   era: "future",
