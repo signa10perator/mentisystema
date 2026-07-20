@@ -460,6 +460,13 @@ const TIMELINE = [{
   milestone: true,
   milestoneLabel: "LEARNING ERA BEGINS"
 }, {
+  year: 1986,
+  era: "learning",
+  label: "Rodney Brooks - Subsumption Architecture",
+  type: "Paper",
+  description: "Proposed a layered, reactive control architecture built from simple behaviors rather than centralized symbolic reasoning. Reframed intelligence as something that emerges from interaction with the world, a direct ancestor of behavior-based and embodied AI.",
+  tags: ["robotics", "behavior"]
+}, {
   year: 1987,
   era: "learning",
   label: "Second AI Winter Begins",
@@ -555,6 +562,13 @@ const TIMELINE = [{
   description: "14 million labeled images across 20,000 categories. The dataset that made the 2012 deep learning revolution possible.",
   tags: ["data", "vision"]
 }, {
+  year: 2010,
+  era: "learning",
+  label: "DeepMind founded",
+  type: "Event",
+  description: "Founded in London by Demis Hassabis, Shane Legg, and Mustafa Suleyman with the explicit goal of solving intelligence. Became the lab behind AlphaGo, AlphaFold, and AlphaZero after Google's 2014 acquisition.",
+  tags: ["organization", "milestone"]
+}, {
   year: 2011,
   era: "learning",
   label: "IBM Watson wins Jeopardy",
@@ -606,12 +620,26 @@ const TIMELINE = [{
   description: "Introduced residual connections that let gradients skip layers, solving the degradation problem that had capped how deep networks could effectively go. Made networks of 100+ layers trainable and became a default component of nearly every architecture after.",
   tags: ["vision", "deep learning"]
 }, {
+  year: 2015,
+  era: "breakthrough",
+  label: "OpenAI founded",
+  type: "Event",
+  description: "Founded as a nonprofit AI research lab with a mission to ensure artificial general intelligence benefits humanity. Later restructured around a capped-profit model to fund the compute required for frontier model development.",
+  tags: ["organization", "milestone"]
+}, {
   year: 2016,
   era: "breakthrough",
   label: "AlphaGo defeats Lee Sedol",
   type: "System/Event",
   description: "DeepMind's system defeated the world Go champion. A landmark in game AI.",
   tags: ["game", "reinforcement learning"]
+}, {
+  year: 2016,
+  era: "breakthrough",
+  label: "Microsoft Tay",
+  type: "System/Event",
+  description: "A Twitter chatbot designed to learn from user conversation was manipulated into posting hateful content within 24 hours of launch and taken offline. An early, mainstream case study in adversarial exploitation of a deployed conversational model.",
+  tags: ["adversarial", "chatbot"]
 }, {
   year: 2017,
   era: "scale",
@@ -622,12 +650,33 @@ const TIMELINE = [{
   milestone: true,
   milestoneLabel: "THE TRANSFORMER ERA"
 }, {
+  year: 2017,
+  era: "scale",
+  label: "AlphaZero - DeepMind",
+  type: "Paper/System",
+  description: "Mastered chess, shogi, and Go purely through self-play, starting from random play with no human game data or domain-specific rules beyond the game itself. Demonstrated that general-purpose reinforcement learning could exceed specialized systems built on decades of human knowledge.",
+  tags: ["reinforcement learning", "game"]
+}, {
   year: 2018,
   era: "scale",
   label: "BERT - Devlin et al.",
   type: "Paper/System",
   description: "Bidirectional pre-trained language understanding; set new NLP benchmarks.",
   tags: ["nlp", "pre-training"]
+}, {
+  year: 2019,
+  era: "scale",
+  label: "GPT-2 - OpenAI",
+  type: "Paper/System",
+  description: "A 1.5-billion-parameter language model whose full release was staged over months due to concerns about misuse for generating convincing fake text. The first time a lab treated a model's release strategy itself as a safety decision.",
+  tags: ["llm", "safety"]
+}, {
+  year: 2020,
+  era: "scale",
+  label: "Kaplan et al. - Scaling Laws for Neural Language Models",
+  type: "Paper",
+  description: "Showed that language model performance improves predictably as a power law with model size, dataset size, and compute. Provided the empirical justification for the brute-force scale-up that produced GPT-3 and defined the era.",
+  tags: ["scale", "theory"]
 }, {
   year: 2020,
   era: "scale",
@@ -652,6 +701,13 @@ const TIMELINE = [{
 }, {
   year: 2021,
   era: "scale",
+  label: "Anthropic founded",
+  type: "Event",
+  description: "Founded by former OpenAI researchers focused on AI safety research and building steerable, interpretable systems. Released the Claude model family beginning in 2023.",
+  tags: ["organization", "milestone"]
+}, {
+  year: 2021,
+  era: "scale",
   label: "CLIP - OpenAI",
   type: "Paper/System",
   description: "Connected vision and language through contrastive learning on 400M image-text pairs.",
@@ -670,6 +726,13 @@ const TIMELINE = [{
   type: "Paper/System",
   description: "Introduced reinforcement learning from human feedback (RLHF) to align language model outputs with human intent rather than raw next-token prediction. The direct methodological ancestor of ChatGPT; the alignment technique mattered more than the underlying model's scale.",
   tags: ["llm", "rlhf"]
+}, {
+  year: 2022,
+  era: "scale",
+  label: "Hoffmann et al. - Chinchilla Scaling Laws",
+  type: "Paper",
+  description: "Found that most large language models of the era were significantly undertrained relative to their parameter count, and that compute-optimal training requires far more data per parameter. Reshaped how every major lab has trained models since.",
+  tags: ["scale", "theory"]
 }, {
   year: 2022,
   era: "scale",
@@ -694,6 +757,13 @@ const TIMELINE = [{
 }, {
   year: 2023,
   era: "scale",
+  label: "Bubeck et al. - Sparks of Artificial General Intelligence",
+  type: "Paper",
+  description: "Microsoft Research paper arguing early GPT-4 showed sparks of general intelligence across reasoning, planning, and cross-domain tasks. A widely debated claim that pulled AGI discourse into the mainstream research conversation.",
+  tags: ["llm", "agi"]
+}, {
+  year: 2023,
+  era: "scale",
   label: "Claude 2 - Anthropic",
   type: "System",
   description: "Long-context constitutional AI model with 100K token context window.",
@@ -701,10 +771,31 @@ const TIMELINE = [{
 }, {
   year: 2023,
   era: "scale",
+  label: "Bletchley Declaration",
+  type: "Report",
+  description: "The first international AI Safety Summit, held at Bletchley Park, produced a joint declaration on frontier AI risk signed by 28 countries including the US and China. Marked governments' first coordinated acknowledgment of catastrophic AI risk.",
+  tags: ["policy", "safety"]
+}, {
+  year: 2023,
+  era: "scale",
   label: "Gemini - Google DeepMind",
   type: "System",
   description: "Natively multimodal model trained across text, code, audio, image, and video.",
   tags: ["llm", "multimodal"]
+}, {
+  year: 2023,
+  era: "scale",
+  label: "Prompt injection and jailbreak research emerges",
+  type: "Event",
+  description: "Techniques like DAN prompts and adversarial suffixes demonstrated that safety training could be systematically bypassed through crafted input alone. Adversarial prompting became a named, studied discipline rather than a curiosity.",
+  tags: ["adversarial", "security"]
+}, {
+  year: 2024,
+  era: "scale",
+  label: "EU AI Act passed",
+  type: "Report",
+  description: "The first comprehensive AI regulation by a major regulatory body, establishing a risk-tiered framework for AI systems operating in the EU. Set a global reference point other jurisdictions have measured their own AI policy against.",
+  tags: ["policy", "regulation"]
 }, {
   year: 2024,
   era: "scale",
