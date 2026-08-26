@@ -242,9 +242,9 @@
     }
     @keyframes scrollPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 
-    /* ── Don't Click Button ─────────────────────────────────────── */
+    /* ── Don't Click Button (MentiSystema: Signal variants) ───────── */
     .dont-click-btn {
-      background: #CC0000; color: #ffffff; border: none;
+      border: 1px solid transparent;
       padding: 10px 22px;
       font-family: 'Space Mono', monospace;
       font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
@@ -253,6 +253,22 @@
       opacity: 0.85;
     }
     .dont-click-btn:hover { opacity: 1; letter-spacing: 0.2em; }
+
+    .dont-click-btn.variant-control {
+      background: rgba(168,179,194,0.08); color: var(--muted);
+      border-color: var(--line);
+    }
+    .dont-click-btn.variant-control:hover { border-color: var(--muted); }
+
+    .dont-click-btn.variant-prohibition {
+      background: #CC0000; color: #ffffff;
+    }
+
+    .dont-click-btn.variant-polite_prohibition {
+      background: rgba(240,168,50,0.12); color: #f0a832;
+      border-color: rgba(240,168,50,0.4);
+    }
+    .dont-click-btn.variant-polite_prohibition:hover { border-color: #f0a832; }
 
     /* ── Respek Modal ────────────────────────────────────────────── */
     .respek-overlay {
@@ -788,7 +804,7 @@ Where controlled disruption becomes emergent structure.
 <span class="chip">Signal Intelligence</span>
 </div>
 
-<button class="dont-click-btn" onclick="respekClick()">Don't Click This Button</button>
+<button class="dont-click-btn" id="dont-click-btn" onclick="respekClick()">Don't Click This Button</button>
 
 <div class="hero-scroll">
 <span>Scroll</span>
@@ -1149,6 +1165,102 @@ a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
 });
 });
 
+// MentiSystema: Signal — A/B variant assignment + decision-latency telemetry
+const SIGNAL_VARIANTS = {
+  control: { label: 'Click here' },
+  prohibition: { label: "Don't Click This Button" },
+  polite_prohibition: { label: "Please don't click this" }
+};
+
+// Set once a real ingest endpoint exists (see build spec Step 2). Until then,
+// events are captured and logged locally so the client-side pipeline can be
+// verified end-to-end before anything is wired to a backend.
+const SIGNAL_INGEST_ENDPOINT = null;
+
+function signalUuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function signalGetSession() {
+  let sessionId = sessionStorage.getItem('signal_session_id');
+  let variant = sessionStorage.getItem('signal_variant');
+  if (!sessionId || !variant || !SIGNAL_VARIANTS[variant]) {
+    sessionId = signalUuidv4();
+    const keys = Object.keys(SIGNAL_VARIANTS);
+    variant = keys[Math.floor(Math.random() * keys.length)];
+    sessionStorage.setItem('signal_session_id', sessionId);
+    sessionStorage.setItem('signal_variant', variant);
+  }
+  return { sessionId, variant };
+}
+
+function signalSendEvent(event, extra) {
+  const { sessionId, variant } = signalGetSession();
+  const payload = Object.assign({
+    session_id: sessionId,
+    event,
+    timestamp_iso: new Date().toISOString(),
+    variant
+  }, extra);
+
+  if (SIGNAL_INGEST_ENDPOINT) {
+    const body = JSON.stringify(payload);
+    if (navigator.sendBeacon && event !== 'SESSION_STARTED') {
+      navigator.sendBeacon(SIGNAL_INGEST_ENDPOINT, new Blob([body], { type: 'application/json' }));
+    } else {
+      fetch(SIGNAL_INGEST_ENDPOINT, {
+        method: 'POST', body,
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true
+      }).catch(() => {});
+    }
+  } else {
+    console.debug('[MentiSystema: Signal]', payload);
+  }
+}
+
+let signalLoadPerf = null;
+let signalResolved = false; // true once BUTTON_CLICKED or SESSION_ENDED has fired
+
+function signalLatencyMs() {
+  return Math.round(performance.now() - signalLoadPerf);
+}
+
+function signalInit() {
+  const { variant } = signalGetSession();
+  const btn = document.getElementById('dont-click-btn');
+  if (btn) {
+    Object.keys(SIGNAL_VARIANTS).forEach((key) => btn.classList.remove(`variant-${key}`));
+    btn.classList.add(`variant-${variant}`);
+    btn.textContent = SIGNAL_VARIANTS[variant].label;
+  }
+
+  signalLoadPerf = performance.now();
+  signalSendEvent('SESSION_STARTED', {
+    time_since_session_start_ms: 0,
+    client_now_ms: Date.now()
+  });
+
+  const endSessionIfUnresolved = () => {
+    if (signalResolved) return;
+    signalResolved = true;
+    const latency = signalLatencyMs();
+    signalSendEvent('SESSION_ENDED', {
+      time_since_session_start_ms: latency,
+      human_plausible: latency >= 200
+    });
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') endSessionIfUnresolved();
+  });
+  window.addEventListener('pagehide', endSessionIfUnresolved);
+}
+signalInit();
+
 // Don't Click button
 function respekClick() {
   document.getElementById('respek-overlay').classList.add('open');
@@ -1157,6 +1269,15 @@ function respekClick() {
     body: 'Limbic Over-Ride',
     headers: { 'Title': 'MentiSystema' }
   });
+
+  if (!signalResolved) {
+    signalResolved = true;
+    const latency = signalLatencyMs();
+    signalSendEvent('BUTTON_CLICKED', {
+      time_since_session_start_ms: latency,
+      human_plausible: latency >= 200
+    });
+  }
 }
 function closeRespek(e) {
   if (e.target === document.getElementById('respek-overlay')) {
