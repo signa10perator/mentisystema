@@ -1,0 +1,33 @@
+name: Bootstrap Signal Worker (one-time)
+
+# Manually triggered. Creates the D1 database and KV namespace the Signal
+# Worker needs. Run this once, then copy the printed database_id / id values
+# into signal/worker/wrangler.toml and commit — after that, the regular
+# deploy-signal-worker workflow takes over on every push to main.
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: signal/worker
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Create D1 database
+        run: npx wrangler d1 create mentisystema-signal
+      - name: Create KV namespace
+        run: npx wrangler kv namespace create SIGNAL_KV
+      - name: Next steps
+        run: |
+          echo "Copy the database_id from the D1 step and the id from the KV step above"
+          echo "into signal/worker/wrangler.toml (replacing the REPLACE_WITH_* placeholders),"
+          echo "commit, and merge to main. The deploy-signal-worker workflow will take it from there."
