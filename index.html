@@ -805,6 +805,7 @@ Where controlled disruption becomes emergent structure.
 </div>
 
 <button class="dont-click-btn" id="dont-click-btn" onclick="respekClick()">Don't Click This Button</button>
+<a href="/signal.html" style="display:block; margin-top:10px; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--dim); text-decoration:none; text-transform:uppercase;" onmouseover="this.style.color='var(--teal)'" onmouseout="this.style.color='var(--dim)'">→ MentiSystema: Signal</a>
 
 <div class="hero-scroll">
 <span>Scroll</span>
@@ -1172,10 +1173,13 @@ const SIGNAL_VARIANTS = {
   polite_prohibition: { label: "Please don't click this" }
 };
 
-// Set once a real ingest endpoint exists (see build spec Step 2). Until then,
-// events are captured and logged locally so the client-side pipeline can be
-// verified end-to-end before anything is wired to a backend.
-const SIGNAL_INGEST_ENDPOINT = null;
+// Base URL of the deployed Signal Worker (see /signal/worker). Filled in once
+// it's deployed — until then, events are captured and logged locally so the
+// client-side pipeline can be verified end-to-end before anything is wired
+// to a backend.
+const SIGNAL_BASE_URL = null; // e.g. 'https://mentisystema-signal.<subdomain>.workers.dev'
+const SIGNAL_INGEST_ENDPOINT = SIGNAL_BASE_URL ? SIGNAL_BASE_URL + '/ingest' : null;
+const SIGNAL_NONCE_ENDPOINT = SIGNAL_BASE_URL ? SIGNAL_BASE_URL + '/nonce' : null;
 
 function signalUuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -1198,6 +1202,29 @@ function signalGetSession() {
   return { sessionId, variant };
 }
 
+// The ingest endpoint requires a fresh single-use token per POST (anti-replay,
+// not real auth — see worker/src/index.js). Kept pre-fetched and refreshed in
+// the background so click/exit events never have to wait on a network round
+// trip at the moment they fire; SESSION_STARTED does wait, once, since a
+// missed one would silently undercount visitors in the rollup denominator.
+let signalToken = null;
+
+async function signalFetchNonce() {
+  if (!SIGNAL_NONCE_ENDPOINT) return null;
+  try {
+    const res = await fetch(SIGNAL_NONCE_ENDPOINT);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.token || null;
+  } catch {
+    return null;
+  }
+}
+
+function signalRefreshToken() {
+  signalFetchNonce().then((t) => { signalToken = t; });
+}
+
 function signalSendEvent(event, extra) {
   const { sessionId, variant } = signalGetSession();
   const payload = Object.assign({
@@ -1207,20 +1234,23 @@ function signalSendEvent(event, extra) {
     variant
   }, extra);
 
-  if (SIGNAL_INGEST_ENDPOINT) {
-    const body = JSON.stringify(payload);
-    if (navigator.sendBeacon && event !== 'SESSION_STARTED') {
-      navigator.sendBeacon(SIGNAL_INGEST_ENDPOINT, new Blob([body], { type: 'application/json' }));
-    } else {
-      fetch(SIGNAL_INGEST_ENDPOINT, {
-        method: 'POST', body,
-        headers: { 'Content-Type': 'application/json' },
-        keepalive: true
-      }).catch(() => {});
-    }
-  } else {
+  if (!SIGNAL_INGEST_ENDPOINT) {
     console.debug('[MentiSystema: Signal]', payload);
+    return;
   }
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (signalToken) {
+    headers['X-Signal-Token'] = signalToken;
+    signalToken = null;
+    signalRefreshToken();
+  }
+  fetch(SIGNAL_INGEST_ENDPOINT, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers,
+    keepalive: true
+  }).catch(() => {});
 }
 
 let signalLoadPerf = null;
@@ -1230,7 +1260,7 @@ function signalLatencyMs() {
   return Math.round(performance.now() - signalLoadPerf);
 }
 
-function signalInit() {
+async function signalInit() {
   const { variant } = signalGetSession();
   const btn = document.getElementById('dont-click-btn');
   if (btn) {
@@ -1240,10 +1270,12 @@ function signalInit() {
   }
 
   signalLoadPerf = performance.now();
+  if (SIGNAL_NONCE_ENDPOINT) signalToken = await signalFetchNonce();
   signalSendEvent('SESSION_STARTED', {
     time_since_session_start_ms: 0,
     client_now_ms: Date.now()
   });
+  setInterval(signalRefreshToken, 90000);
 
   const endSessionIfUnresolved = () => {
     if (signalResolved) return;
