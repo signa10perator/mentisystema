@@ -22,8 +22,6 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Debug secret length (no value leaked)
-        run: echo "CLOUDFLARE_API_TOKEN length is ${#CLOUDFLARE_API_TOKEN} chars"
       - name: Create D1 database
         run: npx wrangler d1 create mentisystema-signal
       - name: Create KV namespace
