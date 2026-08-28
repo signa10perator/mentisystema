@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WN3QZN1K6Z"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WN3QZN1K6Z');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Granted — Beta | MentiSystema</title>
+<meta name="description" content="Public beta of Access Granted — a hacker-movie-trope bingo card generator.">
+<meta property="og:title" content="Access Granted — Beta | MentiSystema" />
+<meta property="og:description" content="Public beta of Access Granted — a hacker-movie-trope bingo card generator." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://mentisystema.org/projects/access-granted.html" />
+<meta property="og:image" content="https://mentisystema.org/assets/logo/logo.png" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Access Granted — Beta | MentiSystema" />
+<meta name="twitter:description" content="Public beta of Access Granted — a hacker-movie-trope bingo card generator." />
+<link rel="icon" href="/assets/logo/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050d0f;
+    --panel: #0a171a;
+    --panel-2: #0d1e22;
+    --cyan: #4de8e0;
+    --cyan-bright: #baffee;
+    --cyan-dim: #146b68;
+    --cyan-faint: #0e2b2c;
+    --amber: #ffcf5c;
+    --text-dim: #6fa39e;
+    --border: #1b4a48;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--cyan);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 12px 60px;
+  }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: #050810; }
+  ::-webkit-scrollbar-thumb { background: rgba(77,232,224,0.35); }
+
+  .breadcrumb {
+    width: 100%;
+    max-width: 460px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .breadcrumb span { color: var(--cyan); }
+  .breadcrumb a { color: inherit; text-decoration: none; }
+  .breadcrumb a:hover { color: var(--cyan); }
+
+  .beta-tag {
+    display: inline-block;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 3px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .frame {
+    width: 100%;
+    max-width: 460px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    position: relative;
+    padding: 22px 18px 20px;
+    background-image:
+      linear-gradient(var(--panel-2) 1px, transparent 1px),
+      linear-gradient(90deg, var(--panel-2) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .corner {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--cyan);
+    opacity: 0.8;
+  }
+  .corner.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .corner.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+  .corner.br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+  .edge-glow {
+    position: absolute;
+    left: 60px;
+    right: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan-bright), transparent);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .edge-glow.top { top: 0; }
+  .edge-glow.bottom { bottom: 0; }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 4px;
+    padding-top: 6px;
+  }
+
+  .hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 30px;
+    letter-spacing: 0.06em;
+    margin: 0;
+    color: var(--cyan-bright);
+    text-shadow: 0 0 14px rgba(77,232,224,0.6);
+  }
+
+  .hero .sub {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.22em;
+    margin: 6px 0 16px;
+    text-transform: uppercase;
+  }
+
+  .header-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .header-row div {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--amber);
+    text-shadow: 0 0 6px rgba(255,207,92,0.4);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .cell {
+    aspect-ratio: 1 / 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    user-select: none;
+  }
+
+  .cell:active { transform: scale(0.97); }
+
+  .cell.marked {
+    background: var(--cyan-faint);
+    border-color: var(--cyan);
+    color: var(--cyan-bright);
+    box-shadow: 0 0 8px rgba(77,232,224,0.35);
+  }
+
+  .cell.free {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    background: var(--cyan-faint);
+    border-color: var(--cyan);
+    color: var(--cyan-bright);
+    box-shadow: 0 0 10px rgba(77,232,224,0.45);
+  }
+
+  .cell.win-line {
+    border-color: var(--amber);
+    box-shadow: 0 0 10px rgba(255,207,92,0.6);
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  button {
+    flex: 1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--cyan-dim);
+    border-radius: 4px;
+    padding: 10px 8px;
+    cursor: pointer;
+  }
+
+  button:hover { background: var(--cyan-faint); border-color: var(--cyan); }
+  button:active { transform: scale(0.98); }
+
+  .status {
+    text-align: center;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 12px;
+    letter-spacing: 0.06em;
+  }
+
+  .feedback-box {
+    width: 100%;
+    max-width: 460px;
+    margin-top: 16px;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .feedback-box a { color: var(--cyan); }
+  .feedback-box .label {
+    color: var(--amber);
+    letter-spacing: 0.1em;
+    font-size: 9.5px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,8,9,0.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .overlay.show { display: flex; }
+
+  .overlay h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 38px;
+    color: var(--cyan-bright);
+    text-shadow: 0 0 18px rgba(77,232,224,0.8);
+    margin: 0;
+    letter-spacing: 0.04em;
+  }
+
+  .overlay p {
+    color: var(--text-dim);
+    font-size: 11px;
+    margin: 10px 0 20px;
+    letter-spacing: 0.14em;
+  }
+
+  .overlay button { max-width: 200px; }
+</style>
+</head>
+<body>
+
+<div class="breadcrumb"><a href="/">MENTISYSTEMA</a> <span>//</span> LAB <span>//</span> ACCESS GRANTED<span class="beta-tag">PUBLIC BETA</span></div>
+
+<div class="frame">
+  <div class="edge-glow top"></div>
+  <div class="edge-glow bottom"></div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="hero">
+    <h1>ACCESS GRANTED</h1>
+    <div class="sub">The Movie Hacking Game</div>
+  </div>
+  <div class="header-row">
+    <div>H</div><div>A</div><div>C</div><div>K</div><div>S</div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="controls">
+    <button id="newCardBtn">NEW CARD</button>
+    <button id="resetBtn">RESET MARKS</button>
+  </div>
+  <div class="status" id="status">tap squares as tropes appear on screen</div>
+</div>
+
+<div class="feedback-box">
+  <span class="label">BETA FEEDBACK</span>
+  Found a bug, want a trope added or removed, or have a layout gripe? Email
+  <a href="mailto:darthabides1978@gmail.com?subject=Access%20Granted%20Beta%20Feedback">darthabides1978@gmail.com</a>
+  — every card is randomly generated client-side, so include what you saw and what you expected.
+</div>
+
+<div class="overlay" id="overlay">
+  <h2>ACCESS GRANTED</h2>
+  <p>BINGO CONFIRMED — CALL IT OUT</p>
+  <button id="overlayBtn">CLOSE</button>
+</div>
+
+<script>
+  var TROPES = [
+    "\"I'm In.\"", "Pull The Plug", "World Map UI", "Typing Super Fast",
+    "Multiple Monitors", "Green Terminal", "Blue Sci-Fi UI", "Tracing...",
+    "Progress Bar", "Dramatic Countdown", "USB Instant Hack", "Red Glowing Server",
+    "Hoodie Hacker", "3D Globe", "Random Code Scroll", "Fake Command Syntax",
+    "Government System in Seconds", "Access Granted Popup", "\"We're Running Out of Time\"",
+    "No Mouse Ever", "Dramatic Server Room", "Password Guessing Montage",
+    "Satellite Imagery", "Split-Screen Typing War", "Webcam Spy Hack",
+    "\"It's a Unix System\"", "Fingerless Gloves", "One Keystroke Deletes Everything",
+    "Dubstep Hacking Montage", "Hacked Traffic Lights", "\"They Traced Us\"",
+    "Phone Hacked By Looking At It", "VPN Called Untraceable", "\"I've Got A Guy\"",
+    "Loud Mechanical Keys", "Firewall Breach Banner", "Coffee Shop Mainframe Crack",
+    "\"I Need More Time!\"", "99% Progress Bar Freeze", "Villain Monologue Mid-Hack"
+  ];
+
+  var gridEl = document.getElementById('grid');
+  var overlayEl = document.getElementById('overlay');
+  var statusEl = document.getElementById('status');
+  var cardState = [];
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function buildCard() {
+    var picked = shuffle(TROPES).slice(0, 24);
+    cardState = [];
+    gridEl.innerHTML = '';
+    var idx = 0;
+    for (var i = 0; i < 25; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if (i === 12) {
+        cell.classList.add('free', 'marked');
+        cell.textContent = 'ROOT ACCESS';
+        cardState.push(true);
+      } else {
+        cell.textContent = picked[idx];
+        idx++;
+        cardState.push(false);
+        (function(cellRef, cellIndex) {
+          cellRef.addEventListener('click', function() {
+            cellRef.classList.toggle('marked');
+            cardState[cellIndex] = cellRef.classList.contains('marked');
+            checkWin();
+          });
+        })(cell, i);
+      }
+      gridEl.appendChild(cell);
+    }
+    clearWinHighlight();
+    statusEl.textContent = 'tap squares as tropes appear on screen';
+  }
+
+  function clearWinHighlight() {
+    var cells = gridEl.querySelectorAll('.cell');
+    cells.forEach(function(c) { c.classList.remove('win-line'); });
+  }
+
+  function checkWin() {
+    var lines = [
+      [0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],
+      [0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],[3,8,13,18,23],[4,9,14,19,24],
+      [0,6,12,18,24],[4,8,12,16,20]
+    ];
+    var cells = gridEl.querySelectorAll('.cell');
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var allMarked = line.every(function(idx) { return cardState[idx]; });
+      if (allMarked) {
+        clearWinHighlight();
+        line.forEach(function(idx) { cells[idx].classList.add('win-line'); });
+        statusEl.textContent = 'bingo line found';
+        overlayEl.classList.add('show');
+        return;
+      }
+    }
+  }
+
+  document.getElementById('newCardBtn').addEventListener('click', buildCard);
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    var cells = gridEl.querySelectorAll('.cell');
+    cells.forEach(function(c, i) {
+      if (i === 12) return;
+      c.classList.remove('marked');
+      cardState[i] = false;
+    });
+    clearWinHighlight();
+    statusEl.textContent = 'marks reset';
+  });
+  document.getElementById('overlayBtn').addEventListener('click', function() {
+    overlayEl.classList.remove('show');
+  });
+
+  buildCard();
+</script>
+
+</body>
+</html>
