@@ -281,6 +281,35 @@
 
   .overlay.show { display: flex; }
 
+  .confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .confetti span {
+    position: absolute;
+    top: -24px;
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    opacity: 0;
+    animation: confetti-fall 1.8s ease-in forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    12% { opacity: 1; }
+    100% { transform: translateY(70vh) rotate(420deg); opacity: 0; }
+  }
+
+  @keyframes granted-pop {
+    0% { transform: scale(0.85); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   .overlay h2 {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
@@ -289,16 +318,30 @@
     text-shadow: 0 0 18px rgba(77,232,224,0.8);
     margin: 0;
     letter-spacing: 0.04em;
+    animation: granted-pop 0.4s ease-out;
   }
 
   .overlay p {
     color: var(--text-dim);
     font-size: 11px;
-    margin: 10px 0 20px;
+    margin: 10px 0 24px;
     letter-spacing: 0.14em;
   }
 
-  .overlay button { max-width: 200px; }
+  .pill-btn {
+    flex: none;
+    width: auto;
+    display: inline-block;
+    padding: 9px 30px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    background: var(--cyan-faint);
+    color: var(--cyan-bright);
+    border: 1px solid var(--cyan);
+    box-shadow: 0 0 10px rgba(77,232,224,0.35);
+  }
+  .pill-btn:hover { background: var(--cyan-dim); }
 </style>
 </head>
 <body>
@@ -318,7 +361,7 @@
     <div class="sub">The Movie Hacking Game</div>
   </div>
   <div class="header-row">
-    <div>H</div><div>A</div><div>C</div><div>K</div><div>S</div>
+    <div>H</div><div>A</div><div>C</div><div>K</div><div>'D</div>
   </div>
   <div class="grid" id="grid"></div>
   <div class="controls">
@@ -336,9 +379,21 @@
 </div>
 
 <div class="overlay" id="overlay">
-  <h2>ACCESS GRANTED</h2>
-  <p>BINGO CONFIRMED — CALL IT OUT</p>
-  <button id="overlayBtn">CLOSE</button>
+  <div class="confetti" aria-hidden="true">
+    <span style="left:6%;background:var(--amber);animation-delay:0s;"></span>
+    <span style="left:16%;background:var(--cyan-bright);animation-delay:0.15s;"></span>
+    <span style="left:26%;background:var(--amber);animation-delay:0.05s;"></span>
+    <span style="left:36%;background:var(--cyan-bright);animation-delay:0.3s;"></span>
+    <span style="left:46%;background:var(--amber);animation-delay:0.1s;"></span>
+    <span style="left:56%;background:var(--cyan-bright);animation-delay:0.25s;"></span>
+    <span style="left:66%;background:var(--amber);animation-delay:0s;"></span>
+    <span style="left:74%;background:var(--cyan-bright);animation-delay:0.2s;"></span>
+    <span style="left:84%;background:var(--amber);animation-delay:0.35s;"></span>
+    <span style="left:94%;background:var(--cyan-bright);animation-delay:0.1s;"></span>
+  </div>
+  <h2>ACCESS GRANTED!</h2>
+  <p>5 IN A ROW — CALL IT OUT</p>
+  <button id="overlayBtn" class="pill-btn">Close</button>
 </div>
 
 <script>
@@ -406,6 +461,15 @@
     cells.forEach(function(c) { c.classList.remove('win-line'); });
   }
 
+  function replayOverlayAnimations() {
+    var animated = overlayEl.querySelectorAll('.confetti span, h2');
+    animated.forEach(function(el) {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+  }
+
   function checkWin() {
     var lines = [
       [0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],
@@ -420,6 +484,7 @@
         clearWinHighlight();
         line.forEach(function(idx) { cells[idx].classList.add('win-line'); });
         statusEl.textContent = 'bingo line found';
+        replayOverlayAnimations();
         overlayEl.classList.add('show');
         return;
       }
