@@ -136,11 +136,12 @@
   .hero h1 {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    font-size: 30px;
-    letter-spacing: 0.06em;
+    font-size: clamp(21px, 7.2vw, 30px);
+    letter-spacing: 0.04em;
     margin: 0;
     color: var(--cyan-bright);
     text-shadow: 0 0 14px rgba(77,232,224,0.6);
+    white-space: nowrap;
   }
 
   .hero .sub {
@@ -159,6 +160,7 @@
   }
 
   .header-row div {
+    min-width: 0;
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
@@ -175,6 +177,7 @@
 
   .cell {
     aspect-ratio: 1 / 1;
+    min-width: 0;
     background: var(--panel-2);
     border: 1px solid var(--border);
     border-radius: 3px;
@@ -188,6 +191,7 @@
     line-height: 1.2;
     cursor: pointer;
     color: var(--text-dim);
+    overflow-wrap: break-word;
     transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
     user-select: none;
   }
